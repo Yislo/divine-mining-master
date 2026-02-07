@@ -1,0 +1,5 @@
+com.divine.common.web.config.CaptchaConfig
+com.divine.common.web.config.FilterConfig
+com.divine.common.web.config.I18nConfig
+com.divine.common.web.config.ResourcesConfig
+com.divine.common.web.config.UndertowConfig

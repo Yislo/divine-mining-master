@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.divine.weighing.mapper.DeliveryQualityMapper">
+    <select id="queryQualityPage" resultType="com.divine.weighing.domain.vo.deliveryquality.QualityPageVO">
+        SELECT
+        d.id AS deliveryId,
+        d.weight_no AS weightNo,
+        d.car_number AS carNumber,
+        o.`name` AS ownerName,
+        c.company_name AS companyName,
+        dq.total_weight AS totalWeight,
+        dq.net_weight AS netWeight,
+        dq.empty_weight AS emptyWeight,
+        dq.moisture AS moisture,
+        dq.cuo_ratio AS cuoRatio,
+        dq.acid_demand AS acidDemand,
+        d.weighing_time AS weighingTime
+        FROM mineral_delivery_quality dq
+        LEFT JOIN mineral_delivery d ON d.id = dq.delivery_id
+        LEFT JOIN mineral_owner o ON o.id = dq.owner_id
+        LEFT JOIN mineral_company c ON c.id = dq.company_id
+        WHERE d.status > 0
+        <if test="dto.ownerId != null and dto.ownerId != ''">
+            AND dq.owner_id = #{dto.ownerId}
+        </if>
+        <if test="dto.companyId != null and dto.companyId != ''">
+            AND dq.company_id = #{dto.companyId}
+        </if>
+        <if test="dto.netWeight != null">
+            AND dq.net_weight &lt; #{dto.netWeight}
+        </if>
+        <if test="dto.weightNo != null and dto.weightNo != ''">
+            AND d.weight_no LIKE CONCAT('%', #{dto.weightNo}, '%')
+        </if>
+        ORDER BY d.weighing_time DESC
+    </select>
+
+    <select id="companyStatistics" resultType="com.divine.weighing.domain.vo.home.CompanyStatisticsVO">
+        SELECT
+            dq.company_id               AS companyId,
+            COUNT(DISTINCT dq.delivery_id) AS deliveryNum,
+            ROUND(AVG(dq.cuo_ratio), 2) AS averageRatio
+        FROM mineral_delivery_quality dq
+        WHERE dq.is_del = 0
+        <if test="dto.startTime != null">
+            AND dq.created_time >= #{dto.startTime}
+        </if>
+        <if test="dto.endTime != null">
+            AND dq.created_time <![CDATA[ <= ]]> #{dto.endTime}
+        </if>
+        GROUP BY dq.company_id
+    </select>
+
+    <select id="motorcadeStatistics" resultType="com.divine.weighing.domain.vo.home.MotorcadeStatisticsVO">
+        SELECT
+        mm.motorcade_name AS motorcadeName,
+        COUNT(DISTINCT dq.delivery_id) AS deliveryNum
+        FROM mineral_delivery_quality dq
+        LEFT JOIN mineral_delivery md ON md.id = dq.delivery_id
+        LEFT JOIN mineral_motorcade mm ON mm.id = md.motorcade_id
+        WHERE dq.is_del = 0
+        <if test="dto.startTime != null">
+            AND dq.create_time <![CDATA[ >= ]]> #{dto.startTime}
+        </if>
+        <if test="dto.endTime != null">
+            AND dq.create_time <![CDATA[ <= ]]> #{dto.endTime}
+        </if>
+        GROUP BY mm.id, mm.motorcade_name
+    </select>
+
+    <select id="qualityStatistics" resultType="com.divine.weighing.domain.vo.deliveryquality.QualityStatisticsVO">
+        SELECT
+        dq.owner_id AS ownerId,
+        mo.`name` AS ownerName,
+        dq.company_id AS companyId,
+        mc.company_name AS companyName,
+        dq.net_weight AS netWeight,
+        dq.total_weight AS totalWeight,
+        dq.moisture AS moisture,
+        dq.cuo_ratio AS cuoRatio
+        FROM mineral_delivery_quality dq
+        LEFT JOIN mineral_owner mo ON mo.id = dq.owner_id
+        LEFT JOIN mineral_company mc ON mc.id = dq.company_id
+        WHERE dq.is_del = 0
+        <if test="dto.startTime != null">
+            AND dq.create_time <![CDATA[ >= ]]> #{dto.startTime}
+        </if>
+        <if test="dto.endTime != null">
+            AND dq.create_time <![CDATA[ <= ]]> #{dto.endTime}
+        </if>
+    </select>
+</mapper>

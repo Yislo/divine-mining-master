@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.divine.weighing.mapper.RefuelRecordMapper">
+
+    <select id="queryRefuelPage" resultType="com.divine.weighing.domain.vo.refuel.RefuelPageVO">
+        SELECT
+        mrr.id,
+        mrr.car_number,
+        mc.motorcade_id,
+        mm.motorcade_name,
+        mrr.litre,
+        mrr.status,
+        CASE mrr.`status`
+        WHEN 0 THEN '未结算'
+        WHEN 1 THEN '已结算'
+        ELSE ''
+        END AS statusText,
+        mrr.image_url,
+        mu.nick_name createByName,
+        mrr.remark remark,
+        mrr.create_time
+        FROM
+        mineral_refuel_record mrr
+        LEFT JOIN mineral_car mc ON mrr.car_number = mc.car_number
+        LEFT JOIN mineral_motorcade mm ON mc.motorcade_id = mm.id
+        LEFT JOIN mineral_user mu ON mu.id = mrr.create_by
+        WHERE mc.is_del = 0
+        <if test="dto.carNumber != null and dto.carNumber != ''">
+            AND mrr.car_number LIKE CONCAT('%',#{dto.carNumber},'%')
+        </if>
+        <if test="dto.motorcadeId != null and dto.motorcadeId != ''">
+            AND mm.id = #{dto.motorcadeId}
+        </if>
+        <if test="dto.status != null">
+            AND mrr.status = #{dto.status}
+        </if>
+        <if test="dto.startTime != null">
+            AND mrr.create_time &gt;= #{dto.startTime}
+        </if>
+        <if test="dto.endTime != null">
+            AND mrr.create_time <![CDATA[ <= ]]> #{dto.endTime}
+        </if>
+        order by mrr.create_time desc
+    </select>
+
+    <select id="motorcadeRefuelStatist" resultType="com.divine.weighing.domain.vo.home.MotorcadeRefuelStatisticsVO">
+        SELECT
+        mc.motorcade_id               AS motorcadeId,
+        mm.motorcade_name             AS motorcadeName,
+        SUM(mrr.litre)                AS refuelNum
+        FROM mineral_refuel_record mrr
+        LEFT JOIN mineral_car mc ON mrr.car_number = mc.car_number
+        LEFT JOIN mineral_motorcade mm ON mc.motorcade_id = mm.id
+        WHERE mc.is_del = 0
+        <if test="dto.startTime != null">
+            AND mrr.create_time <![CDATA[ >= ]]> #{dto.startTime}
+        </if>
+        <if test="dto.endTime != null">
+            AND mrr.create_time <![CDATA[ <= ]]> #{dto.endTime}
+        </if>
+        GROUP BY mc.motorcade_id, mm.motorcade_name
+        ORDER BY refuelNum DESC
+    </select>
+</mapper>

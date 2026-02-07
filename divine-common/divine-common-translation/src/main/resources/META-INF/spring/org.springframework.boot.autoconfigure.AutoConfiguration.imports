@@ -1,0 +1,5 @@
+com.divine.common.translation.config.TranslationConfig
+com.divine.common.translation.core.impl.DeptNameTranslationImpl
+com.divine.common.translation.core.impl.DictTypeTranslationImpl
+com.divine.common.translation.core.impl.OssUrlTranslationImpl
+com.divine.common.translation.core.impl.UserNameTranslationImpl

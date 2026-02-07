@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>divine-modules</artifactId>
+        <groupId>com.divine</groupId>
+        <version>${revision}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>divine-warehouse</artifactId>
+
+    <description>
+        web服务入口
+    </description>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.divine</groupId>
+            <artifactId>divine-system</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.divine</groupId>
+            <artifactId>divine-weighing</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.divine</groupId>
+            <artifactId>divine-common-oss</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.divine</groupId>
+            <artifactId>divine-common-mail</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.divine</groupId>
+            <artifactId>divine-common-ratelimiter</artifactId>
+        </dependency>
+
+        <!-- 代码生成-->
+        <dependency>
+            <groupId>com.divine</groupId>
+            <artifactId>divine-generator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- skywalking 整合 logback -->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.skywalking</groupId>-->
+<!--            <artifactId>apm-toolkit-logback-1.x</artifactId>-->
+<!--            <version>${与你的agent探针版本保持一致}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.apache.skywalking</groupId>-->
+<!--            <artifactId>apm-toolkit-trace</artifactId>-->
+<!--            <version>${与你的agent探针版本保持一致}</version>-->
+<!--        </dependency>-->
+
+    </dependencies>
+
+
+</project>

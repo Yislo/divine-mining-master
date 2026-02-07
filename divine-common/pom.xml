@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>divine-mining-master</artifactId>
+        <groupId>com.divine</groupId>
+        <version>${revision}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <modules>
+        <module>divine-common-bom</module>
+        <module>divine-common-core</module>
+        <module>divine-common-oss</module>
+        <module>divine-common-sms</module>
+        <module>divine-common-json</module>
+        <module>divine-common-excel</module>
+        <module>divine-common-redis</module>
+        <module>divine-common-satoken</module>
+        <module>divine-common-web</module>
+        <module>divine-common-security</module>
+        <module>divine-common-mybatis</module>
+        <module>divine-common-mail</module>
+        <module>divine-common-log</module>
+        <module>divine-common-ratelimiter</module>
+        <module>divine-common-translation</module>
+        <module>divine-common-sensitive</module>
+        <module>divine-common-encrypt</module>
+        <module>divine-common-idempotent</module>
+        <module>divine-common-doc</module>
+    </modules>
+
+    <artifactId>divine-common</artifactId>
+    <packaging>pom</packaging>
+
+    <description>
+        common 通用模块
+    </description>
+
+</project>

@@ -1,0 +1,85 @@
+package com.divine.demo.domain.vo;
+
+import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
+import com.alibaba.excel.annotation.ExcelProperty;
+import com.divine.common.core.validate.AddGroup;
+import com.divine.common.core.validate.EditGroup;
+import com.divine.common.core.enums.UserStatus;
+import com.divine.common.excel.annotation.ExcelDictFormat;
+import com.divine.common.excel.annotation.ExcelEnumFormat;
+import com.divine.common.excel.convert.ExcelDictConvert;
+import com.divine.common.excel.convert.ExcelEnumConvert;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * 带有下拉选的Excel导出
+ *
+ * @author Emil.Zhang
+ */
+@Data
+@ExcelIgnoreUnannotated
+@AllArgsConstructor
+@NoArgsConstructor
+public class ExportDemoVo {
+
+    private static final long serialVersionUID = 1L;
+
+    @Schema(description = "用户昵称")
+    @ExcelProperty(value = "用户名", index = 0)
+    @NotEmpty(message = "用户名不能为空", groups = AddGroup.class)
+    private String nickName;
+
+    @Schema(description = "用户类型(使用ExcelEnumFormat注解需要进行下拉选的部分)")
+    @ExcelProperty(value = "用户类型", index = 1, converter = ExcelEnumConvert.class)
+    @ExcelEnumFormat(enumClass = UserStatus.class, textField = "info")
+    @NotEmpty(message = "用户类型不能为空", groups = AddGroup.class)
+    private String userStatus;
+
+    @Schema(description = "性别(使用ExcelDictFormat注解需要进行下拉选的部分)")
+    @ExcelProperty(value = "性别", index = 2, converter = ExcelDictConvert.class)
+    @ExcelDictFormat(dictType = "sys_user_sex")
+    @NotEmpty(message = "性别不能为空", groups = AddGroup.class)
+    private String gender;
+
+    @Schema(description = "手机号")
+    @ExcelProperty(value = "手机号", index = 3)
+    @NotEmpty(message = "手机号不能为空", groups = AddGroup.class)
+    private String phoneNumber;
+
+    @Schema(description = "Email")
+    @ExcelProperty(value = "Email", index = 4)
+    @NotEmpty(message = "Email不能为空", groups = AddGroup.class)
+    private String email;
+
+    @Schema(description = "省级联下拉，仅判断是否选了")
+    @ExcelProperty(value = "省", index = 5)
+    @NotNull(message = "省不能为空", groups = AddGroup.class)
+    private String province;
+
+    @Schema(description = "数据库中的省ID(处理完毕后再判断是否市正确的值)")
+    @NotNull(message = "请勿手动输入", groups = EditGroup.class)
+    private Integer provinceId;
+
+    @Schema(description = "市级联下拉")
+    @ExcelProperty(value = "市", index = 6)
+    @NotNull(message = "市不能为空", groups = AddGroup.class)
+    private String city;
+
+    @Schema(description = "数据库中的市ID")
+    @NotNull(message = "请勿手动输入", groups = EditGroup.class)
+    private Integer cityId;
+
+    @Schema(description = "县级联下拉")
+    @ExcelProperty(value = "县", index = 7)
+    @NotNull(message = "县不能为空", groups = AddGroup.class)
+    private String area;
+
+    @Schema(description = "数据库中的县ID")
+    @NotNull(message = "请勿手动输入", groups = EditGroup.class)
+    private Integer areaId;
+}

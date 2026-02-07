@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.divine.weighing.mapper.CarMapper">
+
+    <select id="queryPageCar" resultType="com.divine.weighing.domain.vo.car.CarPageVO">
+        SELECT
+        mc.id,
+        mc.car_number,
+        COUNT(md.car_number) AS deliveryTotalNum,
+        mc.motorcade_id,
+        mc.create_time,
+        mc.remark,
+        mm.motorcade_name
+        FROM mineral_car mc
+        LEFT JOIN mineral_motorcade mm
+        ON mc.motorcade_id = mm.id
+        LEFT JOIN mineral_delivery md
+        ON mc.car_number = md.car_number
+        WHERE mc.is_del = 0
+        <if test="dto.carNumber != null and dto.carNumber != ''">
+            AND mc.car_number LIKE CONCAT('%', #{dto.carNumber}, '%')
+        </if>
+        <if test="dto.motorcadeId != null and dto.motorcadeId != ''">
+            AND mm.id = #{dto.motorcadeId}
+        </if>
+        GROUP BY mc.id, mc.car_number
+        ORDER BY mc.create_time DESC
+
+    </select>
+</mapper>

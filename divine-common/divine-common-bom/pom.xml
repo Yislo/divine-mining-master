@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.divine</groupId>
+    <artifactId>divine-common-bom</artifactId>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
+
+    <description>
+        divine-common-bom common依赖项
+    </description>
+
+    <properties>
+        <revision>5.2.0</revision>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- 核心模块 -->
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-core</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- OSS -->
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-oss</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 短信模块 -->
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-sms</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 序列化模块 -->
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-json</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- excel -->
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-excel</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- redis -->
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-redis</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- satoken -->
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-satoken</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-web</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-security</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-mybatis</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-mail</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-log</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-translation</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-ratelimiter</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-encrypt</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-sensitive</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-idempotent</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-job</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.divine</groupId>
+                <artifactId>divine-common-doc</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+</project>

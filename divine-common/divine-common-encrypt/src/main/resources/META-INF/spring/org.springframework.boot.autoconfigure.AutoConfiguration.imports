@@ -1,0 +1,3 @@
+com.divine.common.encrypt.config.EncryptorAutoConfiguration
+com.divine.common.encrypt.config.ApiDecryptAutoConfiguration
+

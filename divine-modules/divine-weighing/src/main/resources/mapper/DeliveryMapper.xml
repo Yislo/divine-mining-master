@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.divine.weighing.mapper.DeliveryMapper">
+    <select id="deliveryCarPage" resultType="com.divine.weighing.domain.vo.delivery.DeliveryCarPageVO">
+        SELECT
+        md.id AS id,
+        md.weight_no AS weightNo,
+        md.car_number AS carNumber,
+        md.company_id AS companyId,
+        mc.company_name AS companyName,
+        mo.`name` AS ownerName,
+        mm.motorcade_name AS motorcadeName,
+        md.`status` AS status,
+        CASE md.`status`
+        WHEN 0 THEN '已发车'
+        WHEN 1 THEN '已过磅'
+        WHEN 2 THEN '已完成'
+        ELSE ''
+        END AS statusText,
+        md.company_weight_no AS companyWeightNo,
+        md.anti_fake_code AS antiFakeCode,
+        md.settle_price AS settlePrice,
+        md.settle_time AS settleTime,
+        md.ticket_time AS ticketTime,
+        md.accredit_time AS accreditTime,
+        md.departure_time AS departureTime,
+        md.weighing_time AS weighingTime,
+        mu.nick_name AS createByName,
+        md.remark AS remark
+        FROM mineral_delivery md
+        LEFT JOIN mineral_company mc ON md.company_id = mc.id
+        LEFT JOIN mineral_owner mo ON md.owner_id = mo.id
+        LEFT JOIN mineral_user mu ON md.create_by = mu.id
+        LEFT JOIN mineral_motorcade mm ON mm.id = md.motorcade_id
+        WHERE 1 = 1
+        <if test="dto.ownerId != null and dto.ownerId != ''">
+            AND mo.id = #{dto.ownerId}
+        </if>
+        <if test="dto.carNumber != null and dto.carNumber != ''">
+            AND md.car_number LIKE CONCAT('%', #{dto.carNumber}, '%')
+        </if>
+        <if test="dto.companyId != null and dto.companyId != ''">
+            AND md.company_id = #{dto.companyId}
+        </if>
+        <if test="dto.status != null">
+            AND md.`status` = #{dto.status}
+        </if>
+        <if test="dto.startTime != null">
+            AND md.departure_time <![CDATA[ >= ]]> #{dto.startTime}
+        </if>
+        <if test="dto.endTime != null">
+            AND md.departure_time <![CDATA[ <= ]]> #{dto.endTime}
+        </if>
+        ORDER BY
+        md.weighing_time IS NULL,
+        md.weighing_time DESC,
+        md.departure_time DESC,
+        md.`status`
+    </select>
+
+    <select id="deliverBatchPage" resultType="com.divine.weighing.domain.vo.delivery.DeliveryBatchPageVO">
+        SELECT
+        md.batch_code,
+        md.company_id,
+        mc.company_name,
+        GROUP_CONCAT(DISTINCT mo.name SEPARATOR ', ') AS ownerName,
+        COUNT(*) AS carNum,
+        GROUP_CONCAT(DISTINCT md.weight_no SEPARATOR ', ') AS weight_no,
+        GROUP_CONCAT(DISTINCT mu.nick_name SEPARATOR ', ') AS createByName,
+        MAX(md.weighing_time) AS weighing_time,
+        MAX(md.create_time) AS last_create_time
+        FROM mineral_delivery md
+        LEFT JOIN mineral_company mc ON md.company_id = mc.id
+        LEFT JOIN mineral_owner mo ON md.owner_id = mo.id
+        LEFT JOIN mineral_user mu ON md.update_by = mu.id
+        WHERE
+        md.is_del = 0
+        <if test="true">
+            <![CDATA[ AND TRIM(md.batch_code) <> '' ]]>
+        </if>
+        <if test="dto.companyId != null and dto.companyId != ''">
+            AND md.company_id = #{dto.companyId}
+        </if>
+        <if test="dto.batchCode != null and dto.batchCode != ''">
+            AND md.batch_code = #{dto.batchCode}
+        </if>
+        <if test="dto.operator != null and dto.operator != ''">
+            AND mu.nick_name LIKE CONCAT('%', #{dto.operator}, '%')
+        </if>
+        GROUP BY
+        md.batch_code, md.company_id
+        <if test="dto.startTime != null or dto.endTime != null">
+            HAVING
+            <if test="dto.startTime != null">
+                MAX(md.weighing_time) >= #{dto.startTime}
+            </if>
+            <if test="dto.startTime != null and dto.endTime != null">
+                AND
+            </if>
+            <if test="dto.endTime != null">
+                MAX(md.weighing_time) <![CDATA[ <= ]]> #{dto.endTime}
+            </if>
+        </if>
+        ORDER BY weighing_time DESC
+    </select>
+
+    <select id="cartogram" resultType="com.divine.weighing.domain.vo.home.CartogramInfoVO">
+        SELECT
+        mc.id AS company_id,
+        mc.company_name,
+        COALESCE(d.totalNum, 0) AS totalNum,
+        COALESCE(d.weighingNum, 0) AS weighingNum,
+        COALESCE(d.departureNum, 0) AS departureNum
+        FROM mineral_company mc
+        LEFT JOIN (
+        SELECT
+        md.company_id,
+        SUM(
+        CASE
+        WHEN md.status = 0
+        <![CDATA[
+         AND md.create_time >= DATE_FORMAT(CURDATE(), '%Y-01-01')
+         AND md.create_time <  DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-01-01'), INTERVAL 1 YEAR)
+        ]]>
+        THEN 1 ELSE 0
+        END
+        ) AS totalNum,
+        -- weighingNum
+        SUM(
+        CASE
+        WHEN md.status IN (1,2)
+        <if test="dto.startTime != null">
+            AND md.weighing_time >= #{dto.startTime}
+        </if>
+        <if test="dto.endTime != null">
+            AND md.weighing_time <![CDATA[ <= ]]> #{dto.endTime}
+        </if>
+        THEN 1 ELSE 0
+        END
+        ) AS weighingNum,
+
+        -- departureNum
+        SUM(
+        CASE
+        WHEN 1 = 1
+        <if test="dto.startTime != null">
+            AND md.departure_time >= #{dto.startTime}
+        </if>
+        <if test="dto.endTime != null">
+            AND md.departure_time <![CDATA[ <= ]]> #{dto.endTime}
+        </if>
+        THEN 1 ELSE 0
+        END
+        ) AS departureNum
+
+        FROM mineral_delivery md
+        WHERE md.is_del = 0
+        GROUP BY md.company_id
+        ) d ON mc.id = d.company_id
+        ORDER BY totalNum DESC, mc.create_time DESC
+
+    </select>
+
+    <select id="pieChart" resultType="com.divine.weighing.domain.vo.home.PieChartVO">
+        SELECT
+        mc.company_name,
+        COUNT(md.id) AS totalNum, -- 当日总发车数（已过滤删除）
+        SUM(CASE WHEN md.`status` = 1 THEN 1 ELSE 0 END) AS weighingNum, -- 过磅数（status=1）
+        SUM(CASE WHEN md.`status` = 0 THEN 1 ELSE 0 END) AS departureNum -- 未过磅数（status=0）
+        FROM
+        mineral_delivery md
+        LEFT JOIN mineral_company mc ON md.company_id = mc.id
+        WHERE
+        md.is_del = 0
+        AND md.company_id = #{companyId} -- 强制筛选指定工厂ID
+        <if test="dto.startTime != null">
+            AND md.departure_time >= #{dto.startTime}
+        </if>
+        <if test="dto.endTime != null">
+            AND md.departure_time <![CDATA[ <= ]]> #{dto.endTime}
+        </if>
+        GROUP BY
+        md.company_id,
+        mc.company_name,
+        DATE_FORMAT(md.departure_time, '%Y-%m-%d')
+    </select>
+
+    <select id="selectExportList" resultType="com.divine.weighing.export.DeliveryExportField">
+        SELECT
+        md.id,
+        md.weight_no AS weightNo,
+        md.car_number AS carNumber,
+        md.company_weight_no AS companyWeightNo,
+        md.anti_fake_code AS antiFakeCode,
+        md.settle_price AS settlePrice,
+        md.settle_time AS settleTime,
+        md.ticket_time AS ticketTime,
+        md.accredit_time AS accreditTime,
+        md.departure_time AS departureTime,
+        md.weighing_time AS weighingTime,
+        mc.company_name AS companyName,
+        mo.`name` AS ownerName,
+        mm.motorcade_name AS motorcadeName,
+        CASE md.`status`
+        WHEN 0 THEN '已发车'
+        WHEN 1 THEN '已过磅'
+        WHEN 2 THEN '已完成'
+        ELSE ''
+        END AS statusText,
+        dq.total_weight AS totalWeight,
+        dq.net_weight AS netWeight,
+        dq.empty_weight AS emptyWeight,
+        dq.moisture AS moisture,
+        dq.cuo_ratio AS cuoRatio,
+        dq.acid_demand AS acidDemand
+        FROM mineral_delivery md
+        LEFT JOIN mineral_company mc ON md.company_id = mc.id
+        LEFT JOIN mineral_owner mo ON md.owner_id = mo.id
+        LEFT JOIN mineral_user mu ON md.create_by = mu.id
+        LEFT JOIN mineral_motorcade mm ON mm.id = md.motorcade_id
+        LEFT JOIN mineral_delivery_quality dq ON dq.delivery_id = md.id
+        WHERE 1 = 1
+        <if test="dto.ownerId != null and dto.ownerId != ''">
+            AND mo.id = #{dto.ownerId}
+        </if>
+        <if test="dto.carNumber != null and dto.carNumber != ''">
+            AND md.car_number = #{dto.carNumber}
+        </if>
+        <if test="dto.companyId != null and dto.companyId != ''">
+            AND md.company_id = #{dto.companyId}
+        </if>
+        <if test="dto.status != null">
+            AND md.`status` = #{dto.status}
+        </if>
+        <if test="dto.startTime != null">
+            AND md.departure_time <![CDATA[ >= ]]> #{dto.startTime}
+        </if>
+        <if test="dto.endTime != null">
+            AND md.departure_time <![CDATA[ <= ]]> #{dto.endTime}
+        </if>
+        ORDER BY md.create_time DESC, md.`status`
+    </select>
+</mapper>
