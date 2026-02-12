@@ -56,11 +56,11 @@
 
     <select id="queryWarehouseBoardList" resultType="com.divine.warehouse.domain.vo.BoardListVO">
         <include refid="selectVoListByBo"/>
-        order by warehouse_id,item_id,id
+        order by warehouse_id,item_id,sku_id
     </select>
 
     <select id="queryItemBoardList" resultType="com.divine.warehouse.domain.vo.BoardListVO">
         <include refid="selectVoListByBo"/>
-        order by item_id,id,warehouse_id
+        order by item_id,sku_id,warehouse_id
     </select>
 </mapper>

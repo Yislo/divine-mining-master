@@ -42,13 +42,6 @@ public class GlobalExceptionHandler {
         return Result.fail(HttpStatus.HTTP_BAD_METHOD, "请求方式不支持");
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public Result<Void> handleDataTooLongException(DataIntegrityViolationException e, HttpServletRequest request) {
-        String requestURI = request.getRequestURI();
-        log.error("请求地址'{}'，发生数据完整性违规异常", requestURI, e);
-        return Result.fail("文件名或填写内容过长");
-    }
-
     /**
      * 业务异常
      */

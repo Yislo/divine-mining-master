@@ -31,38 +31,23 @@ public class InventoryDto extends BaseEntity {
     @NotNull(message = "id不能为空", groups = { EditGroup.class })
     private Long id;
 
-    /**
-     * 规格ID
-     */
     @Schema(description = "规格ID")
     @NotNull(message = "规格ID不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long skuId;
 
-    /**
-     * 所属仓库
-     */
     @Schema(description = "所属仓库")
     @NotNull(message = "所属仓库不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long warehouseId;
 
-    /**
-     * 库存
-     */
     @Schema(description = "库存")
     @NotNull(message = "库存不能为空", groups = { AddGroup.class, EditGroup.class })
     private BigDecimal quantity;
 
-    /**
-     * 备注
-     */
     @Schema(description = "备注")
     private String remark;
 
-    /**
-     * 最大数量
-     */
     @Schema(description = "最大数量")
-    private Long minQuantity;
+    private Long maxQuantity;
 
     @Schema(description = "物品名称")
     private String itemName;
