@@ -49,11 +49,12 @@ spring:
 spring.data:
   redis:
     # 地址
-    host: localhost
+    host: 47.239.3.188
     # 端口，默认为6379
     port: 6379
     # 数据库索引
     database: 0
+    password: xm9G5G2J7
     # 密码(如没有密码请注释掉)
     # password:
     # 连接超时时间
