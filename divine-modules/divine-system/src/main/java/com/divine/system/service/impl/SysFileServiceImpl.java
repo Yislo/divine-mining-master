@@ -157,7 +157,7 @@ public class SysFileServiceImpl implements SysFileService, OssService {
         // 返回上传成功文件信息
         return UploadFileVO.builder()
             .url(uploadResult.getUrl())
-            .fileName(uploadResult.getFilename())
+            .fileName(originalfileName)
             .build();
     }
 
