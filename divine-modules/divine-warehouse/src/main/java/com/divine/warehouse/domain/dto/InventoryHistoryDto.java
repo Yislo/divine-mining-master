@@ -91,13 +91,13 @@ public class InventoryHistoryDto extends BaseHistoryEntity {
     private String itemName;
 
     @Schema(description = "物品编号")
-    private String itemCode;
+    private String itemNo;
 
     @Schema(description = "规格")
     private String skuName;
 
     @Schema(description = "规格编号")
-    private String skuCode;
+    private String skuNo;
 
     @Schema(description = "开始时间")
     private String startTime;

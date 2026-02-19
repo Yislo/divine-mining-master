@@ -11,6 +11,9 @@ import lombok.Data;
 @Data
 public class StorageShelfVO {
 
+    @Schema(description = "id(删除货架时传这个id)")
+    private Long id;
+
     @Schema(description = "库存数量")
     private Long quantity;
 

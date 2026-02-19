@@ -41,7 +41,7 @@ public class ItemSku extends BaseEntity {
     /**
      * 编码
      */
-    private String skuCode;
+    private String skuNo;
 
 
     /**
@@ -70,12 +70,7 @@ public class ItemSku extends BaseEntity {
     private BigDecimal netWeight;
 
     /**
-     * 成本价($)
+     * 单价($)
      */
-    private BigDecimal costPrice;
-
-    /**
-     * 销售价($)
-     */
-    private BigDecimal sellingPrice;
+    private BigDecimal unitPrice;
 }

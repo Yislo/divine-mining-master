@@ -39,7 +39,7 @@ public class ItemSkuVo implements Serializable {
 
     @Schema(description = "sku编码")
     @ExcelProperty(value = "sku编码")
-    private String skuCode;
+    private String skuNo;
 
     @Schema(description = "长(cm)")
     @ExcelProperty(value = "长(cm)")
@@ -61,13 +61,9 @@ public class ItemSkuVo implements Serializable {
     @ExcelProperty(value = "净重(kg)")
     private BigDecimal netWeight;
 
-    @Schema(description = "成本价($)")
-    @ExcelProperty(value = "成本价($)")
-    private BigDecimal costPrice;
-
-    @Schema(description = "销售价($)")
-    @ExcelProperty(value = "销售价($)")
-    private BigDecimal sellingPrice;
+    @Schema(description = "单价($)")
+    @ExcelProperty(value = "单价($)")
+    private BigDecimal unitPrice;
 
     @Schema(description = "所属货架")
     @ExcelProperty(value = "所属货架")

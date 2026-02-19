@@ -11,7 +11,6 @@ import com.divine.warehouse.domain.vo.MerchantVo;
 import com.divine.warehouse.mapper.MerchantMapper;
 import com.divine.warehouse.mapper.ReceiptOrderMapper;
 import com.divine.warehouse.service.MerchantService;
-import com.divine.common.core.constant.HttpStatus;
 import com.divine.common.core.utils.MapstructUtils;
 import com.divine.common.core.utils.StringUtils;
 import com.divine.common.mybatis.core.page.BasePage;
@@ -66,7 +65,7 @@ public class MerchantServiceImpl implements MerchantService {
     private LambdaQueryWrapper<Merchant> buildQueryWrapper(MerchantDto dto) {
         Map<String, Object> params = dto.getParams();
         LambdaQueryWrapper<Merchant> lqw = Wrappers.lambdaQuery();
-        lqw.eq(StringUtils.isNotBlank(dto.getMerchantCode()), Merchant::getMerchantCode, dto.getMerchantCode());
+        lqw.eq(StringUtils.isNotBlank(dto.getMerchantNo()), Merchant::getMerchantNo, dto.getMerchantNo());
         lqw.like(StringUtils.isNotBlank(dto.getMerchantName()), Merchant::getMerchantName, dto.getMerchantName());
         lqw.eq(dto.getMerchantType() != null, Merchant::getMerchantType, dto.getMerchantType());
         return lqw;

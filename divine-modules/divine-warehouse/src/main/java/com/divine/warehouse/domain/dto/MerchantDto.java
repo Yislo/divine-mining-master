@@ -36,7 +36,7 @@ public class MerchantDto extends BaseEntity {
      */
     @Schema(description = "编号")
     @NotBlank(message = "编号不能为空", groups = { AddGroup.class, EditGroup.class })
-    private String merchantCode;
+    private String merchantNo;
 
     /**
      * 名称

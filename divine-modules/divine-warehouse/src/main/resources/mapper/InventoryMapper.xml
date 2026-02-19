@@ -7,15 +7,15 @@
     <sql id="selectVoListByDto">
         SELECT
         sku.id AS sku_id,
-        sku.sku_code,
+        sku.sku_no,
         sku.sku_name,
         item.id AS item_id,
         item.item_name,
-        item.item_code,
+        item.item_no,
         w.id AS warehouse_id,
         w.warehouse_name,
         GROUP_CONCAT(
-        CONCAT(inv.storage_shelf, ':', inv.quantity)
+        CONCAT(inv.id, ':', inv.storage_shelf, ':', inv.quantity)
         ORDER BY inv.storage_shelf
         SEPARATOR ';'
         ) AS stock_info_text,
@@ -33,16 +33,16 @@
                 AND item.item_name LIKE CONCAT('%', #{dto.itemName}, '%')
             </if>
 
-            <if test="dto.itemCode != null and dto.itemCode != ''">
-                AND item.item_code LIKE CONCAT('%', #{dto.itemCode}, '%')
+            <if test="dto.itemNo != null and dto.itemNo != ''">
+                AND item.item_no LIKE CONCAT('%', #{dto.itemNo}, '%')
             </if>
 
             <if test="dto.skuName != null and dto.skuName != ''">
                 AND sku.sku_name LIKE CONCAT('%', #{dto.skuName}, '%')
             </if>
 
-            <if test="dto.skuCode != null and dto.skuCode != ''">
-                AND sku.sku_code LIKE CONCAT('%', #{dto.skuCode}, '%')
+            <if test="dto.skuNo != null and dto.skuNo != ''">
+                AND sku.sku_no LIKE CONCAT('%', #{dto.skuNo}, '%')
             </if>
 
             <if test="dto.itemCategory != null">
@@ -54,8 +54,8 @@
             </if>
         </where>
         GROUP BY
-        sku.id, sku.sku_code, sku.sku_name,
-        item.id, item.item_name, item.item_code,
+        sku.id, sku.sku_no, sku.sku_name,
+        item.id, item.item_name, item.item_no,
         w.id, w.warehouse_name
         <if test="dto.maxQuantity != null">
             HAVING SUM(inv.quantity) <![CDATA[ <= ]]> #{dto.maxQuantity}

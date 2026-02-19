@@ -32,7 +32,7 @@ public class BoardListVO {
 
     @ExcelProperty(value = "物品编号")
     @Schema(description = "物品编号")
-    private String itemCode;
+    private String itemNo;
 
     @Schema(description = "skuId")
     private Long skuId;
@@ -41,7 +41,7 @@ public class BoardListVO {
     private String skuName;
 
     @Schema(description = "sku编号")
-    private String skuCode;
+    private String skuNo;
 
     @Schema(description = "库存信息")
     private String stockInfoText;

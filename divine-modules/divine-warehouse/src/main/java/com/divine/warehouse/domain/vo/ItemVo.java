@@ -25,7 +25,7 @@ public class ItemVo implements Serializable {
 
     @Schema(description = "编号")
     @ExcelProperty(value = "编号")
-    private String itemCode;
+    private String itemNo;
 
     @Schema(description = "名称")
     @ExcelProperty(value = "名称")

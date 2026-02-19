@@ -51,8 +51,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="dto.itemName != null and dto.itemName != ''">
                 and item.item_name like concat('%', #{dto.itemName}, '%')
             </if>
-            <if test="dto.itemCode != null and dto.itemCode != ''">
-                and item.item_code like concat('%', #{dto.itemCode}, '%')
+            <if test="dto.itemNo != null and dto.itemNo != ''">
+                and item.item_no like concat('%', #{dto.itemNo}, '%')
             </if>
             <if test="dto.itemBrand != null">
                 and item.item_brand=#{dto.itemBrand}

@@ -13,45 +13,25 @@ import java.math.BigDecimal;
 public class BaseOrderDetailVO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-    /**
-     *
-     */
-    @ExcelProperty(value = "")
+
+    @ExcelProperty(value = "出、入、盘、移库id")
     private Long id;
 
-    /**
-     * 入库单号
-     */
-    @ExcelProperty(value = "订单单号")
-    private Long orderId;
+    @ExcelProperty(value = "出、入、盘、移库编号")
+    private String orderNo;
 
-    /**
-     * 规格id
-     */
     @ExcelProperty(value = "规格id")
     private Long skuId;
 
-    /**
-     * 入库数量
-     */
     @ExcelProperty(value = "数量")
     private BigDecimal quantity;
 
-    /**
-     * 金额
-     */
     @ExcelProperty(value = "金额")
     private BigDecimal amount;
 
-    /**
-     * 备注
-     */
     @ExcelProperty(value = "备注")
     private String remark;
 
-    /**
-     * 所属仓库
-     */
     @ExcelProperty(value = "所属仓库")
     private Long warehouseId;
 

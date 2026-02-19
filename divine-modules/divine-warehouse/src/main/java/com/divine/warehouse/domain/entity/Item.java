@@ -25,7 +25,7 @@ public class Item extends BaseEntity {
     /**
      * 编号
      */
-    private String itemCode;
+    private String itemNo;
 
     /**
      * 名称

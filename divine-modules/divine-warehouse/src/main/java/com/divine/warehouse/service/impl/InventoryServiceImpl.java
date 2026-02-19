@@ -153,7 +153,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         }
         // 3. 解析 stock_info_text 为 List<StorageShelfVO>
         result.getRecords().forEach(this::parseStockInfo);
-            return PageInfoRes.build(result);
+        return PageInfoRes.build(result);
     }
 
     /**
@@ -166,13 +166,29 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             vo.setStockInfo(new ArrayList<>());
             return;
         }
+        // todo 如果需要排除库存为0的货架
+//        List<StorageShelfVO> stockLis = new ArrayList<>();
+//        List<String> list = Arrays.stream(stockInfoText.split(";")).toList();
+//        for (String s : list) {
+//            String[] parts = s.split(":");
+//            if ("0".equals(parts[1])) {
+//                continue;
+//            }
+//            StorageShelfVO ss = new StorageShelfVO();
+//            ss.setStorageShelf(parts[0]);
+//            ss.setQuantity(Long.parseLong(parts[1]));
+//            stockLis.add(ss);
+//        }
+
+
         List<StorageShelfVO> stockList = Arrays.stream(stockInfoText.split(";"))
             .map(item -> {
                 String[] parts = item.split(":");
-                if (parts.length == 2) {
+                if (parts.length == 3) {
                     StorageShelfVO ss = new StorageShelfVO();
-                    ss.setStorageShelf(parts[0]);
-                    ss.setQuantity(Long.parseLong(parts[1]));
+                    ss.setId(Long.parseLong(parts[0]));
+                    ss.setStorageShelf(parts[1]);
+                    ss.setQuantity(Long.parseLong(parts[2]));
                     return ss;
                 }
                 return null;
@@ -301,5 +317,22 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         LambdaQueryWrapper<Inventory> lqw = Wrappers.lambdaQuery();
         lqw.eq(Inventory::getWarehouseId, warehouseId);
         return inventoryMapper.exists(lqw);
+    }
+
+    /**
+     * 删除货架
+     *
+     * @param id
+     */
+    @Override
+    public void deleteStorageShelf(Long id) {
+        // 查询货架是否还有库存
+        Inventory inventory = inventoryMapper.selectById(id);
+        Long quantity = inventory.getQuantity();
+        if (quantity > 0) {
+            throw new BusinessException("该货架上还有库存，暂时不可删除");
+        }
+        // 库存为0 可以删除
+        inventoryMapper.deleteById(id);
     }
 }

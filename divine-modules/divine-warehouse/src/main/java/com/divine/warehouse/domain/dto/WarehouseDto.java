@@ -27,7 +27,7 @@ public class WarehouseDto extends BaseEntity {
      * 编号
      */
     @Schema(description = "编号")
-    private String warehouseCode;
+    private String warehouseNo;
 
     /**
      * 名称

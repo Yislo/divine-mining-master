@@ -106,4 +106,9 @@ public interface InventoryService {
      */
     boolean existsByWarehouseId(Long warehouseId);
 
+    /**
+     * 删除货架
+     * @param id
+     */
+    void deleteStorageShelf(Long id);
 }

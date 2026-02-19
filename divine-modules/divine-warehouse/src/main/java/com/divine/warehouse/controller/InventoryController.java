@@ -108,4 +108,14 @@ public class InventoryController extends BaseController {
         inventoryService.deleteByIds(List.of(ids));
         return Result.success();
     }
+
+    @Operation(summary = "删除货架")
+    @SaCheckPermission("wms:inventory:all")
+    @Log(title = "库存", businessType = BusinessType.DELETE)
+    @DeleteMapping("/deleteStorageShelf/{id}")
+    public Result<Void> deleteStorageShelf(@NotEmpty(message = "主键不能为空")
+                          @PathVariable Long id) {
+        inventoryService.deleteStorageShelf(id);
+        return Result.success();
+    }
 }

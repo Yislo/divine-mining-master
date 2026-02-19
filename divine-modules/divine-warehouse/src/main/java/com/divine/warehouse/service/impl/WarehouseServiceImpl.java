@@ -69,7 +69,7 @@ public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse
     private LambdaQueryWrapper<Warehouse> buildQueryWrapper(WarehouseDto dto) {
         Map<String, Object> params = dto.getParams();
         LambdaQueryWrapper<Warehouse> lqw = Wrappers.lambdaQuery();
-        lqw.eq(StrUtil.isNotBlank(dto.getWarehouseCode()), Warehouse::getWarehouseCode, dto.getWarehouseCode());
+        lqw.eq(StrUtil.isNotBlank(dto.getWarehouseNo()), Warehouse::getWarehouseNo, dto.getWarehouseNo());
         lqw.like(StrUtil.isNotBlank(dto.getWarehouseName()), Warehouse::getWarehouseName, dto.getWarehouseName());
         lqw.orderByAsc(Warehouse::getSort);
         return lqw;
@@ -106,13 +106,13 @@ public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse
 
     private void validateWarehouseNameAndNo(WarehouseDto warehouse) {
         LambdaQueryWrapper<Warehouse> queryWrapper = Wrappers.lambdaQuery();
-        queryWrapper.eq(Warehouse::getWarehouseName, warehouse.getWarehouseName()).or().eq(StrUtil.isNotBlank(warehouse.getWarehouseCode()), Warehouse::getWarehouseCode, warehouse.getWarehouseCode());
+        queryWrapper.eq(Warehouse::getWarehouseName, warehouse.getWarehouseName()).or().eq(StrUtil.isNotBlank(warehouse.getWarehouseNo()), Warehouse::getWarehouseNo, warehouse.getWarehouseNo());
         List<Warehouse> warehouseList = warehouseMapper.selectList(queryWrapper);
         boolean validateNameResult = warehouseList.stream().anyMatch(
             it -> Objects.equals(it.getWarehouseName(), warehouse.getWarehouseName()) && !Objects.equals(it.getId(), warehouse.getId()));
         Assert.isFalse(validateNameResult, "仓库名称重复");
         boolean validateNoResult = warehouseList.stream().anyMatch(
-            it -> Objects.equals(it.getWarehouseCode(), warehouse.getWarehouseCode()) && !Objects.equals(it.getId(), warehouse.getId()));
+            it -> Objects.equals(it.getWarehouseNo(), warehouse.getWarehouseNo()) && !Objects.equals(it.getId(), warehouse.getId()));
         Assert.isFalse(validateNoResult, "仓库编号重复");
     }
 

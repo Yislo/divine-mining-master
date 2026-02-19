@@ -33,8 +33,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="dto.itemName != null and dto.itemName != ''">
                 and item.item_name like concat('%', #{dto.itemName}, '%')
             </if>
-            <if test="dto.itemCode != null and dto.itemCode != ''">
-                and item.item_code like concat('%', #{dto.itemCode}, '%')
+            <if test="dto.itemNo != null and dto.itemNo != ''">
+                and item.item_no like concat('%', #{dto.itemNo}, '%')
             </if>
             <if test="dto.skuName != null and dto.skuName != ''">
                 and sku.sku_name like concat('%', #{dto.skuName}, '%')
@@ -42,8 +42,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="dto.skuId != null">
                 and sku.id = #{dto.skuId}
             </if>
-            <if test="dto.skuCode != null and dto.skuCode != ''">
-                and sku.sku_code like concat('%', #{dto.skuCode}, '%')
+            <if test="dto.skuNo != null and dto.skuNo != ''">
+                and sku.sku_no like concat('%', #{dto.skuNo}, '%')
             </if>
             <if test="dto.warehouseId != null">
                 and history.warehouse_id=#{dto.warehouseId}

@@ -63,7 +63,7 @@ public class ReceiptOrderController extends BaseController {
         return Result.success(receiptOrderService.queryById(id));
     }
 
-    @Operation(summary = "getIdByNo")
+    @Operation(summary = "获取id")
     @SaCheckPermission("wms:receipt:all")
     @GetMapping("/getIdByNo")
     public Result<Long> getId(@RequestParam String orderNo) {

@@ -92,7 +92,7 @@ public class ItemServiceImpl implements ItemService {
 
     private LambdaQueryWrapper<Item> buildQueryWrapper(ItemDto dto) {
         LambdaQueryWrapper<Item> lqw = Wrappers.lambdaQuery();
-        lqw.eq(StrUtil.isNotBlank(dto.getItemCode()), Item::getItemCode, dto.getItemCode());
+        lqw.eq(StrUtil.isNotBlank(dto.getItemNo()), Item::getItemNo, dto.getItemNo());
         // 主键集合
         lqw.in(!CollUtil.isEmpty(dto.getIds()), Item::getId, dto.getIds());
         lqw.like(StrUtil.isNotBlank(dto.getItemName()), Item::getItemName, dto.getItemName());

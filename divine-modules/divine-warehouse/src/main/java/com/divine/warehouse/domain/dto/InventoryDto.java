@@ -53,13 +53,13 @@ public class InventoryDto extends BaseEntity {
     private String itemName;
 
     @Schema(description = "物品编号")
-    private String itemCode;
+    private String itemNo;
 
     @Schema(description = "规格名称")
     private String skuName;
 
     @Schema(description = "规格编号")
-    private String skuCode;
+    private String skuNo;
 
     @Schema(description = "物品id")
     private Long itemId;

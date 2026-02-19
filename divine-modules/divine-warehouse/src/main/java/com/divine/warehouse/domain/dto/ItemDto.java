@@ -35,7 +35,7 @@ public class ItemDto extends BaseEntity {
      * 编号
      */
     @Schema(description = "编号")
-    private String itemCode;
+    private String itemNo;
 
     /**
      * 名称
