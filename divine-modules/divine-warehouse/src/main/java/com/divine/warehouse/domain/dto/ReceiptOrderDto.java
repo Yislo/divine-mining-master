@@ -37,6 +37,11 @@ public class ReceiptOrderDto extends BaseOrderDto<ReceiptOrderDetailDto> {
     private Long merchantId;
 
     /**
+     * 入库状态
+     */
+    private Integer receiptStatus;
+
+    /**
      * 仓库id
      */
     @NotNull(message = "仓库不能为空", groups = { AddGroup.class, EditGroup.class })

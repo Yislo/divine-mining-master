@@ -27,11 +27,6 @@ public class ShipmentOrderDto extends BaseOrderDto<ShipmentOrderDetailDto> {
     private Long optType;
 
     /**
-     * 第三方订单号
-     */
-    private String bizOrderNo;
-
-    /**
      * 领用人
      */
     private String recipient;

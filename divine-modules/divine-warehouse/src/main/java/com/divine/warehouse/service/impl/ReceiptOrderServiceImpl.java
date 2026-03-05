@@ -28,6 +28,7 @@ import com.divine.common.mybatis.core.domain.BaseEntity;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,7 +82,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         List<Warehouse> warehouses = warehouseMapper.selectList(new LambdaQueryWrapper<>(Warehouse.class)
             .in(Warehouse::getId, wareIds));
         Map<Long, String> warehousesMap = warehouses.stream().collect(Collectors.toMap(Warehouse::getId, Warehouse::getWarehouseName));
-        records.forEach(r-> r.setWarehouseName(warehousesMap.get(r.getWarehouseId())));
+        records.forEach(r -> r.setWarehouseName(warehousesMap.get(r.getWarehouseId())));
         return PageInfoRes.build(result);
     }
 
@@ -96,12 +97,11 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
 
     private LambdaQueryWrapper<ReceiptOrder> buildQueryWrapper(ReceiptOrderDto dto) {
         LambdaQueryWrapper<ReceiptOrder> lqw = Wrappers.lambdaQuery();
-//        lqw.eq(StringUtils.isNotBlank(dto.getOrderNo()), ReceiptOrder::getOrderNo, dto.getOrderNo());
+        lqw.eq(StringUtils.isNotBlank(dto.getBizNo()), ReceiptOrder::getReceiptNo, dto.getBizNo());
         lqw.eq(dto.getOptType() != null, ReceiptOrder::getOptType, dto.getOptType());
         lqw.eq(dto.getMerchantId() != null, ReceiptOrder::getMerchantId, dto.getMerchantId());
-//        lqw.eq(StringUtils.isNotBlank(dto.getOrderNo()), ReceiptOrder::getOrderNo, dto.getOrderNo());
-//        lqw.eq(dto.getOrderNo() != null, ReceiptOrder::getTotalPrice, dto.getOrderNo());
-//        lqw.eq(dto.getOrderStatus() != null, ReceiptOrder::getOrderStatus, dto.getOrderStatus());
+        lqw.eq(dto.getReceiptStatus() != null, ReceiptOrder::getReceiptStatus, dto.getReceiptStatus());
+        lqw.eq(dto.getBizOrderNo() != null, ReceiptOrder::getBizOrderNo, dto.getBizOrderNo());
         lqw.orderByDesc(BaseEntity::getCreateTime);
         return lqw;
     }
@@ -112,8 +112,13 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
     @Override
     @Transactional
     public Long insertByBo(ReceiptOrderDto dto) {
+        dto.setReceiptStatus(0);
+        return insertReceipt(dto);
+    }
+
+    private Long insertReceipt(ReceiptOrderDto dto) {
         // 创建入库单
-        String receiptNo = commonService.getNo(InventoryTypeEnum.CHECK.getCode());
+        String receiptNo = commonService.getNo(InventoryTypeEnum.RECEIPT.getCode());
         dto.setBizNo(receiptNo);
         // 考虑是否计算总金额 是否完全信任前端
         ReceiptOrder receiptOrder = MapstructUtils.convert(dto, ReceiptOrder.class);
@@ -125,7 +130,9 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         // 创建入库单明细
         receiptOrderDetailService.saveDetails(addDetailList);
         return receiptOrder.getId();
+
     }
+
 
     /**
      * 入库：
@@ -139,8 +146,9 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
     @Transactional
     public void warehousing(ReceiptOrderDto dto) {
         // 2. 保存入库单和入库单明细
+        dto.setReceiptStatus(1);
         if (Objects.isNull(dto.getId())) {
-            insertByBo(dto);
+            insertReceipt(dto);
         } else {
             updateByBo(dto);
         }

@@ -24,7 +24,6 @@ public class BaseOrderDto<T extends BaseOrderDetailDto> extends BaseEntity {
     /**
      * 业务单号
      */
-    @NotBlank(message = "业务单号不能为空", groups = { EditGroup.class })
     private String bizNo;
 
     /**
