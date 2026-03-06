@@ -77,10 +77,12 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
         // 获取仓库信息
         List<ShipmentOrderVo> records = result.getRecords();
         List<Long> wareIds = records.stream().map(ShipmentOrderVo::getWarehouseId).toList();
-        List<Warehouse> warehouses = warehouseMapper.selectList(new LambdaQueryWrapper<>(Warehouse.class)
-            .in(Warehouse::getId, wareIds));
-        Map<Long, String> warehousesMap = warehouses.stream().collect(Collectors.toMap(Warehouse::getId, Warehouse::getWarehouseName));
-        records.forEach(r-> r.setWarehouseName(warehousesMap.get(r.getWarehouseId())));
+        if (CollectionUtil.isNotEmpty(wareIds)){
+            List<Warehouse> warehouses = warehouseMapper.selectList(new LambdaQueryWrapper<>(Warehouse.class)
+                .in(Warehouse::getId, wareIds));
+            Map<Long, String> warehousesMap = warehouses.stream().collect(Collectors.toMap(Warehouse::getId, Warehouse::getWarehouseName));
+            records.forEach(r-> r.setWarehouseName(warehousesMap.get(r.getWarehouseId())));
+        }
         return PageInfoRes.build(result);
     }
 

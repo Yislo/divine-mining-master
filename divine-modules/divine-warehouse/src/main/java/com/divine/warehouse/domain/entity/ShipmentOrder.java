@@ -36,7 +36,7 @@ public class ShipmentOrder extends BaseOrder {
     private Long optType;
 
     /**
-     * 业务订单号
+     * 第三方订单号
      */
     private String bizOrderNo;
 

@@ -8,9 +8,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.divine.common.core.enums.FileBizTypeEnum;
 import com.divine.common.core.enums.InventoryStatusEnum;
 import com.divine.common.core.enums.InventoryTypeEnum;
 import com.divine.common.core.exception.base.BusinessException;
+import com.divine.system.domain.dto.SysFileDTO;
+import com.divine.system.service.SysFileService;
+import com.divine.warehouse.domain.dto.BaseOrderDetailDto;
 import com.divine.warehouse.domain.dto.ReceiptOrderDetailDto;
 import com.divine.warehouse.domain.dto.ReceiptOrderDto;
 import com.divine.warehouse.domain.entity.BaseOrderDetail;
@@ -51,6 +55,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
     private final InventoryHistoryService inventoryHistoryService;
     private final CommonService commonService;
     private final WarehouseMapper warehouseMapper;
+    private final SysFileService sysFileService;
 
     /**
      * 查询入库单
@@ -82,10 +87,12 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         // 获取仓库信息
         List<ReceiptOrderVo> records = result.getRecords();
         List<Long> wareIds = records.stream().map(ReceiptOrderVo::getWarehouseId).toList();
-        List<Warehouse> warehouses = warehouseMapper.selectList(new LambdaQueryWrapper<>(Warehouse.class)
-            .in(Warehouse::getId, wareIds));
-        Map<Long, String> warehousesMap = warehouses.stream().collect(Collectors.toMap(Warehouse::getId, Warehouse::getWarehouseName));
-        records.forEach(r -> r.setWarehouseName(warehousesMap.get(r.getWarehouseId())));
+        if (CollectionUtil.isNotEmpty(wareIds)) {
+            List<Warehouse> warehouses = warehouseMapper.selectList(new LambdaQueryWrapper<>(Warehouse.class)
+                .in(Warehouse::getId, wareIds));
+            Map<Long, String> warehousesMap = warehouses.stream().collect(Collectors.toMap(Warehouse::getId, Warehouse::getWarehouseName));
+            records.forEach(r -> r.setWarehouseName(warehousesMap.get(r.getWarehouseId())));
+        }
         return PageInfoRes.build(result);
     }
 
@@ -116,11 +123,14 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
     @Transactional
     public Long insertByBo(ReceiptOrderDto dto) {
         dto.setReceiptStatus(0);
+        List<Long> list = dto.getDetails().stream().map(BaseOrderDetailDto::getId).toList();
+        sysFileService.deleteFileByIds(list, false);
         return insertReceipt(dto);
     }
 
     /**
      * 保存入库单
+     *
      * @param dto
      * @return
      */
@@ -137,8 +147,23 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         addDetailList.forEach(it -> it.setReceiptId(receiptOrder.getId()));
         // 创建入库单明细
         receiptOrderDetailService.saveDetails(addDetailList);
+        // 保存文件
+        List<SysFileDTO> allFiles = new ArrayList<>();
+        // 组装文件数据
+        dto.getDetails().forEach(d -> {
+            List<SysFileDTO> files = d.getFileList().stream()
+                .map(f -> {
+                    SysFileDTO file = new SysFileDTO();
+                    file.setBizId(d.getId());
+                    file.setBizType(FileBizTypeEnum.RECEIPT_DETAIL.getCode());
+                    file.setFileName(SysFileDTO.getFileName(f));
+                    file.setFileUrl(f);
+                    return file;
+                }).toList();
+            allFiles.addAll(files);
+        });
+        sysFileService.batchSaveFile(allFiles);
         return receiptOrder.getId();
-
     }
 
 

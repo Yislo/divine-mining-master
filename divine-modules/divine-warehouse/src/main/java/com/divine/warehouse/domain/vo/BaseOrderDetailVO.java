@@ -17,9 +17,9 @@ public class BaseOrderDetailVO implements Serializable {
 
 
     /**
-     * 出、入、盘、移库单id
+     * 出、入、盘、移库单详情id
      */
-    @ExcelProperty(value = "业务到单id")
+    @ExcelProperty(value = "业务单详情id")
     private Long id;
 
     /**

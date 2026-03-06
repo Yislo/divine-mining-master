@@ -31,12 +31,27 @@ public class SysFileDTO {
      * 业务id
      */
     @NotBlank(message = "业务id不能为空")
-    private String bizId;
+    private Long bizId;
 
     /**
      * 业务类型
      */
     @NotBlank(message = "业务类型不能为空")
     private String bizType;
+
+
+
+    public static String getFileName(String url) {
+        if (url == null || url.isEmpty()) {
+            return null;
+        }
+        // 找到最后一个 '/' 的位置
+        int lastSlashIndex = url.lastIndexOf('/');
+        if (lastSlashIndex >= 0 && lastSlashIndex < url.length() - 1) {
+            return url.substring(lastSlashIndex + 1);
+        }
+        return url;
+    }
+
 
 }

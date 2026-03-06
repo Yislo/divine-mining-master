@@ -1,5 +1,6 @@
 package com.divine.warehouse.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -71,10 +72,12 @@ public class CheckOrderServiceImpl implements CheckOrderService {
         // 获取仓库信息
         List<CheckOrderVo> records = result.getRecords();
         List<Long> wareIds = records.stream().map(CheckOrderVo::getWarehouseId).toList();
-        List<Warehouse> warehouses = warehouseMapper.selectList(new LambdaQueryWrapper<>(Warehouse.class)
-            .in(Warehouse::getId, wareIds));
-        Map<Long, String> warehousesMap = warehouses.stream().collect(Collectors.toMap(Warehouse::getId, Warehouse::getWarehouseName));
-        records.forEach(r-> r.setWarehouseName(warehousesMap.get(r.getWarehouseId())));
+        if (CollectionUtil.isNotEmpty(wareIds)){
+            List<Warehouse> warehouses = warehouseMapper.selectList(new LambdaQueryWrapper<>(Warehouse.class)
+                .in(Warehouse::getId, wareIds));
+            Map<Long, String> warehousesMap = warehouses.stream().collect(Collectors.toMap(Warehouse::getId, Warehouse::getWarehouseName));
+            records.forEach(r-> r.setWarehouseName(warehousesMap.get(r.getWarehouseId())));
+        }
         return PageInfoRes.build(result);
     }
 

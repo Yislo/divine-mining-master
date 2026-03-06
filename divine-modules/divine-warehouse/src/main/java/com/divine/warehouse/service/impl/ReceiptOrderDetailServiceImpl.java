@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.divine.common.core.enums.FileBizTypeEnum;
+import com.divine.system.domain.vo.SysFileVo;
+import com.divine.system.service.SysFileService;
 import com.divine.warehouse.domain.dto.ReceiptOrderDetailDto;
 import com.divine.warehouse.domain.entity.ReceiptOrderDetail;
 import com.divine.warehouse.domain.vo.ReceiptDetailVO;
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 入库单详情Service业务层处理
@@ -35,12 +39,13 @@ public class ReceiptOrderDetailServiceImpl extends ServiceImpl<ReceiptOrderDetai
 
     private final ReceiptOrderDetailMapper receiptOrderDetailMapper;
     private final ItemSkuService itemSkuService;
+    private final SysFileService sysFileService;
 
     /**
      * 查询入库单详情
      */
     @Override
-    public ReceiptOrderDetailVO queryById(Long id){
+    public ReceiptOrderDetailVO queryById(Long id) {
         return receiptOrderDetailMapper.selectVoById(id);
     }
 
@@ -120,6 +125,7 @@ public class ReceiptOrderDetailServiceImpl extends ServiceImpl<ReceiptOrderDetai
 
     /**
      * 查询入库单明细
+     *
      * @param receiptOrderId
      * @return
      */
@@ -131,6 +137,18 @@ public class ReceiptOrderDetailServiceImpl extends ServiceImpl<ReceiptOrderDetai
         if (CollUtil.isEmpty(details)) {
             return Collections.emptyList();
         }
+        // 封装文件信息
+        List<Long> detailIds = details.stream().map(ReceiptOrderDetailVO::getId).toList();
+        List<SysFileVo> sysFileVos = sysFileService.selectFileByBiz(FileBizTypeEnum.RECEIPT_DETAIL.getCode(), detailIds);
+        Map<Long, List<String>> urlMap = sysFileVos.stream()
+            .collect(Collectors.groupingBy(
+                SysFileVo::getBizId,  // 按bizId分组
+                Collectors.mapping(
+                    SysFileVo::getFileUrl,  // 提取fileUrl
+                    Collectors.toList()      // 收集到List
+                )
+            ));
+        details.forEach(d -> d.setFileList(urlMap.get(d.getId())));
         itemSkuService.setItemSkuMap(details);
         return details;
     }

@@ -1,6 +1,7 @@
 package com.divine.system.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjUtil;
@@ -58,6 +59,7 @@ public class SysFileServiceImpl implements SysFileService, OssService {
 
     /**
      * 分页查询文件信息
+     *
      * @param dto
      * @param basePage
      * @return
@@ -88,21 +90,20 @@ public class SysFileServiceImpl implements SysFileService, OssService {
         return list;
     }
 
+    /**
+     * 根据业务查询文件信息
+     *
+     * @param bizType 业务类型
+     * @param bizIds  业务ids
+     * @return
+     */
     @Override
-    public String selectUrlByIds(String ossIds) {
-        List<String> list = new ArrayList<>();
-        for (Long id : StringUtils.splitTo(ossIds, Convert::toLong)) {
-            SysFileVo vo = SpringUtils.getAopProxy(this).getById(id);
-            if (ObjectUtil.isNotNull(vo)) {
-                try {
-                    list.add(this.matchingUrl(vo).getFileUrl());
-                } catch (Exception ignored) {
-                    // 如果oss异常无法连接则将数据直接返回
-                    list.add(vo.getFileUrl());
-                }
-            }
-        }
-        return String.join(StringUtils.SEPARATOR, list);
+    public List<SysFileVo> selectFileByBiz(String bizType, List<Long> bizIds) {
+        List<SysFile> sysFiles = fileMapper.selectList(new LambdaQueryWrapper<>(SysFile.class)
+            .in(CollectionUtil.isNotEmpty(bizIds), SysFile::getBizId, bizIds)
+            .eq(StringUtils.isNotBlank(bizType), SysFile::getBizType, bizType)
+        );
+        return BeanUtil.copyToList(sysFiles, SysFileVo.class);
     }
 
     private LambdaQueryWrapper<SysFile> buildQueryWrapper(SysQueryFileDto dto) {
@@ -119,15 +120,27 @@ public class SysFileServiceImpl implements SysFileService, OssService {
         return lqw;
     }
 
+    /**
+     * 根据文件id查询文件信息
+     *
+     * @param id
+     * @return
+     */
     @Override
-    @Cacheable(cacheNames = CacheNames.SYS_OSS, key = "#ossId")
-    public SysFileVo getById(Long ossId) {
-        return fileMapper.selectVoById(ossId);
+    @Cacheable(cacheNames = CacheNames.SYS_OSS, key = "#id")
+    public SysFileVo getById(Long id) {
+        return fileMapper.selectVoById(id);
     }
 
+    /**
+     * 下载
+     *
+     * @param id
+     * @param response
+     */
     @Override
-    public void download(Long ossId, HttpServletResponse response) {
-        SysFileVo sysOss = SpringUtils.getAopProxy(this).getById(ossId);
+    public void download(Long id, HttpServletResponse response) {
+        SysFileVo sysOss = SpringUtils.getAopProxy(this).getById(id);
         if (ObjectUtil.isNull(sysOss)) {
             throw new BusinessException("文件数据不存在!");
         }
@@ -143,6 +156,12 @@ public class SysFileServiceImpl implements SysFileService, OssService {
         }
     }
 
+    /**
+     * 上传
+     *
+     * @param file
+     * @return
+     */
     @Override
     public UploadFileVO upload(MultipartFile file) {
         String originalfileName = file.getOriginalFilename();
@@ -175,6 +194,29 @@ public class SysFileServiceImpl implements SysFileService, OssService {
         fileMapper.insert(sysFile);
     }
 
+    /**
+     * 批量保存文件信息
+     *
+     * @param list
+     */
+    @Override
+    public void batchSaveFile(List<SysFileDTO> list) {
+        List<SysFile> files = list.stream().map(file -> {
+            String fileName = file.getFileName();
+            SysFile sysFile = BeanUtil.copyProperties(file, SysFile.class);
+            String suffix = StringUtils.substring(fileName, fileName.lastIndexOf("."), fileName.length());
+            sysFile.setFileSuffix(suffix);
+            return sysFile;
+        }).toList();
+        fileMapper.insertBatch(files);
+    }
+
+    /**
+     * 上传
+     *
+     * @param file
+     * @return
+     */
     @Override
     public UploadFileVO upload(File file) {
         String originalfileName = file.getName();
@@ -188,20 +230,7 @@ public class SysFileServiceImpl implements SysFileService, OssService {
             .build();
     }
 
-//    private SysOssVo buildResultEntity(String originalfileName, String suffix, String configKey, UploadResult uploadResult) {
-//        SysFile oss = new SysFile();
-//        oss.setFileUrl(uploadResult.getUrl());
-//        oss.setFileSuffix(suffix);
-//        oss.setFileName(uploadResult.getFilename());
-//        oss.setOriginalName(originalfileName);
-//        oss.setService(configKey);
-//        ossMapper.insert(oss);
-//        SysOssVo sysOssVo = MapstructUtils.convert(oss, SysOssVo.class);
-//        return this.matchingUrl(sysOssVo);
-//    }
-
-    @Override
-    public Boolean deleteWithValidByIds(Collection<Long> ids, Boolean isValid) {
+    public Boolean deleteFileByIds(Collection<Long> ids, Boolean isValid) {
         if (isValid) {
             // 做一些业务上的校验,判断是否需要校验
         }
@@ -228,11 +257,28 @@ public class SysFileServiceImpl implements SysFileService, OssService {
         return oss;
     }
 
-    private OssClient getOssClient(){
+    private OssClient getOssClient() {
         String defaultConfigKey = RedisUtils.getCacheObject(OssConstant.DEFAULT_CONFIG_KEY).toString();
         if (StringUtils.isBlank(defaultConfigKey)) {
             throw new BusinessException("文件服务初始化失败");
         }
-        return  OssFactory.instance(defaultConfigKey);
+        return OssFactory.instance(defaultConfigKey);
+    }
+
+    @Override
+    public String selectUrlByIds(String ossIds) {
+        List<String> list = new ArrayList<>();
+        for (Long id : StringUtils.splitTo(ossIds, Convert::toLong)) {
+            SysFileVo vo = SpringUtils.getAopProxy(this).getById(id);
+            if (ObjectUtil.isNotNull(vo)) {
+                try {
+                    list.add(this.matchingUrl(vo).getFileUrl());
+                } catch (Exception ignored) {
+                    // 如果oss异常无法连接则将数据直接返回
+                    list.add(vo.getFileUrl());
+                }
+            }
+        }
+        return String.join(StringUtils.SEPARATOR, list);
     }
 }

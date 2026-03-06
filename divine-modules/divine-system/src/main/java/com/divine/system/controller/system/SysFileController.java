@@ -114,7 +114,7 @@ public class SysFileController extends BaseController {
     @DeleteMapping("/{ossIds}")
     public Result<Void> remove(@NotEmpty(message = "主键不能为空")
                           @PathVariable Long[] ossIds) {
-        return toAjax(sysSssService.deleteWithValidByIds(List.of(ossIds), true));
+        return toAjax(sysSssService.deleteFileByIds(List.of(ossIds), true));
     }
 
 }
