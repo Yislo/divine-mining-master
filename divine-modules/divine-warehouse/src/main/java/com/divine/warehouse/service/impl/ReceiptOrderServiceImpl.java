@@ -151,18 +151,23 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         List<SysFileDTO> allFiles = new ArrayList<>();
         // 组装文件数据
         dto.getDetails().forEach(d -> {
-            List<SysFileDTO> files = d.getFileList().stream()
-                .map(f -> {
-                    SysFileDTO file = new SysFileDTO();
-                    file.setBizId(d.getId());
-                    file.setBizType(FileBizTypeEnum.RECEIPT_DETAIL.getCode());
-                    file.setFileName(SysFileDTO.getFileName(f));
-                    file.setFileUrl(f);
-                    return file;
-                }).toList();
-            allFiles.addAll(files);
+            List<String> fileList = d.getFileList();
+            if (CollectionUtil.isNotEmpty(fileList)) {
+                List<SysFileDTO> files = fileList.stream()
+                    .map(f -> {
+                        SysFileDTO file = new SysFileDTO();
+                        file.setBizId(d.getId());
+                        file.setBizType(FileBizTypeEnum.RECEIPT_DETAIL.getCode());
+                        file.setFileName(SysFileDTO.getFileName(f));
+                        file.setFileUrl(f);
+                        return file;
+                    }).toList();
+                allFiles.addAll(files);
+            }
         });
-        sysFileService.batchSaveFile(allFiles);
+        if (CollectionUtil.isNotEmpty(allFiles)){
+            sysFileService.batchSaveFile(allFiles);
+        }
         return receiptOrder.getId();
     }
 

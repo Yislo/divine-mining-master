@@ -114,6 +114,10 @@ public class ReceiptOrderDetailServiceImpl extends ServiceImpl<ReceiptOrderDetai
         receiptOrderDetailMapper.delete(lqw);
     }
 
+    /**
+     * 保存入库明细
+     * @param list
+     */
     @Override
     @Transactional
     public void saveDetails(List<ReceiptOrderDetail> list) {
