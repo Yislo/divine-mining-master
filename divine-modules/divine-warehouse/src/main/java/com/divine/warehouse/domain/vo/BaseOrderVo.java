@@ -35,7 +35,7 @@ public class BaseOrderVo<T extends BaseOrderDetailVO> extends BaseVo {
      * 物品总数
      */
     @ExcelProperty(value = "物品总数")
-    private BigDecimal totalQuantity;
+    private Long totalQuantity;
 
     /**
      * 总金额

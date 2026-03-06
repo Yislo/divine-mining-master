@@ -2,11 +2,13 @@ package com.divine.warehouse.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.divine.warehouse.domain.dto.ReceiptOrderDetailDto;
 import com.divine.warehouse.domain.entity.ReceiptOrderDetail;
+import com.divine.warehouse.domain.vo.ReceiptDetailVO;
 import com.divine.warehouse.domain.vo.ReceiptOrderDetailVO;
 import com.divine.warehouse.mapper.ReceiptOrderDetailMapper;
 import com.divine.warehouse.service.ItemSkuService;
@@ -46,9 +48,8 @@ public class ReceiptOrderDetailServiceImpl extends ServiceImpl<ReceiptOrderDetai
      * 查询入库单详情列表
      */
     @Override
-    public PageInfoRes<ReceiptOrderDetailVO> queryPageList(ReceiptOrderDetailDto dto, BasePage basePage) {
-        LambdaQueryWrapper<ReceiptOrderDetail> lqw = buildQueryWrapper(dto);
-        Page<ReceiptOrderDetailVO> result = receiptOrderDetailMapper.selectVoPage(basePage.build(), lqw);
+    public PageInfoRes<ReceiptDetailVO> queryPageList(Long receiptId, BasePage basePage) {
+        IPage<ReceiptDetailVO> result = receiptOrderDetailMapper.getReceiptDetailList(basePage.build(), receiptId);
         return PageInfoRes.build(result);
     }
 
@@ -117,6 +118,11 @@ public class ReceiptOrderDetailServiceImpl extends ServiceImpl<ReceiptOrderDetai
         saveOrUpdateBatch(list);
     }
 
+    /**
+     * 查询入库单明细
+     * @param receiptOrderId
+     * @return
+     */
     @Override
     public List<ReceiptOrderDetailVO> queryByReceiptOrderId(Long receiptOrderId) {
         ReceiptOrderDetailDto dto = new ReceiptOrderDetailDto();

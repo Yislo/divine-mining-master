@@ -2,6 +2,7 @@ package com.divine.warehouse.service;
 
 import com.divine.warehouse.domain.dto.ReceiptOrderDetailDto;
 import com.divine.warehouse.domain.entity.ReceiptOrderDetail;
+import com.divine.warehouse.domain.vo.ReceiptDetailVO;
 import com.divine.warehouse.domain.vo.ReceiptOrderDetailVO;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
@@ -26,7 +27,7 @@ public interface ReceiptOrderDetailService{
     /**
      * 查询入库单详情列表
      */
-    PageInfoRes<ReceiptOrderDetailVO> queryPageList(ReceiptOrderDetailDto dto, BasePage basePage);
+    PageInfoRes<ReceiptDetailVO> queryPageList(Long receiptId, BasePage basePage);
 
     /**
      * 查询入库单详情列表
@@ -55,5 +56,10 @@ public interface ReceiptOrderDetailService{
 
     void saveDetails(List<ReceiptOrderDetail> list);
 
+    /**
+     * 查询入库单明细
+     * @param receiptOrderId
+     * @return
+     */
     List<ReceiptOrderDetailVO> queryByReceiptOrderId(Long receiptOrderId);
 }

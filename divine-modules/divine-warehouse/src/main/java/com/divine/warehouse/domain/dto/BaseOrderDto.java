@@ -29,7 +29,7 @@ public class BaseOrderDto<T extends BaseOrderDetailDto> extends BaseEntity {
     /**
      * 总数
      */
-    private BigDecimal totalQuantity;
+    private Long totalQuantity;
 
     /**
      * 总金额

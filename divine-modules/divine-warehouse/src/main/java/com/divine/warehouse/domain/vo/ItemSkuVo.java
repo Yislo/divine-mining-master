@@ -85,10 +85,4 @@ public class ItemSkuVo implements Serializable {
      */
     @ExcelProperty(value = "单价($)")
     private BigDecimal unitPrice;
-
-    /**
-     * 所属货架
-     */
-    @ExcelProperty(value = "所属货架")
-    private String storageShelf;
 }

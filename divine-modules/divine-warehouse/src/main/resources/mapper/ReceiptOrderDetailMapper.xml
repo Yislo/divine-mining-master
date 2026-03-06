@@ -4,4 +4,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.divine.warehouse.mapper.ReceiptOrderDetailMapper">
 
+    <select id="getReceiptDetailList" resultType="com.divine.warehouse.domain.vo.ReceiptDetailVO">
+        SELECT
+            rod.receipt_id,
+            item.item_name,
+            sku.id skuId,
+            sku.sku_name,
+            rod.quantity,
+            rod.storage_shelf,
+            rod.unit_price
+        FROM
+            wms_receipt_order_detail rod
+                LEFT JOIN wms_item_sku sku ON sku.id = rod.sku_id
+                LEFT JOIN wms_item item ON item.id = sku.item_id
+        WHERE rod.receipt_id = #{receiptId}
+    </select>
 </mapper>

@@ -23,9 +23,9 @@ public class BaseOrderDetail extends BaseEntity {
     /**
      * 数量
      */
-    private BigDecimal quantity;
+    private Long quantity;
     /**
-     * 单价
+     * 单价($)
      */
     private BigDecimal unitPrice;
     /**

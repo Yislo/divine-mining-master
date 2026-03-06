@@ -68,7 +68,7 @@ public class ReceiptOrderController extends BaseController {
      */
     @SaCheckPermission("wms:receipt:all")
     @GetMapping("/{id}")
-    public Result<ReceiptOrderVo> getInfo(@NotNull(message = "主键不能为空")
+    public Result<ReceiptOrderVo> getInfo(@NotNull(message = "id不能为空")
                                      @PathVariable Long id) {
         return Result.success(receiptOrderService.queryById(id));
     }

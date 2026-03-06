@@ -59,6 +59,9 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
     public ReceiptOrderVo queryById(Long id) {
         ReceiptOrderVo receiptOrderVo = receiptOrderMapper.selectVoById(id);
         Assert.notNull(receiptOrderVo, "入库单不存在");
+        // 获取仓库名称
+        Warehouse warehouse = warehouseMapper.selectById(receiptOrderVo.getWarehouseId());
+        receiptOrderVo.setWarehouseName(warehouse.getWarehouseName());
         receiptOrderVo.setDetails(receiptOrderDetailService.queryByReceiptOrderId(id));
         return receiptOrderVo;
     }
@@ -116,6 +119,11 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         return insertReceipt(dto);
     }
 
+    /**
+     * 保存入库单
+     * @param dto
+     * @return
+     */
     private Long insertReceipt(ReceiptOrderDto dto) {
         // 创建入库单
         String receiptNo = commonService.getNo(InventoryTypeEnum.RECEIPT.getCode());

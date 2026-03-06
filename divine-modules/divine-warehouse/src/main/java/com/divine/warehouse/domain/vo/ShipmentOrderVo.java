@@ -19,7 +19,6 @@ import lombok.EqualsAndHashCode;
 @AutoMapper(target = ShipmentOrder.class)
 public class ShipmentOrderVo extends BaseOrderVo<ShipmentOrderDetailVO>{
 
-
     /**
      * 出库单号
      */

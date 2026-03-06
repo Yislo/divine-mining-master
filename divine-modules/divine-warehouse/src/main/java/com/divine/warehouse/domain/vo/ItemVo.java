@@ -48,11 +48,11 @@ public class ItemVo implements Serializable {
     @ExcelProperty(value = "单位类别")
     private String unit;
 
-    /**
-     * 品牌
-     */
-    @ExcelProperty(value = "品牌")
-    private Long itemBrand;
+//    /**
+//     * 品牌
+//     */
+//    @ExcelProperty(value = "品牌")
+//    private Long itemBrand;
 
     /**
      * 备注

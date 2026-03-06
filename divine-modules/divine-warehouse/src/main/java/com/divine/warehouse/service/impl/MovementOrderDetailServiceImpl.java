@@ -66,7 +66,7 @@ public class MovementOrderDetailServiceImpl extends ServiceImpl<MovementOrderDet
     private LambdaQueryWrapper<MovementOrderDetail> buildQueryWrapper(MovementOrderDetailDto dto) {
         Map<String, Object> params = dto.getParams();
         LambdaQueryWrapper<MovementOrderDetail> lqw = Wrappers.lambdaQuery();
-        lqw.eq(dto.getBizId() != null, MovementOrderDetail::getMovementId, dto.getBizId());
+        lqw.eq(dto.getBizId() != null, MovementOrderDetail::getId, dto.getBizId());
         lqw.eq(dto.getSkuId() != null, MovementOrderDetail::getSkuId, dto.getSkuId());
         lqw.eq(dto.getQuantity() != null, MovementOrderDetail::getQuantity, dto.getQuantity());
         lqw.eq(dto.getSourceWarehouseId() != null, MovementOrderDetail::getSourceWarehouseId, dto.getSourceWarehouseId());

@@ -12,6 +12,7 @@ import com.divine.common.log.enums.BusinessType;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.web.core.BaseController;
+import com.divine.warehouse.domain.vo.ReceiptDetailVO;
 import com.divine.warehouse.domain.vo.ReceiptOrderDetailVO;
 import com.divine.warehouse.service.ReceiptOrderDetailService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,8 +43,8 @@ public class ReceiptOrderDetailController extends BaseController {
      */
     @SaCheckPermission("wms:receipt:all")
     @GetMapping("/list")
-    public PageInfoRes<ReceiptOrderDetailVO> list(ReceiptOrderDetailDto dto, BasePage basePage) {
-        return receiptOrderDetailService.queryPageList(dto, basePage);
+    public PageInfoRes<ReceiptDetailVO> list(Long receiptId, BasePage basePage) {
+        return receiptOrderDetailService.queryPageList(receiptId, basePage);
     }
 
     /**

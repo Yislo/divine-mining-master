@@ -69,7 +69,7 @@ public class InventoryHistoryVo implements Serializable {
      * 库存变化
      */
     @ExcelProperty(value = "库存变化")
-    private BigDecimal quantity;
+    private Long quantity;
 
     /**
      * 备注
@@ -86,11 +86,11 @@ public class InventoryHistoryVo implements Serializable {
     /**
      * 更新前数量
      */
-    private BigDecimal beforeQuantity;
+    private Long beforeQuantity;
     /**
      * 更新后数量
      */
-    private BigDecimal afterQuantity;
+    private Long afterQuantity;
 
     private ItemSkuVo itemSku;
 

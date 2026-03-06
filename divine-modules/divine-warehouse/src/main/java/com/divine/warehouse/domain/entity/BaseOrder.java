@@ -20,7 +20,7 @@ public class BaseOrder extends BaseEntity {
     /**
      * 物品总数
      */
-    private BigDecimal totalQuantity;
+    private Long totalQuantity;
 
     /**
      * 订单总金额

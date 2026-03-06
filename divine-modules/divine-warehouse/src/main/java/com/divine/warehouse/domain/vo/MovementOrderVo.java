@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
 public class MovementOrderVo extends BaseOrderVo<MovementOrderDetailVO>{
 
     /**
-     * 盘库单号
+     * 移库单号
      */
     private String moveNo;
 

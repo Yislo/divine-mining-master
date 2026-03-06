@@ -25,7 +25,7 @@ public class CheckOrderDetail extends BaseOrderDetail {
     /**
      * 盘点数量
      */
-    private BigDecimal checkQuantity;
+    private Long checkQuantity;
     /**
      * 所属仓库
      */

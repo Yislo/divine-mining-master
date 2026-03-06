@@ -34,7 +34,7 @@ public class BaseOrderDetailDto extends BaseEntity {
     private Long skuId;
 
     /**
-     * 单价
+     * 单价($)
      */
     private BigDecimal unitPrice;
 

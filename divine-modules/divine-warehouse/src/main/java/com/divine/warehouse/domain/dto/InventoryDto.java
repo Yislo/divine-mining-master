@@ -45,7 +45,7 @@ public class InventoryDto extends BaseEntity {
      * 库存
      */
     @NotNull(message = "库存不能为空", groups = { AddGroup.class, EditGroup.class })
-    private BigDecimal quantity;
+    private Long quantity;
 
     /**
      * 备注
