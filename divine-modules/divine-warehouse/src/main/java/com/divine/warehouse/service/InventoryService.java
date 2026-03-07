@@ -35,6 +35,14 @@ public interface InventoryService {
     List<InventoryVo> queryList(InventoryDto dto);
 
     /**
+     * 查询可出库列表
+     * @param dto
+     * @param basePage
+     * @return
+     */
+    PageInfoRes<InventoryVo> queryChooseList(InventoryDto dto,BasePage basePage);
+
+    /**
      * 新增库存
      * @param dto
      */
@@ -111,4 +119,10 @@ public interface InventoryService {
      * @param id
      */
     void deleteStorageShelf(Long id);
+
+    /**
+     * 根据skuId数组查询
+     * @param skuIds
+     */
+    List<InventoryVo> getBySkuIds(List<Long> skuIds);
 }

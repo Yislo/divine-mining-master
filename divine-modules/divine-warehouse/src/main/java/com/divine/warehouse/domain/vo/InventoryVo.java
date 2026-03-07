@@ -51,8 +51,13 @@ public class InventoryVo implements Serializable {
     /**
      * 备注
      */
-    @ExcelProperty(value = "")
+    @ExcelProperty(value = "备注")
     private String remark;
+
+    /**
+     * 货架
+     */
+    private String storageShelf;
 
     /**
      * sku信息

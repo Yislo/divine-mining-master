@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 public class ItemSkuMapVo implements Serializable {
@@ -14,4 +15,8 @@ public class ItemSkuMapVo implements Serializable {
     private Long skuId;
     private ItemVo item;
     private ItemSkuVo itemSku;
+    /**
+     * 货架信息
+     */
+    private List<String> storageShelf;
 }

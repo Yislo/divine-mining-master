@@ -1,6 +1,7 @@
 package com.divine.warehouse.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -10,6 +11,7 @@ import com.divine.common.core.exception.base.BusinessException;
 import com.divine.warehouse.domain.dto.ItemSkuDto;
 import com.divine.warehouse.domain.entity.ItemSku;
 import com.divine.warehouse.domain.vo.BaseOrderDetailVO;
+import com.divine.warehouse.domain.vo.InventoryVo;
 import com.divine.warehouse.domain.vo.ItemSkuMapVo;
 import com.divine.warehouse.domain.vo.ItemSkuVo;
 import com.divine.warehouse.mapper.ItemSkuMapper;
@@ -25,10 +27,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -63,6 +62,26 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
     public PageInfoRes<ItemSkuMapVo> queryPageList(ItemSkuDto dto, BasePage basePage) {
         //开始查sku
         IPage<ItemSkuMapVo> result = itemSkuMapper.selectByBo(basePage.build(), dto);
+        List<ItemSkuMapVo> records = result.getRecords();
+        List<Long> skuIds = records.stream().map(ItemSkuMapVo::getSkuId).toList();
+        List<InventoryVo> skuInventory = inventoryService.getBySkuIds(skuIds);
+        // 封装货架信息
+        Map<Long, List<String>> storageShelfMap = skuInventory.stream()
+            .filter(vo -> vo.getSkuId() != null) // 过滤掉 skuId 为 null 的记录
+            .collect(Collectors.groupingBy(
+                InventoryVo::getSkuId,
+                Collectors.mapping(
+                    vo -> vo.getStorageShelf() != null ? vo.getStorageShelf() : "未知货架",
+                    Collectors.collectingAndThen(
+                        Collectors.toCollection(HashSet::new), // 先去重
+                        ArrayList::new // 再转回 List
+                    )
+                )
+            ));
+        records.forEach(r -> {
+            List<String> storageShelf = storageShelfMap.get(r.getSkuId());
+            r.setStorageShelf(CollectionUtil.isEmpty(storageShelf) ? List.of("未知货架") : storageShelf);
+        });
         return PageInfoRes.build(result);
     }
 
@@ -80,7 +99,6 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
         LambdaQueryWrapper<ItemSku> lqw = Wrappers.lambdaQuery();
         lqw.like(StrUtil.isNotBlank(dto.getSkuName()), ItemSku::getSkuName, dto.getSkuName());
         lqw.eq(dto.getItemId() != null, ItemSku::getItemId, dto.getItemId());
-        lqw.eq(StrUtil.isNotBlank(dto.getBarcode()), ItemSku::getBarcode, dto.getBarcode());
         lqw.orderByDesc(ItemSku::getItemId);
         return lqw;
     }
@@ -114,7 +132,7 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
         // 只有一个不能删除
         ItemSku itemSku = itemSkuMapper.selectById(id);
 
-        if(queryByItemId(itemSku.getItemId()).size() <= 1){
+        if (queryByItemId(itemSku.getItemId()).size() <= 1) {
             throw new BusinessException("至少包含一个物品规格！");
         }
         // 校验库存是否已关联
@@ -128,6 +146,7 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
             throw new BusinessException("该物品已有业务关联，无法删除！");
         }
     }
+
     /**
      * 批量删除sku信息
      */
@@ -141,7 +160,8 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
 
     /**
      * 批量保存物品sku
-     * @param sku    物品sku
+     *
+     * @param sku 物品sku
      */
     @Override
     @Transactional
@@ -152,9 +172,9 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
 
     public void setItemId(List<ItemSkuDto> itemSkuList, Long itemId) {
         for (ItemSkuDto itemSkuDto : itemSkuList) {
-            if (StrUtil.isBlank(itemSkuDto.getBarcode())) {
+//            if (StrUtil.isBlank(itemSkuDto.getBarcode())) {
                 itemSkuDto.setItemId(itemId);
-            }
+//            }
         }
     }
 
@@ -171,13 +191,13 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
     }
 
     @Override
-    public Map<Long, ItemSkuMapVo> queryItemSkuMapVosByIds(Set<Long> skuIds){
+    public Map<Long, ItemSkuMapVo> queryItemSkuMapVosByIds(Set<Long> skuIds) {
         return itemSkuMapper.queryItemSkuMapVos(skuIds).stream()
             .collect(Collectors.toMap(ItemSkuMapVo::getSkuId, Function.identity()));
     }
 
     @Override
-    public void setItemSkuMap(List<? extends BaseOrderDetailVO> details){
+    public void setItemSkuMap(List<? extends BaseOrderDetailVO> details) {
         if (CollUtil.isNotEmpty(details)) {
             Set<Long> skuIds = details
                 .stream()
@@ -187,9 +207,9 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
             Map<Long, ItemSkuMapVo> itemSkuMap = this.queryItemSkuMapVosByIds(skuIds);
 
             details.forEach(detail -> {
-                    ItemSkuMapVo vo = itemSkuMap.get(detail.getSkuId());
-                    detail.setItemSku(vo.getItemSku());
-                    detail.setItem(vo.getItem());
+                ItemSkuMapVo vo = itemSkuMap.get(detail.getSkuId());
+                detail.setItemSku(vo.getItemSku());
+                detail.setItem(vo.getItem());
             });
         }
     }

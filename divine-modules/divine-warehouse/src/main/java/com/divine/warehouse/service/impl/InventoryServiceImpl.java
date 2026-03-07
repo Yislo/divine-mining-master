@@ -1,7 +1,9 @@
 package com.divine.warehouse.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -62,12 +64,39 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             Set<Long> skuIds = vos.stream().map(InventoryVo::getSkuId).collect(Collectors.toSet());
             Map<Long, ItemSkuMapVo> itemSkuMap = itemSkuService.queryItemSkuMapVosByIds(skuIds);
             vos.forEach(it -> {
+                String storageShelf = it.getStorageShelf();
+                it.setStorageShelf(StringUtils.isNoneBlank(storageShelf)?storageShelf:"未知货架");
                 ItemSkuMapVo itemSkuMapVo = itemSkuMap.get(it.getSkuId());
                 it.setItemSku(itemSkuMapVo.getItemSku());
                 it.setItem(itemSkuMapVo.getItem());
             });
         }
         return vos;
+    }
+
+    /**
+     * 查询可出库物品列表
+     * @param dto
+     * @param basePage
+     * @return
+     */
+    @Override
+    public PageInfoRes<InventoryVo> queryChooseList(InventoryDto dto, BasePage basePage) {
+        LambdaQueryWrapper<Inventory> lqw = buildQueryWrapper(dto);
+        IPage<InventoryVo> res = inventoryMapper.selectVoPage(basePage.build(),lqw);
+        List<InventoryVo> vos = res.getRecords();
+        if (CollUtil.isNotEmpty(vos)) {
+            Set<Long> skuIds = vos.stream().map(InventoryVo::getSkuId).collect(Collectors.toSet());
+            Map<Long, ItemSkuMapVo> itemSkuMap = itemSkuService.queryItemSkuMapVosByIds(skuIds);
+            vos.forEach(it -> {
+                String storageShelf = it.getStorageShelf();
+                it.setStorageShelf(StringUtils.isNoneBlank(storageShelf)?storageShelf:"未知货架");
+                ItemSkuMapVo itemSkuMapVo = itemSkuMap.get(it.getSkuId());
+                it.setItemSku(itemSkuMapVo.getItemSku());
+                it.setItem(itemSkuMapVo.getItem());
+            });
+        }
+        return PageInfoRes.build(res);
     }
 
     private LambdaQueryWrapper<Inventory> buildQueryWrapper(InventoryDto dto) {
@@ -131,8 +160,6 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         if (result.getRecords() == null || result.getRecords().isEmpty()) {
             return PageInfoRes.build(result);
         }
-        // 3. 解析 stock_info_text 为 List<StorageShelfVO>
-        result.getRecords().forEach(this::parseStockInfo);
         return PageInfoRes.build(result);
     }
 
@@ -151,52 +178,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         if (result.getRecords() == null || result.getRecords().isEmpty()) {
             return PageInfoRes.build(result);
         }
-        // 3. 解析 stock_info_text 为 List<StorageShelfVO>
-        result.getRecords().forEach(this::parseStockInfo);
         return PageInfoRes.build(result);
-    }
-
-    /**
-     * 解析库存信息字符串为对象列表
-     * 格式： "A-01:100;B-02:200;C-03:50"
-     */
-    private void parseStockInfo(BoardListVO vo) {
-        String stockInfoText = vo.getStockInfoText();
-        if (StringUtils.isBlank(stockInfoText)) {
-            vo.setStockInfo(new ArrayList<>());
-            return;
-        }
-        // todo 如果需要排除库存为0的货架
-//        List<StorageShelfVO> stockLis = new ArrayList<>();
-//        List<String> list = Arrays.stream(stockInfoText.split(";")).toList();
-//        for (String s : list) {
-//            String[] parts = s.split(":");
-//            if ("0".equals(parts[1])) {
-//                continue;
-//            }
-//            StorageShelfVO ss = new StorageShelfVO();
-//            ss.setStorageShelf(parts[0]);
-//            ss.setQuantity(Long.parseLong(parts[1]));
-//            stockLis.add(ss);
-//        }
-
-
-        List<StorageShelfVO> stockList = Arrays.stream(stockInfoText.split(";"))
-            .map(item -> {
-                String[] parts = item.split(":");
-                if (parts.length == 3) {
-                    StorageShelfVO ss = new StorageShelfVO();
-                    ss.setId(Long.parseLong(parts[0]));
-                    ss.setStorageShelf(parts[1]);
-                    ss.setQuantity(Long.parseLong(parts[2]));
-                    return ss;
-                }
-                return null;
-            })
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
-
-        vo.setStockInfo(stockList);
     }
 
 
@@ -334,5 +316,21 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         }
         // 库存为0 可以删除
         inventoryMapper.deleteById(id);
+    }
+
+
+    /**
+     * 根据skuIds查询
+     *
+     * @param skuIds
+     * @return
+     */
+    @Override
+    public List<InventoryVo> getBySkuIds(List<Long> skuIds) {
+        if (CollectionUtil.isEmpty(skuIds)) {
+            return List.of();
+        }
+        return inventoryMapper.selectVoList(new LambdaQueryWrapper<>(Inventory.class)
+            .in(Inventory::getSkuId, skuIds));
     }
 }

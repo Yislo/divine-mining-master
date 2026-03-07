@@ -35,10 +35,10 @@ public class ItemSkuDto extends BaseEntity {
     @NotNull(message = "物品id不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long itemId;
 
-    /**
-     * sku条码
-     */
-    private String barcode;
+//    /**
+//     * sku条码
+//     */
+//    private String barcode;
 
     /**
      * sku编号

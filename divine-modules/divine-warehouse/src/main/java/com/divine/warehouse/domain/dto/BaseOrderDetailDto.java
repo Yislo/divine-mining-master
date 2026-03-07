@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.Length;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -46,6 +47,7 @@ public class BaseOrderDetailDto extends BaseEntity {
      * 货架
      */
     @NotBlank(message = "货架不能为空", groups = { AddGroup.class, EditGroup.class })
+    @Length(max = 20,message = "货架名称不能超过20个字")
     private String storageShelf;
 
     /**

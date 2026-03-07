@@ -3,7 +3,8 @@ package com.divine.warehouse.domain.vo;
 import com.alibaba.excel.annotation.ExcelProperty;
 import lombok.Data;
 
-import java.util.List;
+import java.math.BigDecimal;
+
 
 /**
  * @Author: Yisl
@@ -59,14 +60,19 @@ public class BoardListVO {
     private String skuNo;
 
     /**
-     * 库存信息
+     * 单价
      */
-    private String stockInfoText;
+    private BigDecimal unitPrice;
 
     /**
-     * 库存信息
+     * 货架
      */
-    private List<StorageShelfVO> stockInfo;
+    private String storageShelf;
+
+    /**
+     * 库存
+     */
+    private Long quantity;
 
 
 }

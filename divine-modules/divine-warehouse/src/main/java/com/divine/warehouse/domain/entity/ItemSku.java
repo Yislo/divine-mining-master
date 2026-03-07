@@ -33,10 +33,10 @@ public class ItemSku extends BaseEntity {
      */
     private Long itemId;
 
-    /**
-     * 条码
-     */
-    private String barcode;
+//    /**
+//     * 条码
+//     */
+//    private String barcode;
 
     /**
      * 编码

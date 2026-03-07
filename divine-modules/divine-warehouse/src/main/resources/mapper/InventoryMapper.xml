@@ -9,17 +9,14 @@
         sku.id AS sku_id,
         sku.sku_no,
         sku.sku_name,
+        sku.unit_price,
         item.id AS item_id,
         item.item_name,
         item.item_no,
         w.id AS warehouse_id,
         w.warehouse_name,
-        GROUP_CONCAT(
-        CONCAT(inv.id, ':', inv.storage_shelf, ':', inv.quantity)
-        ORDER BY inv.storage_shelf
-        SEPARATOR ';'
-        ) AS stock_info_text,
-        SUM(inv.quantity) AS total_quantity
+        IFNULL(inv.storage_shelf, '未知货架') AS storage_shelf,
+        SUM(inv.quantity) AS quantity
         FROM wms_inventory inv
         INNER JOIN wms_item_sku sku ON inv.sku_id = sku.id
         INNER JOIN wms_item item ON sku.item_id = item.id
@@ -54,9 +51,15 @@
             </if>
         </where>
         GROUP BY
-        sku.id, sku.sku_no, sku.sku_name,
-        item.id, item.item_name, item.item_no,
-        w.id, w.warehouse_name
+        sku.id,
+        sku.sku_no,
+        sku.sku_name,
+        item.id,
+        item.item_name,
+        item.item_no,
+        w.id,
+        w.warehouse_name,
+        IFNULL(inv.storage_shelf, '未知货架')
         <if test="dto.maxQuantity != null">
             HAVING SUM(inv.quantity) <![CDATA[ <= ]]> #{dto.maxQuantity}
         </if>
