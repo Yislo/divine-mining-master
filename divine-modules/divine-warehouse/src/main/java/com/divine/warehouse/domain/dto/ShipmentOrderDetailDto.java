@@ -21,4 +21,9 @@ import lombok.EqualsAndHashCode;
 })
 public class ShipmentOrderDetailDto extends BaseOrderDetailDto{
 
+    /**
+     * 移库单id
+     */
+    private Long shipmentId;
+
 }

@@ -1,5 +1,6 @@
 package com.divine.warehouse.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -70,7 +71,7 @@ public class ReceiptOrderDetailServiceImpl extends ServiceImpl<ReceiptOrderDetai
     private LambdaQueryWrapper<ReceiptOrderDetail> buildQueryWrapper(ReceiptOrderDetailDto dto) {
         Map<String, Object> params = dto.getParams();
         LambdaQueryWrapper<ReceiptOrderDetail> lqw = Wrappers.lambdaQuery();
-        lqw.eq(dto.getBizId() != null, ReceiptOrderDetail::getReceiptId, dto.getBizId());
+        lqw.eq(dto.getReceiptId() != null, ReceiptOrderDetail::getReceiptId, dto.getReceiptId());
         lqw.eq(dto.getSkuId() != null, ReceiptOrderDetail::getSkuId, dto.getSkuId());
         lqw.eq(dto.getQuantity() != null, ReceiptOrderDetail::getQuantity, dto.getQuantity());
         lqw.eq(dto.getUnitPrice() != null, ReceiptOrderDetail::getUnitPrice, dto.getUnitPrice());
@@ -116,15 +117,22 @@ public class ReceiptOrderDetailServiceImpl extends ServiceImpl<ReceiptOrderDetai
 
     /**
      * 保存入库明细
+     *
      * @param list
      */
     @Override
     @Transactional
-    public void saveDetails(List<ReceiptOrderDetail> list) {
+    public void saveDetails(List<ReceiptOrderDetailDto> list) {
         if (CollUtil.isEmpty(list)) {
             return;
         }
-        saveOrUpdateBatch(list);
+        List<ReceiptOrderDetail> detailList = MapstructUtils.convert(list, ReceiptOrderDetail.class);
+        saveOrUpdateBatch(detailList);
+        // 回填id
+        for (int i = 0; i < list.size(); i++) {
+            list.get(i).setId(detailList.get(i).getId());
+        }
+
     }
 
     /**
@@ -136,7 +144,7 @@ public class ReceiptOrderDetailServiceImpl extends ServiceImpl<ReceiptOrderDetai
     @Override
     public List<ReceiptOrderDetailVO> queryByReceiptOrderId(Long receiptOrderId) {
         ReceiptOrderDetailDto dto = new ReceiptOrderDetailDto();
-        dto.setBizId(receiptOrderId);
+        dto.setReceiptId(receiptOrderId);
         List<ReceiptOrderDetailVO> details = queryList(dto);
         if (CollUtil.isEmpty(details)) {
             return Collections.emptyList();

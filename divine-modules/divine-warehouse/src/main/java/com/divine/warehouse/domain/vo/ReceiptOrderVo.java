@@ -42,6 +42,12 @@ public class ReceiptOrderVo extends BaseOrderVo<ReceiptOrderDetailVO> {
     private Long merchantId;
 
     /**
+     * 供应商名称
+     */
+    @ExcelProperty(value = "供应商名称")
+    private String merchantName;
+
+    /**
      * 第三方订单号
      */
     @ExcelProperty(value = "第三方订单号")

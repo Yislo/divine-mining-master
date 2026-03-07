@@ -111,7 +111,7 @@ public class ShipmentOrderDetailServiceImpl extends ServiceImpl<ShipmentOrderDet
     @Override
     public List<ShipmentOrderDetailVO> queryByShipmentOrderId(Long shipmentOrderId) {
         ShipmentOrderDetailDto dto = new ShipmentOrderDetailDto();
-        dto.setBizId(shipmentOrderId);
+        dto.setShipmentId(shipmentOrderId);
         List<ShipmentOrderDetailVO> details = queryList(dto);
         itemSkuService.setItemSkuMap(details);
         return details;

@@ -60,10 +60,10 @@ public class InventoryHistoryVo implements Serializable {
     private Long skuId;
 
     /**
-     * 金额
+     * 单价
      */
-    @ExcelProperty(value = "金额")
-    private BigDecimal amount;
+    @ExcelProperty(value = "单价")
+    private BigDecimal unitPrice;
 
     /**
      * 库存变化

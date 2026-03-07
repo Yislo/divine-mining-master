@@ -3,6 +3,7 @@ package com.divine.warehouse.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.ObjUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -22,6 +23,7 @@ import com.divine.warehouse.domain.entity.ReceiptOrder;
 import com.divine.warehouse.domain.entity.ReceiptOrderDetail;
 import com.divine.warehouse.domain.entity.Warehouse;
 import com.divine.warehouse.domain.vo.BaseOrderDetailVO;
+import com.divine.warehouse.domain.vo.MerchantVo;
 import com.divine.warehouse.domain.vo.ReceiptOrderDetailVO;
 import com.divine.warehouse.domain.vo.ReceiptOrderVo;
 import com.divine.warehouse.mapper.ReceiptOrderMapper;
@@ -56,6 +58,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
     private final CommonService commonService;
     private final WarehouseMapper warehouseMapper;
     private final SysFileService sysFileService;
+    private final MerchantService merchantService;
 
     /**
      * 查询入库单
@@ -67,6 +70,11 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         // 获取仓库名称
         Warehouse warehouse = warehouseMapper.selectById(receiptOrderVo.getWarehouseId());
         receiptOrderVo.setWarehouseName(warehouse.getWarehouseName());
+        // 获取供应商名称
+        MerchantVo merchantVo = merchantService.queryById(receiptOrderVo.getMerchantId());
+        if (ObjUtil.isNotNull(merchantVo)){
+            receiptOrderVo.setMerchantName(merchantVo.getMerchantName());
+        }
         receiptOrderVo.setDetails(receiptOrderDetailService.queryByReceiptOrderId(id));
         return receiptOrderVo;
     }
@@ -123,8 +131,6 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
     @Transactional
     public Long insertByBo(ReceiptOrderDto dto) {
         dto.setReceiptStatus(0);
-        List<Long> list = dto.getDetails().stream().map(BaseOrderDetailDto::getId).toList();
-        sysFileService.deleteFileByIds(list, false);
         return insertReceipt(dto);
     }
 
@@ -142,15 +148,14 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         ReceiptOrder receiptOrder = MapstructUtils.convert(dto, ReceiptOrder.class);
         receiptOrder.setReceiptNo(receiptNo);
         receiptOrderMapper.insert(receiptOrder);
-        List<ReceiptOrderDetailDto> detailBoList = dto.getDetails();
-        List<ReceiptOrderDetail> addDetailList = MapstructUtils.convert(detailBoList, ReceiptOrderDetail.class);
-        addDetailList.forEach(it -> it.setReceiptId(receiptOrder.getId()));
+        List<ReceiptOrderDetailDto> detailDtoList = dto.getDetails();
+        detailDtoList.forEach(it -> it.setReceiptId(receiptOrder.getId()));
         // 创建入库单明细
-        receiptOrderDetailService.saveDetails(addDetailList);
+        receiptOrderDetailService.saveDetails(detailDtoList);
         // 保存文件
         List<SysFileDTO> allFiles = new ArrayList<>();
         // 组装文件数据
-        dto.getDetails().forEach(d -> {
+        detailDtoList.forEach(d -> {
             List<String> fileList = d.getFileList();
             if (CollectionUtil.isNotEmpty(fileList)) {
                 List<SysFileDTO> files = fileList.stream()
@@ -165,7 +170,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
                 allFiles.addAll(files);
             }
         });
-        if (CollectionUtil.isNotEmpty(allFiles)){
+        if (CollectionUtil.isNotEmpty(allFiles)) {
             sysFileService.batchSaveFile(allFiles);
         }
         return receiptOrder.getId();
@@ -189,6 +194,9 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
             insertReceipt(dto);
         } else {
             updateByBo(dto);
+            // 删除历史文件
+            List<Long> list = dto.getDetails().stream().map(BaseOrderDetailDto::getId).toList();
+            sysFileService.deleteFileByIds(list, false);
         }
         // 3.增加库存
         inventoryService.add(dto.getDetails());
@@ -212,17 +220,17 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         ReceiptOrder update = MapstructUtils.convert(dto, ReceiptOrder.class);
         receiptOrderMapper.updateById(update);
         // 保存入库单明细
-        List<ReceiptOrderDetail> detailList = MapstructUtils.convert(dto.getDetails(), ReceiptOrderDetail.class);
+        List<ReceiptOrderDetailDto> detailList = dto.getDetails();
         //需要考虑detail删除
         List<ReceiptOrderDetailVO> dbList = receiptOrderDetailService.queryByReceiptOrderId(dto.getId());
         Set<Long> ids = detailList.stream()
-            .map(BaseOrderDetail::getId)
+            .map(ReceiptOrderDetailDto::getId)
             .filter(Objects::nonNull).collect(Collectors.toSet());
         List<ReceiptOrderDetailVO> delList = dbList.stream().filter(it -> !ids.contains(it.getId())).collect(Collectors.toList());
         if (CollectionUtil.isNotEmpty(delList)) {
             receiptOrderDetailService.deleteByIds(delList.stream().map(BaseOrderDetailVO::getId).collect(Collectors.toList()));
         }
-        detailList.forEach(it -> it.setId(dto.getId()));
+        detailList.forEach(it -> it.setReceiptId(dto.getId()));
         receiptOrderDetailService.saveDetails(detailList);
     }
 

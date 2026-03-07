@@ -20,6 +20,11 @@ import java.math.BigDecimal;
 public class CheckOrderDetailDto extends BaseOrderDetailDto {
 
     /**
+     * 盘库单id
+     */
+    private Long checkId;
+
+    /**
      * 盘点数量
      */
     private Long checkQuantity;

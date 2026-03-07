@@ -45,9 +45,9 @@ public class InventoryHistory extends BaseHistoryEntity {
      */
     private Long skuId;
     /**
-     * 金额
+     * 单价
      */
-    private BigDecimal amount;
+    private BigDecimal unitPrice;
     /**
      * 库存变化
      */

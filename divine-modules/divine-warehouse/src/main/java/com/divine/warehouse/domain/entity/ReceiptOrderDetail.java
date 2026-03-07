@@ -16,7 +16,7 @@ import lombok.*;
 public class ReceiptOrderDetail extends BaseOrderDetail {
 
     /**
-     * 所属入库单id
+     * 入库单id
      */
     private Long receiptId;
 

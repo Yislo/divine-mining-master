@@ -26,6 +26,11 @@ import lombok.EqualsAndHashCode;
 public class MovementOrderDetailDto extends BaseOrderDetailDto {
 
     /**
+     * 移库单id
+     */
+    private Long moveId;
+
+    /**
      * 源仓库
      */
     @NotNull(message = "源仓库不能为空", groups = { AddGroup.class, EditGroup.class })

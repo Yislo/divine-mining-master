@@ -22,12 +22,6 @@ public class BaseOrderDetailDto extends BaseEntity {
     private Long id;
 
     /**
-     * 业务单id
-     */
-    @NotNull(message = "业务单id不能为空", groups = { AddGroup.class, EditGroup.class })
-    private Long bizId;
-
-    /**
      * 规格id
      */
     @NotNull(message = "规格id不能为空", groups = { AddGroup.class, EditGroup.class })
@@ -71,7 +65,7 @@ public class BaseOrderDetailDto extends BaseEntity {
     private List<String> fileList;
 
     /**
-     * 更新前数量
+     * 更新后数量
      */
     private Long afterQuantity;
 

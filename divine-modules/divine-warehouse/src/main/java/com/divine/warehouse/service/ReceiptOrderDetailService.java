@@ -54,7 +54,7 @@ public interface ReceiptOrderDetailService{
      */
     void deleteByReceiptOrderId(@NotNull Long receiptOrderId);
 
-    void saveDetails(List<ReceiptOrderDetail> list);
+    void saveDetails(List<ReceiptOrderDetailDto> list);
 
     /**
      * 查询入库单明细

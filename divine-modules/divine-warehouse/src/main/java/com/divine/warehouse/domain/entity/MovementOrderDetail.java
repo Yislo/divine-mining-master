@@ -16,6 +16,11 @@ import lombok.EqualsAndHashCode;
 public class MovementOrderDetail extends BaseOrderDetail {
 
     /**
+     * 移库单id
+     */
+    private Long MoveId;
+
+    /**
      * 源仓库
      */
     private Long sourceWarehouseId;

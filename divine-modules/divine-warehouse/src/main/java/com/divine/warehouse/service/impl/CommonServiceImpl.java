@@ -10,7 +10,6 @@ import com.divine.system.domain.vo.SysConfigVo;
 import com.divine.system.mapper.SysConfigMapper;
 import com.divine.warehouse.service.CommonService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -32,14 +31,13 @@ public class CommonServiceImpl implements CommonService {
 
     private final SysConfigMapper configMapper;
 
-    private static final DateTimeFormatter DATE_FORMATTER =
-        DateTimeFormatter.ofPattern("yyyyMMdd");
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     @Override
     public String getNo(String type) {
         // 1. 当天日期（yyyyMMdd）
         String dateStr = LocalDate.now().format(DATE_FORMATTER);
-        // 2. Redis Key（按公司 + 按天）
+        // 2. Redis Key（按前缀 + 按天）
         String redisKey = RedisKeyConstants.NO_KEY + type + ":" + dateStr;
         // 3. Redis 原子自增，过期到当天 23:59:59
         long num = RedisUtils.incrAtomicValue(redisKey, getSecondsUntilMidnight());
@@ -71,8 +69,8 @@ public class CommonServiceImpl implements CommonService {
     /**
      * 获取配置参数值
      *
-     * @param keyName
-     * @return
+     * @param keyName keyName
+     * @return SysConfigVo
      */
     @Override
     public SysConfigVo getConfigParam(String keyName) {

@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 @TableName("wms_shipment_order_detail")
 public class ShipmentOrderDetail extends BaseOrderDetail {
     /**
-     * 入库单号
+     * 出库单id
      */
     private Long shipmentId;
     /**
