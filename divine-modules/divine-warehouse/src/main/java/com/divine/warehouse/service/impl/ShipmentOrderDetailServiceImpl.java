@@ -65,7 +65,7 @@ public class ShipmentOrderDetailServiceImpl extends ServiceImpl<ShipmentOrderDet
     private LambdaQueryWrapper<ShipmentOrderDetail> buildQueryWrapper(ShipmentOrderDetailDto dto) {
         Map<String, Object> params = dto.getParams();
         LambdaQueryWrapper<ShipmentOrderDetail> lqw = Wrappers.lambdaQuery();
-//        lqw.eq(dto.getOrderId() != null, ShipmentOrderDetail::getReceiptNo, dto.getOrderId());
+        lqw.eq(dto.getShipmentId() != null, ShipmentOrderDetail::getShipmentId, dto.getShipmentId());
         lqw.eq(dto.getSkuId() != null, ShipmentOrderDetail::getSkuId, dto.getSkuId());
 //        lqw.eq(dto.getQuantity() != null, ShipmentOrderDetail::getQuantity, dto.getQuantity());
 //        lqw.eq(dto.getAmount() != null, ShipmentOrderDetail::getAmount, dto.getAmount());

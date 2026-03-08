@@ -6,6 +6,7 @@
 
     <sql id="selectVoListByDto">
         SELECT
+        inv.id,
         sku.id AS sku_id,
         sku.sku_no,
         sku.sku_name,
@@ -15,13 +16,26 @@
         item.item_no,
         w.id AS warehouse_id,
         w.warehouse_name,
-        IFNULL(inv.storage_shelf, '未知货架') AS storage_shelf,
-        SUM(inv.quantity) AS quantity
+        inv.storage_shelf,
+        inv.quantity
         FROM wms_inventory inv
+        INNER JOIN (
+        SELECT
+        sku_id,
+        warehouse_id
+        FROM wms_inventory
+        GROUP BY sku_id, warehouse_id
+        <if test="dto.maxQuantity != null">
+            HAVING SUM(quantity) <![CDATA[ <= ]]> #{dto.maxQuantity}
+        </if>
+        ) warn
+        ON inv.sku_id = warn.sku_id
+        AND inv.warehouse_id = warn.warehouse_id
         INNER JOIN wms_item_sku sku ON inv.sku_id = sku.id
         INNER JOIN wms_item item ON sku.item_id = item.id
         INNER JOIN wms_warehouse w ON inv.warehouse_id = w.id
         <where>
+
             <if test="dto.warehouseId != null">
                 AND inv.warehouse_id = #{dto.warehouseId}
             </if>
@@ -41,28 +55,7 @@
             <if test="dto.skuNo != null and dto.skuNo != ''">
                 AND sku.sku_no LIKE CONCAT('%', #{dto.skuNo}, '%')
             </if>
-
-            <if test="dto.itemCategory != null">
-                AND item.item_category = #{dto.itemCategory}
-            </if>
-
-            <if test="dto.itemId != null">
-                AND item.id = #{dto.itemId}
-            </if>
         </where>
-        GROUP BY
-        sku.id,
-        sku.sku_no,
-        sku.sku_name,
-        item.id,
-        item.item_name,
-        item.item_no,
-        w.id,
-        w.warehouse_name,
-        IFNULL(inv.storage_shelf, '未知货架')
-        <if test="dto.maxQuantity != null">
-            HAVING SUM(inv.quantity) <![CDATA[ <= ]]> #{dto.maxQuantity}
-        </if>
     </sql>
 
     <select id="queryWarehouseBoardList" resultType="com.divine.warehouse.domain.vo.BoardListVO">

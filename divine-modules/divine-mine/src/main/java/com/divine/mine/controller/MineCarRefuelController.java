@@ -39,7 +39,7 @@ public class MineCarRefuelController extends BaseController {
     /**
      * 查询车辆加油记录列表
      */
-    @SaCheckPermission("carRefuel:list")
+//    @SaCheckPermission("carRefuel:list")
     @GetMapping("/list")
     public PageInfoRes<MineCarRefuelVo> list(MineCarRefuelDto dto, BasePage basePage) {
         return mineCarRefuelService.queryPageList(dto, basePage);
@@ -48,7 +48,7 @@ public class MineCarRefuelController extends BaseController {
     /**
      * 导出车辆加油记录列表
      */
-    @SaCheckPermission("carRefuel:export")
+//    @SaCheckPermission("carRefuel:export")
     @Log(title = "车辆加油记录", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(MineCarRefuelDto dto, HttpServletResponse response) {
@@ -61,7 +61,7 @@ public class MineCarRefuelController extends BaseController {
      *
      * @param id 主键
      */
-    @SaCheckPermission("carRefuel:query")
+//    @SaCheckPermission("carRefuel:query")
     @GetMapping("/{id}")
     public Result<MineCarRefuelVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
@@ -71,7 +71,7 @@ public class MineCarRefuelController extends BaseController {
     /**
      * 新增车辆加油记录
      */
-    @SaCheckPermission("carRefuel:add")
+//    @SaCheckPermission("carRefuel:add")
     @Log(title = "车辆加油记录", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -83,7 +83,7 @@ public class MineCarRefuelController extends BaseController {
     /**
      * 修改车辆加油记录
      */
-    @SaCheckPermission("carRefuel:edit")
+//    @SaCheckPermission("carRefuel:edit")
     @Log(title = "车辆加油记录", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -97,7 +97,7 @@ public class MineCarRefuelController extends BaseController {
      *
      * @param ids 主键串
      */
-    @SaCheckPermission("carRefuel:remove")
+//    @SaCheckPermission("carRefuel:remove")
     @Log(title = "车辆加油记录", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public Result<Void> remove(@NotEmpty(message = "主键不能为空")

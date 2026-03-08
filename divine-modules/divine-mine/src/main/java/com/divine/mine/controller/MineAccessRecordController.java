@@ -39,7 +39,7 @@ public class MineAccessRecordController extends BaseController {
     /**
      * 查询车辆出入厂记录列表
      */
-    @SaCheckPermission("access:accessRecord:list")
+//    @SaCheckPermission("access:accessRecord:list")
     @GetMapping("/list")
     public PageInfoRes<MineAccessRecordVo> list(MineAccessRecordDto dto, BasePage basePage) {
         return mineAccessRecordServiceImpl.queryPageList(dto, basePage);
@@ -48,7 +48,7 @@ public class MineAccessRecordController extends BaseController {
     /**
      * 导出车辆出入厂记录列表
      */
-    @SaCheckPermission("access:accessRecord:export")
+//    @SaCheckPermission("access:accessRecord:export")
     @Log(title = "车辆出入厂记录", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(MineAccessRecordDto dto, HttpServletResponse response) {
@@ -61,7 +61,7 @@ public class MineAccessRecordController extends BaseController {
      *
      * @param id 主键
      */
-    @SaCheckPermission("access:accessRecord:query")
+//    @SaCheckPermission("access:accessRecord:query")
     @GetMapping("/{id}")
     public Result<MineAccessRecordVo> getInfo(@NotNull(message = "主键不能为空") @PathVariable Long id) {
         return Result.success(mineAccessRecordServiceImpl.queryById(id));
@@ -70,7 +70,7 @@ public class MineAccessRecordController extends BaseController {
     /**
      * 新增车辆出入厂记录
      */
-    @SaCheckPermission("access:accessRecord:add")
+//    @SaCheckPermission("access:accessRecord:add")
     @Log(title = "车辆出入厂记录", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -82,7 +82,7 @@ public class MineAccessRecordController extends BaseController {
     /**
      * 修改车辆出入厂记录
      */
-    @SaCheckPermission("access:accessRecord:edit")
+//    @SaCheckPermission("access:accessRecord:edit")
     @Log(title = "车辆出入厂记录", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -96,7 +96,7 @@ public class MineAccessRecordController extends BaseController {
      *
      * @param ids 主键串
      */
-    @SaCheckPermission("access:accessRecord:remove")
+//    @SaCheckPermission("access:accessRecord:remove")
     @Log(title = "车辆出入厂记录", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public Result<Void> remove(@NotEmpty(message = "主键不能为空")

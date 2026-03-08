@@ -6,14 +6,16 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.divine.common.core.enums.InventoryStatusEnum;
 import com.divine.common.core.enums.InventoryTypeEnum;
+import com.divine.common.core.enums.NoTypeEnum;
 import com.divine.common.core.exception.base.BusinessException;
+import com.divine.common.core.utils.GenerateNoUtil;
+import com.divine.system.service.CommonService;
 import com.divine.warehouse.domain.dto.CheckOrderDetailDto;
 import com.divine.warehouse.domain.dto.CheckOrderDto;
 import com.divine.warehouse.domain.entity.CheckOrder;
 import com.divine.warehouse.domain.entity.CheckOrderDetail;
 import com.divine.warehouse.domain.entity.Warehouse;
 import com.divine.warehouse.domain.vo.CheckOrderVo;
-import com.divine.warehouse.domain.vo.ShipmentOrderVo;
 import com.divine.warehouse.mapper.CheckOrderMapper;
 import com.divine.warehouse.mapper.WarehouseMapper;
 import com.divine.warehouse.service.*;
@@ -46,7 +48,7 @@ public class CheckOrderServiceImpl implements CheckOrderService {
     private final CheckOrderDetailService checkOrderDetailService;
     private final InventoryService inventoryService;
     private final InventoryHistoryService inventoryHistoryService;
-    private final CommonService commonService;
+    private final GenerateNoUtil generateNoUtil;
     private final WarehouseMapper warehouseMapper;
 
     /**
@@ -107,12 +109,13 @@ public class CheckOrderServiceImpl implements CheckOrderService {
     @Transactional
     public void insertByBo(CheckOrderDto dto) {
         // 创建盘库单
-        String checkNo = commonService.getNo(InventoryTypeEnum.CHECK.getCode());
+        String checkNo = generateNoUtil.getBizNo(NoTypeEnum.CHECK_NO);
         dto.setBizNo(checkNo);
         CheckOrder checkOrder = MapstructUtils.convert(dto, CheckOrder.class);
         checkOrder.setCheckNo(checkNo);
         checkOrder.setCheckStatus(InventoryStatusEnum.FINISH.getCode());
         checkOrderMapper.insert(checkOrder);
+        dto.setId(checkOrder.getId());
         // 创建盘库单明细
         List<CheckOrderDetail> addDetailList = MapstructUtils.convert(dto.getDetails(), CheckOrderDetail.class);
         addDetailList.forEach(it -> it.setCheckId(checkOrder.getId()));

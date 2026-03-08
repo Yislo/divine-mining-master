@@ -7,22 +7,22 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.divine.common.core.enums.InventoryStatusEnum;
 import com.divine.common.core.enums.InventoryTypeEnum;
+import com.divine.common.core.enums.NoTypeEnum;
 import com.divine.common.core.exception.base.BusinessException;
+import com.divine.common.core.utils.GenerateNoUtil;
+import com.divine.system.service.CommonService;
 import com.divine.warehouse.domain.dto.MovementOrderDto;
 import com.divine.warehouse.domain.entity.MovementOrder;
 import com.divine.warehouse.domain.entity.MovementOrderDetail;
 import com.divine.warehouse.domain.entity.Warehouse;
-import com.divine.warehouse.domain.vo.CheckOrderVo;
 import com.divine.warehouse.domain.vo.MovementOrderVo;
 import com.divine.warehouse.mapper.MovementOrderMapper;
 import com.divine.warehouse.mapper.WarehouseMapper;
 import com.divine.warehouse.service.*;
 import com.divine.common.core.utils.MapstructUtils;
-import com.divine.common.core.utils.StringUtils;
 import com.divine.common.mybatis.core.domain.BaseEntity;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
-import com.google.api.client.util.Lists;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.stereotype.Service;
@@ -45,7 +45,7 @@ public class MovementOrderServiceImpl implements MovementOrderService {
     private final MovementOrderDetailService movementOrderDetailService;
     private final InventoryService inventoryService;
     private final InventoryHistoryService inventoryHistoryService;
-    private final CommonService commonService;
+    private final GenerateNoUtil generateNoUtil;
     private final WarehouseMapper warehouseMapper;
 
 
@@ -114,7 +114,7 @@ public class MovementOrderServiceImpl implements MovementOrderService {
     public void insertByBo(MovementOrderDto dto) {
         // 2.创建移库单
         MovementOrder movementOrder = MapstructUtils.convert(dto, MovementOrder.class);
-        movementOrder.setMoveNo(commonService.getNo(InventoryTypeEnum.MOVEMENT.getCode()));
+        movementOrder.setMoveNo(generateNoUtil.getBizNo(NoTypeEnum.MOVE_NO));
         movementOrder.setMoveStatus(InventoryStatusEnum.FINISH.getCode());
         movementOrderMapper.insert(movementOrder);
         dto.setId(movementOrder.getId());

@@ -1,12 +1,10 @@
 package com.divine.common.core.utils;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
-public class GenerateNoUtil {
+import com.divine.common.core.enums.NoTypeEnum;
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
-    private static String generateTimePrefix() {
-        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("MMdd"));
-    }
+public interface GenerateNoUtil {
+
+     String getBizNo(NoTypeEnum noType);
+
 }

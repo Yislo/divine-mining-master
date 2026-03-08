@@ -30,6 +30,12 @@ public class MineCarRefuelVo implements Serializable {
     private Long id;
 
     /**
+     * 加油单编号
+     */
+    @ExcelProperty(value = "加油单编号")
+    private String refuelNo;
+
+    /**
      * 车辆id
      */
     @ExcelProperty(value = "车辆id")

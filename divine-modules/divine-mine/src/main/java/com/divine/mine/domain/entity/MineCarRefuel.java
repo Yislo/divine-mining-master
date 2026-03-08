@@ -27,6 +27,11 @@ public class MineCarRefuel extends BaseEntity {
      */
     @TableId(value = "id")
     private Long id;
+
+    /**
+     * 加油单编号
+     */
+    private String refuelNo;
     /**
      * 车辆id
      */

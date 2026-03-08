@@ -21,7 +21,7 @@ public class CheckOrderVo extends BaseOrderVo<CheckOrderDetailVO> {
     /**
      * 盘库单号
      */
-    private Integer checkNo;
+    private String checkNo;
 
     /**
      * 盘库单状态

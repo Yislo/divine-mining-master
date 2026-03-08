@@ -3,7 +3,10 @@ package com.divine.mine.service;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.mine.domain.dto.MineQualityDto;
+import com.divine.mine.domain.dto.QualityPageDTO;
+import com.divine.mine.domain.vo.MineQualityInfoVo;
 import com.divine.mine.domain.vo.MineQualityVo;
+import com.divine.mine.domain.vo.QualityPageVo;
 
 import java.util.Collection;
 import java.util.List;
@@ -19,12 +22,12 @@ public interface MineQualityService {
     /**
      * 查询送货质量
      */
-    MineQualityVo queryById(Long id);
+    MineQualityInfoVo queryById(Long id);
 
     /**
      * 查询送货质量列表
      */
-    PageInfoRes<MineQualityVo> queryPageList(MineQualityDto dto, BasePage basePage);
+    PageInfoRes<MineQualityVo> queryPageList(QualityPageDTO dto);
 
     /**
      * 查询送货质量列表

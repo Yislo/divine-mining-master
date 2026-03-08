@@ -216,8 +216,8 @@ springdoc:
       packages-to-scan: com.divine.system
     - group: 2.仓库模块
       packages-to-scan: com.divine.warehouse
-    - group: 2.过磅模块
-      packages-to-scan: com.divine.weighing
+    - group: 2.矿产模块
+      packages-to-scan: com.divine.mine
     - group: 3.代码生成
       packages-to-scan: com.divine.generator
     - group: 4.演示模块

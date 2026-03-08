@@ -31,7 +31,6 @@ public interface MineWeightingService {
      */
     List<MineWeightingVo> queryList(MineWeightingDto dto);
 
-
     /**
      * 新增过磅记录
      */
@@ -46,4 +45,5 @@ public interface MineWeightingService {
      * 批量删除过磅记录
      */
     void deleteByIds(Collection<Long> ids);
+
 }

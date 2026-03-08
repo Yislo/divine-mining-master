@@ -39,13 +39,13 @@ public class InventoryHistoryVo implements Serializable {
      */
     @ExcelProperty(value = "操作id", converter = ExcelDictConvert.class)
     @ExcelDictFormat(readConverterExp = "出=库、入库、库存移动表单id")
-    private Long orderId;
+    private Long bizId;
 
     /**
      * 操作单号（入库、出库、移库、盘库单号）
      */
     @ExcelProperty(value = "操作单号")
-    private String orderNo;
+    private String bizNo;
 
     /**
      * 订单类型

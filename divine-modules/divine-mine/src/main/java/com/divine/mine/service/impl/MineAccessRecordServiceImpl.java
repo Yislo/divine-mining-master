@@ -34,6 +34,7 @@ public class MineAccessRecordServiceImpl implements MineAccessRecordService {
     /**
      * 查询车辆出入厂记录
      */
+    @Override
     public MineAccessRecordVo queryById(Long id){
         return mineAccessRecordMapper.selectVoById(id);
     }
@@ -41,6 +42,7 @@ public class MineAccessRecordServiceImpl implements MineAccessRecordService {
     /**
      * 查询车辆出入厂记录列表
      */
+    @Override
     public PageInfoRes<MineAccessRecordVo> queryPageList(MineAccessRecordDto dto, BasePage basePage) {
         LambdaQueryWrapper<MineAccessRecord> lqw = buildQueryWrapper(dto);
         Page<MineAccessRecordVo> result = mineAccessRecordMapper.selectVoPage(basePage.build(), lqw);
@@ -50,6 +52,7 @@ public class MineAccessRecordServiceImpl implements MineAccessRecordService {
     /**
      * 查询车辆出入厂记录列表
      */
+    @Override
     public List<MineAccessRecordVo> queryList(MineAccessRecordDto dto) {
         LambdaQueryWrapper<MineAccessRecord> lqw = buildQueryWrapper(dto);
         return mineAccessRecordMapper.selectVoList(lqw);
@@ -69,6 +72,7 @@ public class MineAccessRecordServiceImpl implements MineAccessRecordService {
     /**
      * 新增车辆出入厂记录
      */
+    @Override
     public void insertByBo(MineAccessRecordDto dto) {
         MineAccessRecord add = MapstructUtils.convert(dto, MineAccessRecord.class);
         mineAccessRecordMapper.insert(add);
@@ -77,6 +81,7 @@ public class MineAccessRecordServiceImpl implements MineAccessRecordService {
     /**
      * 修改车辆出入厂记录
      */
+    @Override
     public void updateByBo(MineAccessRecordDto dto) {
         MineAccessRecord update = MapstructUtils.convert(dto, MineAccessRecord.class);
         mineAccessRecordMapper.updateById(update);
@@ -85,6 +90,7 @@ public class MineAccessRecordServiceImpl implements MineAccessRecordService {
     /**
      * 批量删除车辆出入厂记录
      */
+    @Override
     public void deleteByIds(Collection<Long> ids) {
         mineAccessRecordMapper.deleteBatchIds(ids);
     }

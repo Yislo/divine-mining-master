@@ -39,7 +39,7 @@ public class MineWeightingController extends BaseController {
     /**
      * 查询过磅记录列表
      */
-    @SaCheckPermission("weighting:list")
+//    @SaCheckPermission("weighting:list")
     @GetMapping("/list")
     public PageInfoRes<MineWeightingVo> list(MineWeightingDto dto, BasePage basePage) {
         return mineWeightingService.queryPageList(dto, basePage);
@@ -48,7 +48,7 @@ public class MineWeightingController extends BaseController {
     /**
      * 导出过磅记录列表
      */
-    @SaCheckPermission("weighting:export")
+//    @SaCheckPermission("weighting:export")
     @Log(title = "过磅记录", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(MineWeightingDto dto, HttpServletResponse response) {
@@ -61,7 +61,7 @@ public class MineWeightingController extends BaseController {
      *
      * @param id 主键
      */
-    @SaCheckPermission("weighting:query")
+//    @SaCheckPermission("weighting:query")
     @GetMapping("/{id}")
     public Result<MineWeightingVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
@@ -71,7 +71,7 @@ public class MineWeightingController extends BaseController {
     /**
      * 新增过磅记录
      */
-    @SaCheckPermission("weighting:add")
+//    @SaCheckPermission("weighting:add")
     @Log(title = "过磅记录", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -83,7 +83,7 @@ public class MineWeightingController extends BaseController {
     /**
      * 修改过磅记录
      */
-    @SaCheckPermission("weighting:edit")
+//    @SaCheckPermission("weighting:edit")
     @Log(title = "过磅记录", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -97,7 +97,7 @@ public class MineWeightingController extends BaseController {
      *
      * @param ids 主键串
      */
-    @SaCheckPermission("weighting:remove")
+//    @SaCheckPermission("weighting:remove")
     @Log(title = "过磅记录", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public Result<Void> remove(@NotEmpty(message = "主键不能为空")

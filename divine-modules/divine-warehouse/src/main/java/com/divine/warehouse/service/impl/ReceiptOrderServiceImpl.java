@@ -12,20 +12,23 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.divine.common.core.enums.FileBizTypeEnum;
 import com.divine.common.core.enums.InventoryStatusEnum;
 import com.divine.common.core.enums.InventoryTypeEnum;
+import com.divine.common.core.enums.NoTypeEnum;
 import com.divine.common.core.exception.base.BusinessException;
+import com.divine.common.core.utils.GenerateNoUtil;
 import com.divine.system.domain.dto.SysFileDTO;
+import com.divine.system.service.CommonService;
 import com.divine.system.service.SysFileService;
 import com.divine.warehouse.domain.dto.BaseOrderDetailDto;
 import com.divine.warehouse.domain.dto.ReceiptOrderDetailDto;
 import com.divine.warehouse.domain.dto.ReceiptOrderDto;
-import com.divine.warehouse.domain.entity.BaseOrderDetail;
+import com.divine.warehouse.domain.entity.ItemSku;
 import com.divine.warehouse.domain.entity.ReceiptOrder;
-import com.divine.warehouse.domain.entity.ReceiptOrderDetail;
 import com.divine.warehouse.domain.entity.Warehouse;
 import com.divine.warehouse.domain.vo.BaseOrderDetailVO;
 import com.divine.warehouse.domain.vo.MerchantVo;
 import com.divine.warehouse.domain.vo.ReceiptOrderDetailVO;
 import com.divine.warehouse.domain.vo.ReceiptOrderVo;
+import com.divine.warehouse.mapper.ItemSkuMapper;
 import com.divine.warehouse.mapper.ReceiptOrderMapper;
 import com.divine.warehouse.mapper.WarehouseMapper;
 import com.divine.warehouse.service.*;
@@ -33,6 +36,7 @@ import com.divine.common.core.utils.MapstructUtils;
 import com.divine.common.mybatis.core.domain.BaseEntity;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
+import com.google.api.client.util.Lists;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -55,10 +59,11 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
     private final ReceiptOrderDetailService receiptOrderDetailService;
     private final InventoryService inventoryService;
     private final InventoryHistoryService inventoryHistoryService;
-    private final CommonService commonService;
+    private final GenerateNoUtil generateNoUtil;
     private final WarehouseMapper warehouseMapper;
     private final SysFileService sysFileService;
     private final MerchantService merchantService;
+    private final ItemSkuMapper itemSkuMapper;
 
     /**
      * 查询入库单
@@ -72,7 +77,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         receiptOrderVo.setWarehouseName(warehouse.getWarehouseName());
         // 获取供应商名称
         MerchantVo merchantVo = merchantService.queryById(receiptOrderVo.getMerchantId());
-        if (ObjUtil.isNotNull(merchantVo)){
+        if (ObjUtil.isNotNull(merchantVo)) {
             receiptOrderVo.setMerchantName(merchantVo.getMerchantName());
         }
         receiptOrderVo.setDetails(receiptOrderDetailService.queryByReceiptOrderId(id));
@@ -142,20 +147,31 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
      */
     private Long insertReceipt(ReceiptOrderDto dto) {
         // 创建入库单
-        String receiptNo = commonService.getNo(InventoryTypeEnum.RECEIPT.getCode());
+        String receiptNo = generateNoUtil.getBizNo(NoTypeEnum.RECEIPT_NO);
         dto.setBizNo(receiptNo);
         // 考虑是否计算总金额 是否完全信任前端
         ReceiptOrder receiptOrder = MapstructUtils.convert(dto, ReceiptOrder.class);
         receiptOrder.setReceiptNo(receiptNo);
         receiptOrderMapper.insert(receiptOrder);
+        dto.setId(receiptOrder.getId());
         List<ReceiptOrderDetailDto> detailDtoList = dto.getDetails();
         detailDtoList.forEach(it -> it.setReceiptId(receiptOrder.getId()));
         // 创建入库单明细
         receiptOrderDetailService.saveDetails(detailDtoList);
         // 保存文件
         List<SysFileDTO> allFiles = new ArrayList<>();
+        List<ItemSku> sku = Lists.newArrayList();
         // 组装文件数据
         detailDtoList.forEach(d -> {
+            // 更新sku价格
+            ItemSku oldSku = itemSkuMapper.selectById(d.getSkuId());
+            if (oldSku.getUnitPrice() == null || oldSku.getUnitPrice().compareTo(d.getUnitPrice()) == 0) {
+                ItemSku itemSku = new ItemSku();
+                itemSku.setId(d.getSkuId());
+                itemSku.setUnitPrice(d.getUnitPrice());
+                sku.add(itemSku);
+            }
+            // 保存文件信息
             List<String> fileList = d.getFileList();
             if (CollectionUtil.isNotEmpty(fileList)) {
                 List<SysFileDTO> files = fileList.stream()
@@ -173,6 +189,8 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         if (CollectionUtil.isNotEmpty(allFiles)) {
             sysFileService.batchSaveFile(allFiles);
         }
+        // 更新sku价格
+        itemSkuMapper.updateBatchById(sku);
         return receiptOrder.getId();
     }
 

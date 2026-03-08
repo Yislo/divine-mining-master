@@ -33,14 +33,6 @@ public class MineQuality extends BaseEntity {
      */
     private String qualityNo;
     /**
-     * weighting表id
-     */
-    private Long weightingId;
-    /**
-     * 过磅编号
-     */
-    private String weightingNo;
-    /**
      * 送货单位id
      */
     private Long shipMerchantId;

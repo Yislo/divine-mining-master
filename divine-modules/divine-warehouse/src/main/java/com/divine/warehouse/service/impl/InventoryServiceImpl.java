@@ -65,38 +65,13 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             Map<Long, ItemSkuMapVo> itemSkuMap = itemSkuService.queryItemSkuMapVosByIds(skuIds);
             vos.forEach(it -> {
                 String storageShelf = it.getStorageShelf();
-                it.setStorageShelf(StringUtils.isNoneBlank(storageShelf)?storageShelf:"未知货架");
+                it.setStorageShelf(storageShelf);
                 ItemSkuMapVo itemSkuMapVo = itemSkuMap.get(it.getSkuId());
                 it.setItemSku(itemSkuMapVo.getItemSku());
                 it.setItem(itemSkuMapVo.getItem());
             });
         }
         return vos;
-    }
-
-    /**
-     * 查询可出库物品列表
-     * @param dto
-     * @param basePage
-     * @return
-     */
-    @Override
-    public PageInfoRes<InventoryVo> queryChooseList(InventoryDto dto, BasePage basePage) {
-        LambdaQueryWrapper<Inventory> lqw = buildQueryWrapper(dto);
-        IPage<InventoryVo> res = inventoryMapper.selectVoPage(basePage.build(),lqw);
-        List<InventoryVo> vos = res.getRecords();
-        if (CollUtil.isNotEmpty(vos)) {
-            Set<Long> skuIds = vos.stream().map(InventoryVo::getSkuId).collect(Collectors.toSet());
-            Map<Long, ItemSkuMapVo> itemSkuMap = itemSkuService.queryItemSkuMapVosByIds(skuIds);
-            vos.forEach(it -> {
-                String storageShelf = it.getStorageShelf();
-                it.setStorageShelf(StringUtils.isNoneBlank(storageShelf)?storageShelf:"未知货架");
-                ItemSkuMapVo itemSkuMapVo = itemSkuMap.get(it.getSkuId());
-                it.setItemSku(itemSkuMapVo.getItemSku());
-                it.setItem(itemSkuMapVo.getItem());
-            });
-        }
-        return PageInfoRes.build(res);
     }
 
     private LambdaQueryWrapper<Inventory> buildQueryWrapper(InventoryDto dto) {
@@ -129,8 +104,14 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
      * 批量删除库存
      */
     @Override
-    public void deleteByIds(Collection<Long> ids) {
-        inventoryMapper.deleteBatchIds(ids);
+    public void deleteById(Long id) {
+        // 查询货架是否还有库存
+        Inventory inventory = inventoryMapper.selectById(id);
+        Long quantity = inventory.getQuantity();
+        if (quantity > 0) {
+            throw new BusinessException("该货架上还有库存，暂时不可删除");
+        }
+        inventoryMapper.deleteById(id);
     }
 
     /**
@@ -273,6 +254,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             LambdaQueryWrapper<Inventory> wrapper = Wrappers.lambdaQuery();
             wrapper.eq(Inventory::getWarehouseId, shipmentOrderDetailBo.getWarehouseId());
             wrapper.eq(Inventory::getSkuId, shipmentOrderDetailBo.getSkuId());
+            wrapper.eq(Inventory::getStorageShelf, shipmentOrderDetailBo.getStorageShelf());
             Inventory result = inventoryMapper.selectOne(wrapper);
             if (result == null) {
                 ItemSkuMapVo itemSkuMapVo = itemSkuService.queryItemSkuMapVo(shipmentOrderDetailBo.getSkuId());
@@ -300,24 +282,6 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         lqw.eq(Inventory::getWarehouseId, warehouseId);
         return inventoryMapper.exists(lqw);
     }
-
-    /**
-     * 删除货架
-     *
-     * @param id
-     */
-    @Override
-    public void deleteStorageShelf(Long id) {
-        // 查询货架是否还有库存
-        Inventory inventory = inventoryMapper.selectById(id);
-        Long quantity = inventory.getQuantity();
-        if (quantity > 0) {
-            throw new BusinessException("该货架上还有库存，暂时不可删除");
-        }
-        // 库存为0 可以删除
-        inventoryMapper.deleteById(id);
-    }
-
 
     /**
      * 根据skuIds查询

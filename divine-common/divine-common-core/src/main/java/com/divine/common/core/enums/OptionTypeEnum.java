@@ -1,4 +1,4 @@
-package com.divine.warehouse.enums;
+package com.divine.common.core.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

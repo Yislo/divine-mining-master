@@ -10,6 +10,7 @@ import jakarta.validation.constraints.*;
 import io.github.linpeilie.annotations.AutoMapper;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 送货质量业务对象 mine_quality
@@ -19,9 +20,8 @@ import java.math.BigDecimal;
  */
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = MineQuality.class, reverseConvertGenerate = false)
-public class MineQualityDto extends BaseEntity {
+public class MineQualityDto {
 
     /**
      * 主键id
@@ -32,50 +32,32 @@ public class MineQualityDto extends BaseEntity {
     /**
      * 质量编号
      */
-    @NotBlank(message = "质量编号不能为空", groups = { AddGroup.class, EditGroup.class })
     private String qualityNo;
 
     /**
-     * weighting表id
+     * 过磅单id
      */
-    @NotNull(message = "weighting表id不能为空", groups = { AddGroup.class, EditGroup.class })
-    private Long weightingId;
+    private List<Long> weightingId;
 
     /**
-     * 过磅编号
+     * 送货单位id(多条过磅单的送货单位一致才能作为一条质检单)
      */
-    @NotBlank(message = "过磅编号不能为空", groups = { AddGroup.class, EditGroup.class })
-    private String weightingNo;
-
-    /**
-     * 送货单位id
-     */
-    @NotNull(message = "送货单位id不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long shipMerchantId;
 
     /**
      * 水份
      */
-    @NotNull(message = "水份不能为空", groups = { AddGroup.class, EditGroup.class })
     private BigDecimal moisture;
 
     /**
      * 氧化铜品位
      */
-    @NotNull(message = "氧化铜品位不能为空", groups = { AddGroup.class, EditGroup.class })
     private BigDecimal cuoRatio;
 
     /**
      * 酸耗
      */
-    @NotNull(message = "酸耗不能为空", groups = { AddGroup.class, EditGroup.class })
     private BigDecimal acidDemand;
-
-    /**
-     * 是否删除(0:未删除,1:已删除)
-     */
-    @NotNull(message = "是否删除(0:未删除,1:已删除)不能为空", groups = { AddGroup.class, EditGroup.class })
-    private Long isDel;
 
 
 }

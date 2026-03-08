@@ -31,25 +31,21 @@ public class MineCarDto extends BaseEntity {
     /**
      * 车牌号
      */
-    @NotBlank(message = "车牌号不能为空", groups = { AddGroup.class, EditGroup.class })
     private String carNumber;
 
     /**
      * 车辆编号
      */
-    @NotBlank(message = "车辆编号不能为空", groups = { AddGroup.class, EditGroup.class })
     private String carNo;
 
     /**
      * 驾驶员电话
      */
-    @NotBlank(message = "驾驶员电话不能为空", groups = { AddGroup.class, EditGroup.class })
     private String driverPhone;
 
     /**
      * 驾驶员
      */
-    @NotBlank(message = "驾驶员不能为空", groups = { AddGroup.class, EditGroup.class })
     private String driver;
 
     /**
@@ -61,13 +57,11 @@ public class MineCarDto extends BaseEntity {
     /**
      * 备注
      */
-    @NotBlank(message = "备注不能为空", groups = { AddGroup.class, EditGroup.class })
     private String remark;
 
     /**
      * 是否删除(0:未删除,1:已删除)
      */
-    @NotNull(message = "是否删除(0:未删除,1:已删除)不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long isDel;
 
 

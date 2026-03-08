@@ -1,14 +1,15 @@
 package com.divine.mine.domain.vo;
 
-import java.math.BigDecimal;
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.divine.mine.domain.entity.MineQuality;
-import lombok.Data;
 import io.github.linpeilie.annotations.AutoMapper;
+import lombok.Data;
 
-import java.io.Serializable;
 import java.io.Serial;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 送货质量视图对象 mine_quality
@@ -19,7 +20,7 @@ import java.io.Serial;
 @Data
 @ExcelIgnoreUnannotated
 @AutoMapper(target = MineQuality.class)
-public class MineQualityVo implements Serializable {
+public class MineQualityInfoVo implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -27,44 +28,42 @@ public class MineQualityVo implements Serializable {
     /**
      * 主键id
      */
-    @ExcelProperty(value = "主键id")
     private Long id;
 
     /**
      * 质量编号
      */
-    @ExcelProperty(value = "质量编号")
     private String qualityNo;
 
     /**
      * 过磅编号
      */
-    @ExcelProperty(value = "过磅编号")
     private String weightingNo;
 
     /**
      * 送货单位id
      */
-    @ExcelProperty(value = "送货单位id")
     private Long shipMerchantId;
 
     /**
      * 水份
      */
-    @ExcelProperty(value = "水份")
     private BigDecimal moisture;
 
     /**
      * 氧化铜品位
      */
-    @ExcelProperty(value = "氧化铜品位")
     private BigDecimal cuoRatio;
 
     /**
      * 酸耗
      */
-    @ExcelProperty(value = "酸耗")
     private BigDecimal acidDemand;
+
+    /**
+     * 样品明细
+     */
+    private List<MineWeightingVo> WeightingList;
 
 
 }

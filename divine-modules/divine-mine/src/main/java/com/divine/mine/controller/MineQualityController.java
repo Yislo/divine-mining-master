@@ -8,7 +8,10 @@ import com.divine.common.idempotent.annotation.RepeatSubmit;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.mine.domain.dto.MineQualityDto;
+import com.divine.mine.domain.dto.QualityPageDTO;
+import com.divine.mine.domain.vo.MineQualityInfoVo;
 import com.divine.mine.domain.vo.MineQualityVo;
+import com.divine.mine.domain.vo.QualityPageVo;
 import com.divine.mine.service.MineQualityService;
 import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,16 +42,16 @@ public class MineQualityController extends BaseController {
     /**
      * 查询送货质量列表
      */
-    @SaCheckPermission("quality:list")
-    @GetMapping("/list")
-    public PageInfoRes<MineQualityVo> list(MineQualityDto dto, BasePage basePage) {
-        return mineQualityService.queryPageList(dto, basePage);
+//    @SaCheckPermission("quality:list")
+    @PostMapping("/list")
+    public PageInfoRes<MineQualityVo> list(@RequestBody QualityPageDTO dto) {
+        return mineQualityService.queryPageList(dto);
     }
 
     /**
      * 导出送货质量列表
      */
-    @SaCheckPermission("quality:export")
+//    @SaCheckPermission("quality:export")
     @Log(title = "送货质量", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(MineQualityDto dto, HttpServletResponse response) {
@@ -61,9 +64,9 @@ public class MineQualityController extends BaseController {
      *
      * @param id 主键
      */
-    @SaCheckPermission("quality:query")
+//    @SaCheckPermission("quality:query")
     @GetMapping("/{id}")
-    public Result<MineQualityVo> getInfo(@NotNull(message = "主键不能为空")
+    public Result<MineQualityInfoVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
         return Result.success(mineQualityService.queryById(id));
     }
@@ -71,7 +74,7 @@ public class MineQualityController extends BaseController {
     /**
      * 新增送货质量
      */
-    @SaCheckPermission("quality:add")
+//    @SaCheckPermission("quality:add")
     @Log(title = "送货质量", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -83,7 +86,7 @@ public class MineQualityController extends BaseController {
     /**
      * 修改送货质量
      */
-    @SaCheckPermission("quality:edit")
+//    @SaCheckPermission("quality:edit")
     @Log(title = "送货质量", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -97,7 +100,7 @@ public class MineQualityController extends BaseController {
      *
      * @param ids 主键串
      */
-    @SaCheckPermission("quality:remove")
+//    @SaCheckPermission("quality:remove")
     @Log(title = "送货质量", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public Result<Void> remove(@NotEmpty(message = "主键不能为空")

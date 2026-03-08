@@ -1,4 +1,4 @@
-package com.divine.warehouse.service.impl;
+package com.divine.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.divine.common.core.constant.RedisKeyConstants;
@@ -8,7 +8,7 @@ import com.divine.common.redis.utils.RedisUtils;
 import com.divine.system.domain.entity.SysConfig;
 import com.divine.system.domain.vo.SysConfigVo;
 import com.divine.system.mapper.SysConfigMapper;
-import com.divine.warehouse.service.CommonService;
+import com.divine.system.service.CommonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,35 +31,6 @@ public class CommonServiceImpl implements CommonService {
 
     private final SysConfigMapper configMapper;
 
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
-
-    @Override
-    public String getNo(String type) {
-        // 1. 当天日期（yyyyMMdd）
-        String dateStr = LocalDate.now().format(DATE_FORMATTER);
-        // 2. Redis Key（按前缀 + 按天）
-        String redisKey = RedisKeyConstants.NO_KEY + type + ":" + dateStr;
-        // 3. Redis 原子自增，过期到当天 23:59:59
-        long num = RedisUtils.incrAtomicValue(redisKey, getSecondsUntilMidnight());
-        // 4. 可选：限制当日最大流水
-        if (num > 999) {
-            throw new BusinessException("当日业务单号已达上限");
-        }
-        // 5. 拼接业务单号
-        return type + dateStr + String.format("%03d", num);
-    }
-
-
-    /**
-     * 获取距离今天结束（23:59:59）的秒数
-     */
-    private long getSecondsUntilMidnight() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime midnight = now.toLocalDate()
-            .plusDays(1)
-            .atStartOfDay();
-        return Duration.between(now, midnight).getSeconds();
-    }
 
     @Override
     public List<OptionVO> getOption(String type) {

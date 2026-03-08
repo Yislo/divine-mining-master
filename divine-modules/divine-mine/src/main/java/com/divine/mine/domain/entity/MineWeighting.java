@@ -63,7 +63,7 @@ public class MineWeighting extends BaseEntity {
     /**
      * 过磅状态(0:已过磅,1:已回磅)
      */
-    private String weighingStatus;
+    private Integer weighingStatus;
     /**
      * 总重
      */
@@ -80,5 +80,9 @@ public class MineWeighting extends BaseEntity {
      * 备注
      */
     private String remark;
+    /**
+     * 质量id(取样之后生成)
+     */
+    private Long qualityId;
 
 }

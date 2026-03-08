@@ -2,6 +2,7 @@ package com.divine.warehouse.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.divine.common.redis.utils.RedisUtils;
 import com.divine.warehouse.domain.dto.InventoryDto;
 import com.divine.common.core.domain.Result;
 import com.divine.common.core.validate.AddGroup;
@@ -76,17 +77,6 @@ public class InventoryController extends BaseController {
     }
 
     /**
-     * 查询可出库的物品
-     * @param dto
-     * @return
-     */
-    @SaCheckPermission("wms:inventory:all")
-    @GetMapping(value = {"/boardList/choose"})
-    public PageInfoRes<InventoryVo> choose(InventoryDto dto, BasePage basePage) {
-        return inventoryService.queryChooseList(dto,basePage);
-    }
-
-    /**
      * 导出库存列表
      * @param dto
      * @param response
@@ -141,28 +131,16 @@ public class InventoryController extends BaseController {
 
     /**
      * 删除库存
-     * @param ids
-     * @return
-     */
-    @SaCheckPermission("wms:inventory:all")
-    @Log(title = "库存", businessType = BusinessType.DELETE)
-    @DeleteMapping("/{ids}")
-    public Result<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] ids) {
-        inventoryService.deleteByIds(List.of(ids));
-        return Result.success();
-    }
-
-    /**
-     * 删除货架
      * @param id
      * @return
      */
     @SaCheckPermission("wms:inventory:all")
     @Log(title = "库存", businessType = BusinessType.DELETE)
-    @DeleteMapping("/deleteStorageShelf/{id}")
-    public Result<Void> deleteStorageShelf(@NotNull(message = "id不能为空") @PathVariable Long id) {
-        inventoryService.deleteStorageShelf(id);
+    @DeleteMapping("/{id}")
+    public Result<Void> remove(@NotNull(message = "id不能为空")
+                          @PathVariable Long id) {
+        inventoryService.deleteById(id);
         return Result.success();
     }
+
 }

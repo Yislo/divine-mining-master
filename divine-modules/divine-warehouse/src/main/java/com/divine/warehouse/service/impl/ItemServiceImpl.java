@@ -6,6 +6,8 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.divine.common.core.enums.NoTypeEnum;
+import com.divine.common.core.utils.GenerateNoUtil;
 import com.divine.warehouse.domain.dto.ItemDto;
 import com.divine.warehouse.domain.dto.ItemSkuDto;
 import com.divine.warehouse.domain.entity.Item;
@@ -15,7 +17,6 @@ import com.divine.warehouse.domain.vo.ItemSkuVo;
 import com.divine.warehouse.domain.vo.ItemVo;
 import com.divine.warehouse.mapper.ItemCategoryMapper;
 import com.divine.warehouse.mapper.ItemMapper;
-import com.divine.warehouse.service.CommonService;
 import com.divine.warehouse.service.ItemService;
 import com.divine.warehouse.service.ItemSkuService;
 import com.divine.common.core.utils.MapstructUtils;
@@ -26,7 +27,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.lang.model.type.NoType;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -40,7 +40,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
     private final ItemSkuService itemSkuService;
     private final ItemCategoryMapper itemCategoryMapper;
-    private final CommonService commonService;
+    private final GenerateNoUtil generateNoUtil;
 
     /**
      * 查询物料
@@ -125,7 +125,7 @@ public class ItemServiceImpl implements ItemService {
     public void insertByForm(ItemDto dto) {
         validateBoBeforeSave(dto);
         Item item = MapstructUtils.convert(dto, Item.class);
-        item.setItemNo(commonService.getNo("SPU"));
+        item.setItemNo(generateNoUtil.getBizNo(NoTypeEnum.SPU_NO));
         itemMapper.insert(item);
         itemSkuService.setItemId(dto.getSku(),item.getId());
         itemSkuService.saveOrUpdateBatchByBo(dto.getSku());

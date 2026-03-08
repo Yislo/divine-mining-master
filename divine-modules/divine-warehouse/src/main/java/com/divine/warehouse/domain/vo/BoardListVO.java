@@ -15,6 +15,12 @@ import java.math.BigDecimal;
 public class BoardListVO {
 
     /**
+     * 库存id
+     */
+    @ExcelProperty(value = "库存id")
+    private Long id;
+
+    /**
      * 仓库id
      */
     @ExcelProperty(value = "仓库id")

@@ -1,4 +1,4 @@
-package com.divine.warehouse.service;
+package com.divine.system.service;
 
 
 import com.divine.common.core.domain.vo.OptionVO;
@@ -13,13 +13,6 @@ import java.util.List;
  * @date 2024-08-13
  */
 public interface CommonService {
-
-    /**
-     * 获取编号
-     * @param type
-     * @return
-     */
-    String getNo(String type);
 
     /**
      * 获取下拉框

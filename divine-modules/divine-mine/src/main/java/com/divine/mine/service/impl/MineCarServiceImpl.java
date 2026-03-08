@@ -41,6 +41,7 @@ public class MineCarServiceImpl implements MineCarService {
     /**
      * 查询车辆信息列表
      */
+    @Override
     public PageInfoRes<MineCarVo> queryPageList(MineCarDto dto, BasePage basePage) {
         LambdaQueryWrapper<MineCar> lqw = buildQueryWrapper(dto);
         Page<MineCarVo> result = mineCarMapper.selectVoPage(basePage.build(), lqw);
@@ -50,6 +51,7 @@ public class MineCarServiceImpl implements MineCarService {
     /**
      * 查询车辆信息列表
      */
+    @Override
     public List<MineCarVo> queryList(MineCarDto dto) {
         LambdaQueryWrapper<MineCar> lqw = buildQueryWrapper(dto);
         return mineCarMapper.selectVoList(lqw);
@@ -69,6 +71,7 @@ public class MineCarServiceImpl implements MineCarService {
     /**
      * 新增车辆信息
      */
+    @Override
     public void insertByBo(MineCarDto dto) {
         MineCar add = MapstructUtils.convert(dto, MineCar.class);
         mineCarMapper.insert(add);
@@ -77,6 +80,7 @@ public class MineCarServiceImpl implements MineCarService {
     /**
      * 修改车辆信息
      */
+    @Override
     public void updateByBo(MineCarDto dto) {
         MineCar update = MapstructUtils.convert(dto, MineCar.class);
         mineCarMapper.updateById(update);
@@ -85,6 +89,7 @@ public class MineCarServiceImpl implements MineCarService {
     /**
      * 批量删除车辆信息
      */
+    @Override
     public void deleteByIds(Collection<Long> ids) {
         mineCarMapper.deleteBatchIds(ids);
     }

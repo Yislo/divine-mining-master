@@ -35,14 +35,6 @@ public interface InventoryService {
     List<InventoryVo> queryList(InventoryDto dto);
 
     /**
-     * 查询可出库列表
-     * @param dto
-     * @param basePage
-     * @return
-     */
-    PageInfoRes<InventoryVo> queryChooseList(InventoryDto dto,BasePage basePage);
-
-    /**
      * 新增库存
      * @param dto
      */
@@ -55,10 +47,10 @@ public interface InventoryService {
     void updateByBo(InventoryDto dto);
 
     /**
-     * 批量删除库存
-     * @param ids
+     * 删除库存
+     * @param id
      */
-    void deleteByIds(Collection<Long> ids);
+    void deleteById(Long id);
 
     /**
      * 校验规格是否有库存
@@ -113,12 +105,6 @@ public interface InventoryService {
      * @return
      */
     boolean existsByWarehouseId(Long warehouseId);
-
-    /**
-     * 删除货架
-     * @param id
-     */
-    void deleteStorageShelf(Long id);
 
     /**
      * 根据skuId数组查询

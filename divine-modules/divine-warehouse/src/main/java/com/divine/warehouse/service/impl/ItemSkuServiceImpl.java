@@ -7,7 +7,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.divine.common.core.enums.NoTypeEnum;
 import com.divine.common.core.exception.base.BusinessException;
+import com.divine.common.core.utils.GenerateNoUtil;
 import com.divine.warehouse.domain.dto.ItemSkuDto;
 import com.divine.warehouse.domain.entity.ItemSku;
 import com.divine.warehouse.domain.vo.BaseOrderDetailVO;
@@ -15,7 +17,7 @@ import com.divine.warehouse.domain.vo.InventoryVo;
 import com.divine.warehouse.domain.vo.ItemSkuMapVo;
 import com.divine.warehouse.domain.vo.ItemSkuVo;
 import com.divine.warehouse.mapper.ItemSkuMapper;
-import com.divine.warehouse.service.CommonService;
+import com.divine.system.service.CommonService;
 import com.divine.warehouse.service.InventoryService;
 import com.divine.warehouse.service.ItemSkuService;
 import com.divine.common.core.utils.MapstructUtils;
@@ -39,7 +41,7 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
 
     private final ItemSkuMapper itemSkuMapper;
     private final InventoryService inventoryService;
-    private final CommonService commonService;
+    private final GenerateNoUtil generateNoUtil;
 
     /**
      * 查询sku信息
@@ -71,7 +73,7 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
             .collect(Collectors.groupingBy(
                 InventoryVo::getSkuId,
                 Collectors.mapping(
-                    vo -> vo.getStorageShelf() != null ? vo.getStorageShelf() : "未知货架",
+                    InventoryVo::getStorageShelf,
                     Collectors.collectingAndThen(
                         Collectors.toCollection(HashSet::new), // 先去重
                         ArrayList::new // 再转回 List
@@ -80,7 +82,7 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
             ));
         records.forEach(r -> {
             List<String> storageShelf = storageShelfMap.get(r.getSkuId());
-            r.setStorageShelf(CollectionUtil.isEmpty(storageShelf) ? List.of("未知货架") : storageShelf);
+            r.setStorageShelf(storageShelf);
         });
         return PageInfoRes.build(result);
     }
@@ -109,7 +111,7 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
     @Override
     public Boolean insertByBo(ItemSkuDto dto) {
         ItemSku add = MapstructUtils.convert(dto, ItemSku.class);
-        add.setSkuNo(commonService.getNo("SKU"));
+        add.setSkuNo(generateNoUtil.getBizNo(NoTypeEnum.RECEIPT_NO));
         return itemSkuMapper.insert(add) > 0;
     }
 

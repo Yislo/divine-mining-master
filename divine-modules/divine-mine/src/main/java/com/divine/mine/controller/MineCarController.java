@@ -39,7 +39,7 @@ public class MineCarController extends BaseController {
     /**
      * 查询车辆信息列表
      */
-    @SaCheckPermission("car:list")
+//    @SaCheckPermission("car:list")
     @GetMapping("/list")
     public PageInfoRes<MineCarVo> list(MineCarDto dto, BasePage basePage) {
         return mineCarService.queryPageList(dto, basePage);
@@ -48,7 +48,7 @@ public class MineCarController extends BaseController {
     /**
      * 导出车辆信息列表
      */
-    @SaCheckPermission("car:export")
+//    @SaCheckPermission("car:export")
     @Log(title = "车辆信息", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(MineCarDto dto, HttpServletResponse response) {
@@ -61,7 +61,7 @@ public class MineCarController extends BaseController {
      *
      * @param id 主键
      */
-    @SaCheckPermission("car:query")
+//    @SaCheckPermission("car:query")
     @GetMapping("/{id}")
     public Result<MineCarVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
@@ -71,7 +71,7 @@ public class MineCarController extends BaseController {
     /**
      * 新增车辆信息
      */
-    @SaCheckPermission("car:add")
+//    @SaCheckPermission("car:add")
     @Log(title = "车辆信息", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -83,7 +83,7 @@ public class MineCarController extends BaseController {
     /**
      * 修改车辆信息
      */
-    @SaCheckPermission("car:edit")
+//    @SaCheckPermission("car:edit")
     @Log(title = "车辆信息", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -97,7 +97,7 @@ public class MineCarController extends BaseController {
      *
      * @param ids 主键串
      */
-    @SaCheckPermission("car:remove")
+//    @SaCheckPermission("car:remove")
     @Log(title = "车辆信息", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public Result<Void> remove(@NotEmpty(message = "主键不能为空")

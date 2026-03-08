@@ -8,7 +8,10 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.divine.common.core.enums.InventoryStatusEnum;
 import com.divine.common.core.enums.InventoryTypeEnum;
+import com.divine.common.core.enums.NoTypeEnum;
 import com.divine.common.core.exception.base.BusinessException;
+import com.divine.common.core.utils.GenerateNoUtil;
+import com.divine.system.service.CommonService;
 import com.divine.warehouse.domain.dto.ShipmentOrderDetailDto;
 import com.divine.warehouse.domain.dto.ShipmentOrderDto;
 import com.divine.warehouse.domain.entity.BaseOrderDetail;
@@ -16,14 +19,12 @@ import com.divine.warehouse.domain.entity.ShipmentOrder;
 import com.divine.warehouse.domain.entity.ShipmentOrderDetail;
 import com.divine.warehouse.domain.entity.Warehouse;
 import com.divine.warehouse.domain.vo.BaseOrderDetailVO;
-import com.divine.warehouse.domain.vo.ReceiptOrderVo;
 import com.divine.warehouse.domain.vo.ShipmentOrderDetailVO;
 import com.divine.warehouse.domain.vo.ShipmentOrderVo;
 import com.divine.warehouse.mapper.ShipmentOrderMapper;
 import com.divine.warehouse.mapper.WarehouseMapper;
 import com.divine.warehouse.service.*;
 import com.divine.common.core.utils.MapstructUtils;
-import com.divine.common.core.utils.StringUtils;
 import com.divine.common.mybatis.core.domain.BaseEntity;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
@@ -51,7 +52,7 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
     private final ShipmentOrderDetailService shipmentOrderDetailService;
     private final InventoryService inventoryService;
     private final InventoryHistoryService inventoryHistoryService;
-    private final CommonService commonService;
+    private final GenerateNoUtil generateNoUtil;
     private final WarehouseMapper warehouseMapper;
 
     /**
@@ -61,7 +62,7 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
     public ShipmentOrderVo queryById(Long id) {
         ShipmentOrderVo shipmentOrderVo = shipmentOrderMapper.selectVoById(id);
         if (shipmentOrderVo == null) {
-            throw new com.divine.common.core.exception.base.BusinessException("出库单不存在");
+            throw new BusinessException("出库单不存在");
         }
         shipmentOrderVo.setDetails(shipmentOrderDetailService.queryByShipmentOrderId(shipmentOrderVo.getId()));
         return shipmentOrderVo;
@@ -115,13 +116,14 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
     @Transactional
     public Long insertByBo(ShipmentOrderDto dto) {
         // 创建出库单
-        String shipmentNo = commonService.getNo(InventoryTypeEnum.SHIPMENT.getCode());
+        String shipmentNo = generateNoUtil.getBizNo(NoTypeEnum.SHIPMENT_NO);
         dto.setBizNo(shipmentNo);
         //组装数据保存
         ShipmentOrder shipmentOrder = MapstructUtils.convert(dto, ShipmentOrder.class);
         shipmentOrder.setShipmentNo(shipmentNo);
         shipmentOrder.setShipmentStatus(InventoryStatusEnum.FINISH.getCode());
         shipmentOrderMapper.insert(shipmentOrder);
+        dto.setId(shipmentOrder.getId());
         List<ShipmentOrderDetailDto> detailBoList = dto.getDetails();
         List<ShipmentOrderDetail> addDetailList = MapstructUtils.convert(detailBoList, ShipmentOrderDetail.class);
         addDetailList.forEach(it -> it.setShipmentId(shipmentOrder.getId()));
