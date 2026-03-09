@@ -51,9 +51,9 @@ public class UserActionListener implements SaTokenListener {
             dto.setUserName(user.getUsername());
             dto.setDeptName(user.getDeptName());
             if(tokenConfig.getTimeout() == -1) {
-                RedisUtils.setCacheObject(CacheConstants.ONLINE_TOKEN_KEY + tokenValue, dto);
+                RedisUtils.set(CacheConstants.ONLINE_TOKEN_KEY + tokenValue, dto);
             } else {
-                RedisUtils.setCacheObject(CacheConstants.ONLINE_TOKEN_KEY + tokenValue, dto, Duration.ofSeconds(tokenConfig.getTimeout()));
+                RedisUtils.set(CacheConstants.ONLINE_TOKEN_KEY + tokenValue, dto, tokenConfig.getTimeout());
             }
         } else if (userTypeEnum == UserTypeEnum.APP_USER) {
             // app端 自行根据业务编写
@@ -65,7 +65,7 @@ public class UserActionListener implements SaTokenListener {
      */
     @Override
     public void doLogout(String loginType, Object loginId, String tokenValue) {
-        RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + tokenValue);
+        RedisUtils.delete(CacheConstants.ONLINE_TOKEN_KEY + tokenValue);
         log.info("user doLogout, userId:{}, token:{}", loginId, tokenValue);
     }
 
@@ -74,7 +74,7 @@ public class UserActionListener implements SaTokenListener {
      */
     @Override
     public void doKickout(String loginType, Object loginId, String tokenValue) {
-        RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + tokenValue);
+        RedisUtils.delete(CacheConstants.ONLINE_TOKEN_KEY + tokenValue);
         log.info("user doLogoutByLoginId, userId:{}, token:{}", loginId, tokenValue);
     }
 
@@ -83,7 +83,7 @@ public class UserActionListener implements SaTokenListener {
      */
     @Override
     public void doReplaced(String loginType, Object loginId, String tokenValue) {
-        RedisUtils.deleteObject(CacheConstants.ONLINE_TOKEN_KEY + tokenValue);
+        RedisUtils.delete(CacheConstants.ONLINE_TOKEN_KEY + tokenValue);
         log.info("user doReplaced, userId:{}, token:{}", loginId, tokenValue);
     }
 

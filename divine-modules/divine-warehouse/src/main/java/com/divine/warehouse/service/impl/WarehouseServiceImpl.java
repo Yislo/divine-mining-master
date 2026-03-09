@@ -1,7 +1,6 @@
 package com.divine.warehouse.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -110,10 +109,14 @@ public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse
         List<Warehouse> warehouseList = warehouseMapper.selectList(queryWrapper);
         boolean validateNameResult = warehouseList.stream().anyMatch(
             it -> Objects.equals(it.getWarehouseName(), warehouse.getWarehouseName()) && !Objects.equals(it.getId(), warehouse.getId()));
-        Assert.isFalse(validateNameResult, "仓库名称重复");
+        if (!validateNameResult){
+            throw new BusinessException("仓库名称重复");
+        }
         boolean validateNoResult = warehouseList.stream().anyMatch(
             it -> Objects.equals(it.getWarehouseNo(), warehouse.getWarehouseNo()) && !Objects.equals(it.getId(), warehouse.getId()));
-        Assert.isFalse(validateNoResult, "仓库编号重复");
+        if (!validateNoResult){
+            throw new BusinessException("仓库名称重复");
+        }
     }
 
     /**

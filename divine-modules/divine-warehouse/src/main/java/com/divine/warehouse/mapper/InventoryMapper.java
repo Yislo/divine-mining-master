@@ -21,4 +21,13 @@ public interface InventoryMapper extends BaseMapperPlus<Inventory, InventoryVo> 
     Page<BoardListVO> queryItemBoardList(Page<InventoryVo> page, @Param("dto") InventoryDto dto);
     Page<BoardListVO> queryWarehouseBoardList(Page<InventoryVo> page, @Param("dto") InventoryDto dto);
 
+    /**
+     * 扣减库存
+     * @param warehouseId
+     * @param skuId
+     * @param storageShelf
+     * @param quantity
+     * @return
+     */
+    int subtractStock(Long warehouseId, Long skuId, String storageShelf, Long quantity);
 }

@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
 public class ShipmentOrderDto extends BaseOrderDto<ShipmentOrderDetailDto> {
 
     /**
-     * 入库类型
+     * 出库类型
      */
     @NotNull(message = "出库类型不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long optType;

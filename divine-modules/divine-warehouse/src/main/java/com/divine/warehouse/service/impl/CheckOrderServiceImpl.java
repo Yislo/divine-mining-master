@@ -95,7 +95,6 @@ public class CheckOrderServiceImpl implements CheckOrderService {
     private LambdaQueryWrapper<CheckOrder> buildQueryWrapper(CheckOrderDto dto) {
         LambdaQueryWrapper<CheckOrder> lqw = Wrappers.lambdaQuery();
 //        lqw.eq(StringUtils.isNotBlank(dto.getOrderNo()), CheckOrder::getOrderNo, dto.getOrderNo());
-//        lqw.eq(dto.getOrderStatus() != null, CheckOrder::getOrderStatus, dto.getOrderStatus());
         lqw.eq(dto.getTotalQuantity() != null, CheckOrder::getTotalQuantity, dto.getTotalQuantity());
         lqw.eq(dto.getWarehouseId() != null, CheckOrder::getWarehouseId, dto.getWarehouseId());
         lqw.orderByDesc(BaseEntity::getCreateTime);

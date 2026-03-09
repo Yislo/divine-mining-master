@@ -2,10 +2,12 @@ package com.divine.warehouse.service.impl;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.expression.engine.rhino.RhinoEngine;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.divine.common.core.exception.base.BusinessException;
 import com.divine.warehouse.domain.dto.ItemCategoryDto;
 import com.divine.warehouse.domain.entity.Item;
 import com.divine.warehouse.domain.entity.ItemCategory;
@@ -108,7 +110,9 @@ public class ItemCategoryServiceImpl extends ServiceImpl<ItemCategoryMapper, Ite
         LambdaQueryWrapper<ItemCategory> queryWrapper = Wrappers.lambdaQuery();
         queryWrapper.eq(ItemCategory::getCategoryName, dto.getCategoryName());
         queryWrapper.ne(dto.getId() != null, ItemCategory::getId, dto.getId());
-        Assert.isTrue(itemCategoryMapper.selectCount(queryWrapper) == 0, "分类名重复");
+        if (itemCategoryMapper.selectCount(queryWrapper) == 0){
+            throw new BusinessException("分类名重复");
+        }
     }
 
     /**
@@ -119,11 +123,15 @@ public class ItemCategoryServiceImpl extends ServiceImpl<ItemCategoryMapper, Ite
         // 有子分类不能删
         LambdaQueryWrapper<ItemCategory> itemCategoryLqw = new LambdaQueryWrapper<>();
         itemCategoryLqw.in(ItemCategory::getParentId, ids);
-        Assert.state(itemCategoryMapper.selectCount(itemCategoryLqw) == 0, "删除失败！请先删除该分类下的子分类！");
+        if (itemCategoryMapper.selectCount(itemCategoryLqw) > 0){
+            throw new BusinessException("删除失败！请先删除该分类下的子分类！");
+        }
         // 被物品应用了不能删
         LambdaQueryWrapper<Item> itemLqw = Wrappers.lambdaQuery();
         itemLqw.in(Item::getItemCategory, ids);
-        Assert.state(itemMapper.selectCount(itemLqw) == 0, "删除失败！分类已被物品使用！");
+        if (itemMapper.selectCount(itemLqw) > 0){
+            throw new BusinessException("删除失败！分类已被物品使用！");
+        }
         // 删除
         LambdaQueryWrapper<ItemCategory> deleteWrapper = new LambdaQueryWrapper<>();
         deleteWrapper.in(ItemCategory::getId, ids);

@@ -67,4 +67,13 @@
         <include refid="selectVoListByDto"/>
         ORDER BY item_id, sku_id, warehouse_id
     </select>
+
+    <update id="subtractStock">
+        UPDATE wms_inventory
+        SET quantity = quantity - #{quantity}
+        WHERE warehouse_id = #{warehouseId}
+          AND sku_id = #{skuId}
+          AND storage_shelf = #{storageShelf}
+          AND quantity >= #{quantity}
+    </update>
 </mapper>

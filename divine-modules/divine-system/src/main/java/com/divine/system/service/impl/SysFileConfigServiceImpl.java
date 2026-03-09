@@ -53,7 +53,7 @@ public class SysFileConfigServiceImpl implements SysOssConfigService {
         for (SysOssConfig config : list) {
             String configKey = config.getConfigKey();
             if ("1".equals(config.getStatus())) {
-                RedisUtils.setCacheObject(OssConstant.DEFAULT_CONFIG_KEY, configKey);
+                RedisUtils.set(OssConstant.DEFAULT_CONFIG_KEY, configKey);
             }
             CacheUtils.put(CacheNames.SYS_OSS_CONFIG, config.getConfigKey(), JsonUtils.toJsonString(config));
         }
@@ -162,7 +162,7 @@ public class SysFileConfigServiceImpl implements SysOssConfigService {
             .set(SysOssConfig::getStatus, "0"));
         row += ossConfigMapper.updateById(sysOssConfig);
         if (row > 0) {
-            RedisUtils.setCacheObject(OssConstant.DEFAULT_CONFIG_KEY, sysOssConfig.getConfigKey());
+            RedisUtils.set(OssConstant.DEFAULT_CONFIG_KEY, sysOssConfig.getConfigKey());
         }
         return row;
     }

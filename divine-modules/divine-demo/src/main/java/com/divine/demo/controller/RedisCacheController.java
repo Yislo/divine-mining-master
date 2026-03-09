@@ -78,15 +78,15 @@ public class RedisCacheController {
      */
     @GetMapping("/test6")
     public Result<Boolean> test6(String key, String value) {
-        RedisUtils.setCacheObject(key, value);
-        boolean flag = RedisUtils.expire(key, Duration.ofSeconds(10));
+        RedisUtils.set(key, value);
+        boolean flag = RedisUtils.expire(key, 10L);
         System.out.println("***********" + flag);
         try {
             Thread.sleep(11 * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Object obj = RedisUtils.getCacheObject(key);
+        Object obj = RedisUtils.get(key);
         return Result.success(value.equals(obj));
     }
 

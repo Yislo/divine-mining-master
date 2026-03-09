@@ -16,7 +16,6 @@ import com.divine.common.core.utils.StringUtils;
 import com.divine.common.redis.utils.RedisUtils;
 import com.divine.system.domain.entity.SysUserOnline;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,7 +50,7 @@ public class SysUserOnlineController extends BaseController {
             if (StpUtil.stpLogic.getTokenActiveTimeoutByToken(token) < -1) {
                 continue;
             }
-            userOnlineDTOList.add(RedisUtils.getCacheObject(CacheConstants.ONLINE_TOKEN_KEY + token));
+            userOnlineDTOList.add(RedisUtils.get(CacheConstants.ONLINE_TOKEN_KEY + token));
         }
         if (StringUtils.isNotEmpty(ipaddr) && StringUtils.isNotEmpty(userName)) {
             userOnlineDTOList = StreamUtils.filter(userOnlineDTOList, userOnline ->

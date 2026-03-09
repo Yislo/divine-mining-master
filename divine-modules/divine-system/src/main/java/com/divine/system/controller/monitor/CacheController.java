@@ -113,7 +113,7 @@ public class CacheController {
         if (isCacheNames(cacheName)) {
             cacheValue = CacheUtils.get(cacheName, cacheKey);
         } else {
-            cacheValue = RedisUtils.getCacheObject(cacheKey);
+            cacheValue = RedisUtils.get(cacheKey);
         }
         SysCache sysCache = new SysCache(cacheName, cacheKey, JsonUtils.toJsonString(cacheValue));
         return Result.success(sysCache);
@@ -147,7 +147,7 @@ public class CacheController {
         if (isCacheNames(cacheName)) {
             CacheUtils.evict(cacheName, cacheKey);
         } else {
-            RedisUtils.deleteObject(cacheKey);
+            RedisUtils.delete(cacheKey);
         }
         return Result.success();
     }

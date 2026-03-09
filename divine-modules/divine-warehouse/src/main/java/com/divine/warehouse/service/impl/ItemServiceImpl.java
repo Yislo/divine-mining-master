@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.divine.common.core.enums.NoTypeEnum;
+import com.divine.common.core.exception.base.BusinessException;
 import com.divine.common.core.utils.GenerateNoUtil;
 import com.divine.warehouse.domain.dto.ItemDto;
 import com.divine.warehouse.domain.dto.ItemSkuDto;
@@ -77,9 +78,7 @@ public class ItemServiceImpl implements ItemService {
             LambdaQueryWrapper<ItemCategory> itemTypeWrapper = new LambdaQueryWrapper<>();
             itemTypeWrapper.in(ItemCategory::getId, itemVoList.stream().map(ItemVo::getItemCategory).collect(Collectors.toSet()));
             Map<Long, ItemCategoryVo> itemCategoryVoMap = itemCategoryMapper.selectVoList(itemTypeWrapper).stream().collect(Collectors.toMap(ItemCategoryVo::getId, Function.identity()));
-            itemVoList.forEach(itemVo -> {
-                itemVo.setItemCategoryInfo(itemCategoryVoMap.get(Long.valueOf(itemVo.getItemCategory())));
-            });
+            itemVoList.forEach(itemVo -> itemVo.setItemCategoryInfo(itemCategoryVoMap.get(Long.valueOf(itemVo.getItemCategory()))));
         }
         return PageInfoRes.build(result);
     }
@@ -99,7 +98,7 @@ public class ItemServiceImpl implements ItemService {
         // 主键集合
         lqw.in(!CollUtil.isEmpty(dto.getIds()), Item::getId, dto.getIds());
         lqw.like(StrUtil.isNotBlank(dto.getItemName()), Item::getItemName, dto.getItemName());
-        if (!StrUtil.isBlank(dto.getItemCategory())){
+        if (!StrUtil.isBlank(dto.getItemCategory())) {
             Long parentId = Long.valueOf(dto.getItemCategory());
             List<Long> subIdList = this.buildSubItemCategoryIdList(parentId);
             subIdList.add(Long.valueOf(dto.getItemCategory()));
@@ -127,7 +126,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = MapstructUtils.convert(dto, Item.class);
         item.setItemNo(generateNoUtil.getBizNo(NoTypeEnum.SPU_NO));
         itemMapper.insert(item);
-        itemSkuService.setItemId(dto.getSku(),item.getId());
+        itemSkuService.setItemId(dto.getSku(), item.getId());
         itemSkuService.saveOrUpdateBatchByBo(dto.getSku());
     }
 
@@ -141,7 +140,7 @@ public class ItemServiceImpl implements ItemService {
     public void updateByForm(ItemDto dto) {
         validateBoBeforeSave(dto);
         itemMapper.updateById(MapstructUtils.convert(dto, Item.class));
-        itemSkuService.setItemId(dto.getSku(),dto.getId());
+        itemSkuService.setItemId(dto.getSku(), dto.getId());
         itemSkuService.saveOrUpdateBatchByBo(dto.getSku());
     }
 
@@ -157,16 +156,16 @@ public class ItemServiceImpl implements ItemService {
         LambdaQueryWrapper<Item> queryWrapper = Wrappers.lambdaQuery();
         queryWrapper.eq(Item::getItemName, item.getItemName());
         queryWrapper.ne(item.getId() != null, Item::getId, item.getId());
-        Assert.isTrue(itemMapper.selectCount(queryWrapper) == 0, "物品名称重复");
+        if (itemMapper.selectCount(queryWrapper) > 0){
+            throw new BusinessException("物品名称重复");
+        }
     }
 
     private void validateItemSkuName(List<ItemSkuDto> skuVoList) {
-         Assert.isTrue(
-             skuVoList.stream().map(ItemSkuDto::getSkuName).distinct().count() == skuVoList.size(),
-             "物品规格重复"
-         );
+        if (skuVoList.stream().map(ItemSkuDto::getSkuName).distinct().count() != skuVoList.size()) {
+            throw new BusinessException("物品规格重复");
+        }
     }
-
 
 
     /**

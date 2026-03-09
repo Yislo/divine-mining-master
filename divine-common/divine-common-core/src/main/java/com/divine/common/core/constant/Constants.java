@@ -65,7 +65,7 @@ public interface Constants {
     /**
      * 验证码有效期（分钟）
      */
-    Integer CAPTCHA_EXPIRATION = 2;
+    Long CAPTCHA_EXPIRATION = 120L;
 
     /**
      * 令牌

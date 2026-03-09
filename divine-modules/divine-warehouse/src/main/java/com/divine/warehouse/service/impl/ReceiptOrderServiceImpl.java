@@ -71,7 +71,9 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
     @Override
     public ReceiptOrderVo queryById(Long id) {
         ReceiptOrderVo receiptOrderVo = receiptOrderMapper.selectVoById(id);
-        Assert.notNull(receiptOrderVo, "入库单不存在");
+        if (ObjUtil.isNull(receiptOrderVo)){
+            throw new BusinessException("入库单不存在");
+        }
         // 获取仓库名称
         Warehouse warehouse = warehouseMapper.selectById(receiptOrderVo.getWarehouseId());
         receiptOrderVo.setWarehouseName(warehouse.getWarehouseName());
@@ -276,7 +278,9 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
 
     private void validateIdBeforeDelete(Long id) {
         ReceiptOrderVo receiptOrderVo = queryById(id);
-        Assert.notNull(receiptOrderVo, "入库单不存在");
+        if (ObjUtil.isNull(receiptOrderVo)){
+            throw new BusinessException("入库单不存在");
+        }
         if (InventoryStatusEnum.FINISH.getCode().equals(receiptOrderVo.getReceiptStatus())) {
             throw new BusinessException("入库单【" + receiptOrderVo.getReceiptNo() + "】已入库，无法删除！");
         }

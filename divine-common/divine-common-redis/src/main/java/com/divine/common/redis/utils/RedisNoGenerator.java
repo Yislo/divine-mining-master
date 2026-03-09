@@ -30,20 +30,10 @@ public class RedisNoGenerator implements GenerateNoUtil {
         String code = noType.getCode();
         String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         String redisKey = "no:" + code + ":" + dateStr;
-        long num = RedisUtils.incrAtomicValue(redisKey, getSecondsUntilMidnight());
+        long num = RedisUtils.incrAtomicValue(redisKey, RedisUtils.getSecondsUntilMidnight());
         return code + dateStr + String.format(SUFFIX, num);
     }
 
-    /**
-     * 获取距离今天结束（23:59:59）的秒数
-     */
-    private static long getSecondsUntilMidnight() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime midnight = now.toLocalDate()
-            .plusDays(1)
-            .atStartOfDay();
-        return Duration.between(now, midnight).getSeconds();
-    }
 
 
 }

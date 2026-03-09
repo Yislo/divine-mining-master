@@ -35,7 +35,7 @@ public class PlusSaTokenDao implements SaTokenDao {
      */
     @Override
     public String get(String key) {
-        Object o = CAFFEINE.get(key, k -> RedisUtils.getCacheObject(key));
+        Object o = CAFFEINE.get(key, k -> RedisUtils.get(key));
         return (String) o;
     }
 
@@ -49,9 +49,9 @@ public class PlusSaTokenDao implements SaTokenDao {
         }
         // 判断是否为永不过期
         if (timeout == NEVER_EXPIRE) {
-            RedisUtils.setCacheObject(key, value);
+            RedisUtils.set(key, value);
         } else {
-            RedisUtils.setCacheObject(key, value, Duration.ofSeconds(timeout));
+            RedisUtils.set(key, value, timeout);
         }
         CAFFEINE.invalidate(key);
     }
@@ -62,7 +62,7 @@ public class PlusSaTokenDao implements SaTokenDao {
     @Override
     public void update(String key, String value) {
         if (RedisUtils.hasKey(key)) {
-            RedisUtils.setCacheObject(key, value, true);
+            RedisUtils.set(key, value, true);
             CAFFEINE.invalidate(key);
         }
     }
@@ -72,7 +72,7 @@ public class PlusSaTokenDao implements SaTokenDao {
      */
     @Override
     public void delete(String key) {
-        RedisUtils.deleteObject(key);
+        RedisUtils.delete(key);
     }
 
     /**
@@ -89,7 +89,7 @@ public class PlusSaTokenDao implements SaTokenDao {
      */
     @Override
     public void updateTimeout(String key, long timeout) {
-        RedisUtils.expire(key, Duration.ofSeconds(timeout));
+        RedisUtils.expire(key, timeout);
     }
 
 
@@ -98,7 +98,7 @@ public class PlusSaTokenDao implements SaTokenDao {
      */
     @Override
     public Object getObject(String key) {
-        Object o = CAFFEINE.get(key, k -> RedisUtils.getCacheObject(key));
+        Object o = CAFFEINE.get(key, k -> RedisUtils.get(key));
         return o;
     }
 
@@ -112,9 +112,9 @@ public class PlusSaTokenDao implements SaTokenDao {
         }
         // 判断是否为永不过期
         if (timeout == NEVER_EXPIRE) {
-            RedisUtils.setCacheObject(key, object);
+            RedisUtils.set(key, object);
         } else {
-            RedisUtils.setCacheObject(key, object, Duration.ofSeconds(timeout));
+            RedisUtils.set(key, object, timeout);
         }
         CAFFEINE.invalidate(key);
     }
@@ -125,7 +125,7 @@ public class PlusSaTokenDao implements SaTokenDao {
     @Override
     public void updateObject(String key, Object object) {
         if (RedisUtils.hasKey(key)) {
-            RedisUtils.setCacheObject(key, object, true);
+            RedisUtils.set(key, object, true);
             CAFFEINE.invalidate(key);
         }
     }
@@ -135,7 +135,7 @@ public class PlusSaTokenDao implements SaTokenDao {
      */
     @Override
     public void deleteObject(String key) {
-        RedisUtils.deleteObject(key);
+        RedisUtils.delete(key);
     }
 
     /**
@@ -152,7 +152,7 @@ public class PlusSaTokenDao implements SaTokenDao {
      */
     @Override
     public void updateObjectTimeout(String key, long timeout) {
-        RedisUtils.expire(key, Duration.ofSeconds(timeout));
+        RedisUtils.expire(key, timeout);
     }
 
 

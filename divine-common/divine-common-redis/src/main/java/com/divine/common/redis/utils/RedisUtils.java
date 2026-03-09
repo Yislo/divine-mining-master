@@ -6,6 +6,7 @@ import com.divine.common.core.utils.SpringUtils;
 import org.redisson.api.*;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -95,8 +96,8 @@ public class RedisUtils {
      * @param key   缓存的键值
      * @param value 缓存的值
      */
-    public static <T> void setCacheObject(final String key, final T value) {
-        setCacheObject(key, value, false);
+    public static <T> void set(final String key, final T value) {
+        set(key, value, false);
     }
 
     /**
@@ -107,17 +108,18 @@ public class RedisUtils {
      * @param isSaveTtl 是否保留TTL有效期(例如: set之前ttl剩余90 set之后还是为90)
      * @since Redis 6.X 以上使用 setAndKeepTTL 兼容 5.X 方案
      */
-    public static <T> void setCacheObject(final String key, final T value, final boolean isSaveTtl) {
+    public static <T> void set(final String key, final T value, final boolean isSaveTtl) {
         RBucket<T> bucket = CLIENT.getBucket(key);
         if (isSaveTtl) {
             try {
                 bucket.setAndKeepTTL(value);
             } catch (Exception e) {
-                long timeToLive = bucket.remainTimeToLive();
-                if (timeToLive == -1) {
-                    setCacheObject(key, value);
+                long ttlMillis = bucket.remainTimeToLive();
+                if (ttlMillis == -1) {
+                    set(key, value);
                 } else {
-                    setCacheObject(key, value, Duration.ofMillis(timeToLive));
+                    long seconds = Math.min(ttlMillis / 1000, Integer.MAX_VALUE);
+                    set(key, value, seconds);
                 }
             }
         } else {
@@ -130,13 +132,13 @@ public class RedisUtils {
      *
      * @param key      缓存的键值
      * @param value    缓存的值
-     * @param duration 时间
+     * @param seconds 时间(秒)
      */
-    public static <T> void setCacheObject(final String key, final T value, final Duration duration) {
+    public static <T> void set(final String key, final T value, final Long seconds) {
         RBatch batch = CLIENT.createBatch();
         RBucketAsync<T> bucket = batch.getBucket(key);
         bucket.setAsync(value);
-        bucket.expireAsync(duration);
+        bucket.expireAsync(Duration.ofSeconds(seconds));
         batch.execute();
     }
 
@@ -147,9 +149,9 @@ public class RedisUtils {
      * @param value 缓存的值
      * @return set成功或失败
      */
-    public static <T> boolean setObjectIfAbsent(final String key, final T value, final Duration duration) {
+    public static <T> boolean setIfAbsent(final String key, final T value, final Long seconds) {
         RBucket<T> bucket = CLIENT.getBucket(key);
-        return bucket.setIfAbsent(value, duration);
+        return bucket.setIfAbsent(value, Duration.ofSeconds(seconds));
     }
 
     /**
@@ -159,9 +161,9 @@ public class RedisUtils {
      * @param value 缓存的值
      * @return set成功或失败
      */
-    public static <T> boolean setObjectIfExists(final String key, final T value, final Duration duration) {
+    public static <T> boolean setIfExists(final String key, final T value, final Long seconds) {
         RBucket<T> bucket = CLIENT.getBucket(key);
-        return bucket.setIfExists(value, duration);
+        return bucket.setIfExists(value, Duration.ofSeconds(seconds));
     }
 
     /**
@@ -172,7 +174,7 @@ public class RedisUtils {
      * @param key      缓存的键值
      * @param listener 监听器配置
      */
-    public static <T> void addObjectListener(final String key, final ObjectListener listener) {
+    public static <T> void addListener(final String key, final ObjectListener listener) {
         RBucket<T> result = CLIENT.getBucket(key);
         result.addListener(listener);
     }
@@ -180,24 +182,13 @@ public class RedisUtils {
     /**
      * 设置有效时间
      *
-     * @param key     Redis键
-     * @param timeout 超时时间
-     * @return true=设置成功；false=设置失败
-     */
-    public static boolean expire(final String key, final long timeout) {
-        return expire(key, Duration.ofSeconds(timeout));
-    }
-
-    /**
-     * 设置有效时间
-     *
      * @param key      Redis键
-     * @param duration 超时时间
+     * @param seconds 超时时间(秒)
      * @return true=设置成功；false=设置失败
      */
-    public static boolean expire(final String key, final Duration duration) {
+    public static boolean expire(final String key, final Long seconds) {
         RBucket rBucket = CLIENT.getBucket(key);
-        return rBucket.expire(duration);
+        return rBucket.expire(Duration.ofSeconds(seconds));
     }
 
     /**
@@ -206,7 +197,7 @@ public class RedisUtils {
      * @param key 缓存键值
      * @return 缓存键值对应的数据
      */
-    public static <T> T getCacheObject(final String key) {
+    public static <T> T get(final String key) {
         RBucket<T> rBucket = CLIENT.getBucket(key);
         return rBucket.get();
     }
@@ -227,7 +218,7 @@ public class RedisUtils {
      *
      * @param key 缓存的键值
      */
-    public static boolean deleteObject(final String key) {
+    public static boolean delete(final String key) {
         return CLIENT.getBucket(key).delete();
     }
 
@@ -236,7 +227,7 @@ public class RedisUtils {
      *
      * @param collection 多个对象
      */
-    public static void deleteObject(final Collection collection) {
+    public static void delete(final Collection collection) {
         RBatch batch = CLIENT.createBatch();
         collection.forEach(t -> {
             batch.getBucket(t.toString()).deleteAsync();
@@ -249,7 +240,7 @@ public class RedisUtils {
      *
      * @param key 缓存的键值
      */
-    public static boolean isExistsObject(final String key) {
+    public static boolean isExists(final String key) {
         return CLIENT.getBucket(key).isExists();
     }
 
@@ -554,4 +545,16 @@ public class RedisUtils {
         RKeys rKeys = CLIENT.getKeys();
         return rKeys.countExists(key) > 0;
     }
+
+    /**
+     * 获取距离今天结束（23:59:59）的秒数
+     */
+    public static long getSecondsUntilMidnight() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime midnight = now.toLocalDate()
+            .plusDays(1)
+            .atStartOfDay();
+        return Duration.between(now, midnight).getSeconds();
+    }
+
 }

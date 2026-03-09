@@ -72,8 +72,8 @@ public class SysRegisterServiceImpl implements SysRegisterService {
     @Override
     public void validateCaptcha(String username, String code, String uuid) {
         String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + StringUtils.defaultString(uuid, "");
-        String captcha = RedisUtils.getCacheObject(verifyKey);
-        RedisUtils.deleteObject(verifyKey);
+        String captcha = RedisUtils.get(verifyKey);
+        RedisUtils.delete(verifyKey);
         if (captcha == null) {
             recordLogininfor(username, Constants.REGISTER, MessageUtils.message("user.jcaptcha.expire"));
             throw new BusinessException("验证码错误");

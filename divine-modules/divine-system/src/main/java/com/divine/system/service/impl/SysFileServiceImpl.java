@@ -258,7 +258,7 @@ public class SysFileServiceImpl implements SysFileService, OssService {
     }
 
     private OssClient getOssClient() {
-        String defaultConfigKey = RedisUtils.getCacheObject(OssConstant.DEFAULT_CONFIG_KEY).toString();
+        String defaultConfigKey = RedisUtils.get(OssConstant.DEFAULT_CONFIG_KEY).toString();
         if (StringUtils.isBlank(defaultConfigKey)) {
             throw new BusinessException("文件服务初始化失败");
         }

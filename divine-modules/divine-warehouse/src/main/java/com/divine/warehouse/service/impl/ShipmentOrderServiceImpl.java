@@ -104,7 +104,6 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
         lqw.eq(dto.getRecipient() != null, ShipmentOrder::getRecipient, dto.getRecipient());
         lqw.eq(dto.getTotalPrice() != null, ShipmentOrder::getTotalPrice, dto.getTotalPrice());
         lqw.eq(dto.getTotalQuantity() != null, ShipmentOrder::getTotalQuantity, dto.getTotalQuantity());
-//        lqw.eq(dto.getOrderStatus() != null, ShipmentOrder::getOrderStatus, dto.getOrderStatus());
         lqw.orderByDesc(BaseEntity::getCreateTime);
         return lqw;
     }
@@ -121,7 +120,7 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
         //组装数据保存
         ShipmentOrder shipmentOrder = MapstructUtils.convert(dto, ShipmentOrder.class);
         shipmentOrder.setShipmentNo(shipmentNo);
-        shipmentOrder.setShipmentStatus(InventoryStatusEnum.FINISH.getCode());
+        shipmentOrder.setShipmentStatus(InventoryStatusEnum.PENDING.getCode());
         shipmentOrderMapper.insert(shipmentOrder);
         dto.setId(shipmentOrder.getId());
         List<ShipmentOrderDetailDto> detailBoList = dto.getDetails();

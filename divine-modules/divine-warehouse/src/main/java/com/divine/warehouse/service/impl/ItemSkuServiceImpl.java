@@ -111,7 +111,7 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
     @Override
     public Boolean insertByBo(ItemSkuDto dto) {
         ItemSku add = MapstructUtils.convert(dto, ItemSku.class);
-        add.setSkuNo(generateNoUtil.getBizNo(NoTypeEnum.RECEIPT_NO));
+        add.setSkuNo(generateNoUtil.getBizNo(NoTypeEnum.SKU_NO));
         return itemSkuMapper.insert(add) > 0;
     }
 
@@ -169,6 +169,7 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
     @Transactional
     public void saveOrUpdateBatchByBo(List<ItemSkuDto> sku) {
         List<ItemSku> itemSkuList = MapstructUtils.convert(sku, ItemSku.class);
+        itemSkuList.forEach(s-> s.setSkuNo(generateNoUtil.getBizNo(NoTypeEnum.SKU_NO)));
         saveOrUpdateBatch(itemSkuList);
     }
 

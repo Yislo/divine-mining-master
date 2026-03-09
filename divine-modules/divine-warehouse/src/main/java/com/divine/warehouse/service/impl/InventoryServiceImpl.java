@@ -3,32 +3,39 @@ package com.divine.warehouse.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.divine.common.core.constant.NoticeConstant;
+import com.divine.common.core.constant.RedisKeyConstants;
 import com.divine.common.core.exception.base.BusinessException;
+import com.divine.common.redis.utils.RedisDistributedLock;
+import com.divine.common.redis.utils.RedisUtils;
+import com.divine.system.domain.dto.SysNoticeDto;
+import com.divine.system.domain.vo.SysConfigVo;
+import com.divine.system.service.CommonService;
+import com.divine.system.service.SysNoticeService;
 import com.divine.warehouse.domain.dto.BaseOrderDetailDto;
 import com.divine.warehouse.domain.dto.CheckOrderDetailDto;
 import com.divine.warehouse.domain.dto.InventoryDto;
 import com.divine.warehouse.domain.entity.Inventory;
-import com.divine.warehouse.domain.vo.BoardListVO;
-import com.divine.warehouse.domain.vo.InventoryVo;
-import com.divine.warehouse.domain.vo.ItemSkuMapVo;
-import com.divine.warehouse.domain.vo.StorageShelfVO;
+import com.divine.warehouse.domain.entity.Warehouse;
+import com.divine.warehouse.domain.vo.*;
 import com.divine.warehouse.mapper.InventoryMapper;
+import com.divine.warehouse.mapper.WarehouseMapper;
 import com.divine.warehouse.service.InventoryService;
+import com.divine.warehouse.service.ItemService;
 import com.divine.warehouse.service.ItemSkuService;
 import com.divine.common.core.utils.MapstructUtils;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,6 +51,11 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
 
     private final InventoryMapper inventoryMapper;
     private final ItemSkuService itemSkuService;
+    private final ItemService itemService;
+    private final RedisDistributedLock redisDistributedLock;
+    private final CommonService commonService;
+    private final SysNoticeService noticeService;
+    private final WarehouseMapper warehouseMapper;
 
     /**
      * 查询库存
@@ -249,32 +261,106 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
     @Override
     @Transactional
     public void subtract(List<? extends BaseOrderDetailDto> details) {
-        List<Inventory> updateList = new LinkedList<>();
-        details.forEach(shipmentOrderDetailBo -> {
-            LambdaQueryWrapper<Inventory> wrapper = Wrappers.lambdaQuery();
-            wrapper.eq(Inventory::getWarehouseId, shipmentOrderDetailBo.getWarehouseId());
-            wrapper.eq(Inventory::getSkuId, shipmentOrderDetailBo.getSkuId());
-            wrapper.eq(Inventory::getStorageShelf, shipmentOrderDetailBo.getStorageShelf());
-            Inventory result = inventoryMapper.selectOne(wrapper);
-            if (result == null) {
-                ItemSkuMapVo itemSkuMapVo = itemSkuService.queryItemSkuMapVo(shipmentOrderDetailBo.getSkuId());
-                log.error(itemSkuMapVo.getItem().getItemName() + "（" + itemSkuMapVo.getItemSku().getSkuName() + "）库存不足，当前库存：0");
-                throw new BusinessException("库存不足");
+        // 获取预警参数
+        SysConfigVo configParam = commonService.getConfigParam("sys.warehouse.warning");
+
+        for (BaseOrderDetailDto d : details) {
+            String lockKey = d.getWarehouseId() + d.getSkuId() + d.getStorageShelf();
+            String requestId = redisDistributedLock.lock("stock");
+            try {
+                Inventory inv = inventoryMapper.selectOne(
+                    Wrappers.lambdaQuery(Inventory.class)
+                        .eq(Inventory::getWarehouseId, d.getWarehouseId())
+                        .eq(Inventory::getSkuId, d.getSkuId())
+                        .eq(Inventory::getStorageShelf, d.getStorageShelf())
+                );
+                if (inv == null) {
+                    throw new BusinessException("未找到相关物品信息");
+                }
+                // 扣减前数量
+                Long beforeQuantity = inv.getQuantity();
+                int rows = inventoryMapper.subtractStock(
+                    d.getWarehouseId(),
+                    d.getSkuId(),
+                    d.getStorageShelf(),
+                    d.getQuantity()
+                );
+                if (rows == 0) {
+                    ItemSkuVo itemSkuVo = itemSkuService.queryById(inv.getSkuId());
+                    throw new BusinessException(itemSkuVo.getSkuNo() + "库存不足");
+                }
+                d.setBeforeQuantity(beforeQuantity);
+                // 扣减后数量
+                long afterQuantity = beforeQuantity - d.getQuantity();
+                d.setAfterQuantity(afterQuantity);
+                // 库存是否到达预警值
+                // 如果到达则发送预警消息通知-每日只发送一次
+                long safeStock = Long.parseLong(configParam.getConfigValue());
+                if (afterQuantity <= safeStock) {
+                    sendNotice(inv.getWarehouseId(), d.getSkuId(), safeStock, afterQuantity, d.getStorageShelf());
+                    //存入redis,确保每天每个物品只发送一次
+                    RedisUtils.set(RedisKeyConstants.STOCK_WARING_NOTICE_KEY + d.getSkuId(), d.getSkuId(),RedisUtils.getSecondsUntilMidnight());
+                }
+
+            } finally {
+                redisDistributedLock.unlock(lockKey, requestId);
             }
-            Long beforeQuantity = result.getQuantity();
-            Long afterQuantity = beforeQuantity - shipmentOrderDetailBo.getQuantity();
-            if (afterQuantity < 0) {
-                ItemSkuMapVo itemSkuMapVo = itemSkuService.queryItemSkuMapVo(shipmentOrderDetailBo.getSkuId());
-                log.error(itemSkuMapVo.getItem().getItemName() + "（" + itemSkuMapVo.getItemSku().getSkuName() + "）库存不足，当前库存：" + beforeQuantity);
-                throw new BusinessException("库存不足");
-            }
-            shipmentOrderDetailBo.setBeforeQuantity(beforeQuantity);
-            shipmentOrderDetailBo.setAfterQuantity(afterQuantity);
-            result.setQuantity(afterQuantity);
-            updateList.add(result);
-        });
-        updateBatchById(updateList);
+        }
     }
+
+    /**
+     * 发送库存预警通知
+     *
+     * @param skuId
+     */
+    private void sendNotice(Long warehouseId,
+                            Long skuId,
+                            Long safeStock,
+                            Long afterQuantity,
+                            String storageShelf) {
+        SysNoticeDto sysNotice = new SysNoticeDto();
+        sysNotice.setNoticeType(1);
+        sysNotice.setNoticeTitle(NoticeConstant.STOCK_WARNING_TITLE);
+        sysNotice.setNoticeContent(generateContent(warehouseId, skuId, safeStock, afterQuantity, storageShelf));
+        noticeService.insertNotice(sysNotice);
+    }
+
+    /**
+     * 生成预警消息内容（标准版）
+     */
+    private String generateContent(Long warehouseId,
+                                   Long skuId,
+                                   Long safeStock,
+                                   Long afterQuantity,
+                                   String storageShelf) {
+        ItemSkuVo sku = itemSkuService.queryById(skuId);
+        ItemVo item = itemService.queryById(sku.getItemId());
+        Warehouse warehouse = warehouseMapper.selectById(warehouseId);
+
+        String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        return String.format(
+            "⚠️ 【库存预警通知】\n\n" +
+                "尊敬的负责人：\n\n" +
+                "您好！系统检测到以下商品库存已低于安全库存线，请及时安排补货：\n\n" +
+                "📦 物品名称：%s\n" +
+                "🏷️ SKU编码：%s\n" +
+                "📍 所在仓库：%s\n" +
+                "📊 当前库存：%d %s\n" +
+                "⚠️ 安全库存：%d %s\n" +
+                "⏰ 预警时间：%s\n\n" +
+                "请尽快处理！",
+
+            item.getItemName() + "(" + sku.getSkuName() + ")",                // 商品名称
+            sku.getSkuNo(),                                             // SKU编码
+            warehouse.getWarehouseName() + "-" + storageShelf + "货架",      // 仓库名称
+            afterQuantity,                                              // 当前库存
+            item.getUnit(),                                             // 单位
+            safeStock,                                                  // 安全库存
+            item.getUnit(),                                             // 单位
+            currentTime                                                 // 预警时间
+        );
+    }
+
 
     @Override
     public boolean existsByWarehouseId(Long warehouseId) {

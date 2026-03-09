@@ -180,7 +180,7 @@ public class SysLoginServiceImpl implements SysLoginService {
      * 校验短信验证码
      */
     private boolean validateSmsCode(String phonenumber, String smsCode) {
-        String code = RedisUtils.getCacheObject(CacheConstants.CAPTCHA_CODE_KEY + phonenumber);
+        String code = RedisUtils.get(CacheConstants.CAPTCHA_CODE_KEY + phonenumber);
         if (StringUtils.isBlank(code)) {
             recordLogininfor(phonenumber, Constants.LOGIN_FAIL, MessageUtils.message("user.jcaptcha.expire"));
             throw new BusinessException("验证码错误");
@@ -192,7 +192,7 @@ public class SysLoginServiceImpl implements SysLoginService {
      * 校验邮箱验证码
      */
     private boolean validateEmailCode(String email, String emailCode) {
-        String code = RedisUtils.getCacheObject(CacheConstants.CAPTCHA_CODE_KEY + email);
+        String code = RedisUtils.get(CacheConstants.CAPTCHA_CODE_KEY + email);
         if (StringUtils.isBlank(code)) {
             recordLogininfor(email, Constants.LOGIN_FAIL, MessageUtils.message("user.jcaptcha.expire"));
             throw new BusinessException("验证码错误");
@@ -210,8 +210,8 @@ public class SysLoginServiceImpl implements SysLoginService {
     @Override
     public void validateCaptcha(String username, String code, String uuid) {
         String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + StringUtils.defaultString(uuid, "");
-        String captcha = RedisUtils.getCacheObject(verifyKey);
-        RedisUtils.deleteObject(verifyKey);
+        String captcha = RedisUtils.get(verifyKey);
+        RedisUtils.delete(verifyKey);
         if (captcha == null) {
             recordLogininfor(username, Constants.LOGIN_FAIL, MessageUtils.message("user.jcaptcha.expire"));
             throw new BusinessException("验证码错误");
@@ -319,7 +319,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         String loginFail = Constants.LOGIN_FAIL;
 
         // 获取用户登录错误次数，默认为0 (可自定义限制策略 例如: key + username + ip)
-        int errorNumber = ObjectUtil.defaultIfNull(RedisUtils.getCacheObject(errorKey), 0);
+        int errorNumber = ObjectUtil.defaultIfNull(RedisUtils.get(errorKey), 0);
         // 锁定时间内登录 则踢出
         if (errorNumber >= maxRetryCount) {
             recordLogininfor(username, loginFail, MessageUtils.message(loginTypeEnum.getRetryLimitExceed(), maxRetryCount, lockTime));
@@ -329,7 +329,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         if (supplier.get()) {
             // 错误次数递增
             errorNumber++;
-            RedisUtils.setCacheObject(errorKey, errorNumber, Duration.ofMinutes(lockTime));
+            RedisUtils.set(errorKey, errorNumber, lockTime*60L);
             // 达到规定错误次数 则锁定登录
             if (errorNumber >= maxRetryCount) {
                 long timeToLive = RedisUtils.getTimeToLive(errorKey);
@@ -343,6 +343,6 @@ public class SysLoginServiceImpl implements SysLoginService {
         }
 
         // 登录成功 清空错误次数
-        RedisUtils.deleteObject(errorKey);
+        RedisUtils.delete(errorKey);
     }
 }

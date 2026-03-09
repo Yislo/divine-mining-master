@@ -91,7 +91,7 @@ public class SysLogininforController extends BaseController {
     public Result<Void> unlock(@PathVariable("userName") String userName) {
         String loginName = CacheConstants.PWD_ERR_CNT_KEY + userName;
         if (RedisUtils.hasKey(loginName)) {
-            RedisUtils.deleteObject(loginName);
+            RedisUtils.delete(loginName);
         }
         return Result.success();
     }

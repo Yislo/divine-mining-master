@@ -59,7 +59,7 @@ public class RepeatSubmitAspect {
         submitKey = SecureUtil.md5(submitKey + ":" + nowParams);
         // 唯一标识（指定key + url + 消息头）
         String cacheRepeatKey = GlobalConstants.REPEAT_SUBMIT_KEY + url + submitKey;
-        if (RedisUtils.setObjectIfAbsent(cacheRepeatKey, "", Duration.ofMillis(interval))) {
+        if (RedisUtils.setIfAbsent(cacheRepeatKey, "", interval * 60L)) {
             KEY_CACHE.set(cacheRepeatKey);
         } else {
             String message = repeatSubmit.message();
@@ -83,7 +83,7 @@ public class RepeatSubmitAspect {
                 if (result.getCode() == HttpStatusEnum.SUCCESS.getCode()) {
                     return;
                 }
-                RedisUtils.deleteObject(KEY_CACHE.get());
+                RedisUtils.delete(KEY_CACHE.get());
             } finally {
                 KEY_CACHE.remove();
             }
@@ -98,7 +98,7 @@ public class RepeatSubmitAspect {
      */
     @AfterThrowing(value = "@annotation(repeatSubmit)", throwing = "e")
     public void doAfterThrowing(JoinPoint joinPoint, RepeatSubmit repeatSubmit, Exception e) {
-        RedisUtils.deleteObject(KEY_CACHE.get());
+        RedisUtils.delete(KEY_CACHE.get());
         KEY_CACHE.remove();
     }
 
@@ -141,7 +141,7 @@ public class RepeatSubmitAspect {
             }
         }
         return o instanceof MultipartFile || o instanceof HttpServletRequest || o instanceof HttpServletResponse
-               || o instanceof BindingResult;
+            || o instanceof BindingResult;
     }
 
 }

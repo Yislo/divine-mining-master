@@ -1,5 +1,6 @@
 package com.divine.system.service.impl;
 
+import cn.hutool.core.util.ObjUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -14,7 +15,6 @@ import com.divine.system.domain.entity.SysNotice;
 import com.divine.system.domain.vo.MyNoticeVo;
 import com.divine.system.domain.vo.SysNoticeVo;
 import com.divine.system.mapper.SysNoticeMapper;
-import com.divine.system.mapper.SysUserMapper;
 import com.divine.system.service.SysNoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -117,7 +117,7 @@ public class SysNoticeServiceImpl implements SysNoticeService {
     private LambdaQueryWrapper<SysNotice> buildQueryWrapper(SysNoticeDto dto) {
         LambdaQueryWrapper<SysNotice> lqw = Wrappers.lambdaQuery();
         lqw.like(StringUtils.isNotBlank(dto.getNoticeTitle()), SysNotice::getNoticeTitle, dto.getNoticeTitle());
-        lqw.eq(StringUtils.isNotBlank(dto.getNoticeType()), SysNotice::getNoticeType, dto.getNoticeType());
+        lqw.eq(ObjUtil.isNotNull(dto.getNoticeType()), SysNotice::getNoticeType, dto.getNoticeType());
         lqw.eq(StringUtils.isNotBlank(dto.getCreateBy()), SysNotice::getCreateBy, dto.getCreateBy());
         lqw.orderByAsc(SysNotice::getNoticeId);
         return lqw;

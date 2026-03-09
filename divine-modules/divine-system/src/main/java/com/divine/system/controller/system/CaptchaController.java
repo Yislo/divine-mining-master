@@ -46,6 +46,7 @@ public class CaptchaController {
 
     /**
      * 短信验证码
+     *
      * @param phonenumber
      * @return
      */
@@ -53,7 +54,7 @@ public class CaptchaController {
     public Result<Void> smsCaptcha(@NotBlank(message = "{user.phonenumber.not.blank}") String phonenumber) {
         String key = CacheConstants.CAPTCHA_CODE_KEY + phonenumber;
         String code = RandomUtil.randomNumbers(4);
-        RedisUtils.setCacheObject(key, code, Duration.ofMinutes(Constants.CAPTCHA_EXPIRATION));
+        RedisUtils.set(key, code, Constants.CAPTCHA_EXPIRATION);
         // 验证码模板id 自行处理 (查数据库或写死均可)
         String templateId = "";
         LinkedHashMap<String, String> map = new LinkedHashMap<>(1);
@@ -69,6 +70,7 @@ public class CaptchaController {
 
     /**
      * 生成验证码
+     *
      * @return
      */
     @GetMapping("/captchaImage")
@@ -94,7 +96,7 @@ public class CaptchaController {
             Expression exp = parser.parseExpression(StringUtils.remove(code, "="));
             code = exp.getValue(String.class);
         }
-        RedisUtils.setCacheObject(verifyKey, code, Duration.ofMinutes(Constants.CAPTCHA_EXPIRATION));
+        RedisUtils.set(verifyKey, code, Constants.CAPTCHA_EXPIRATION);
         return Result.success(Map.of("uuid", uuid, "img", captcha.getImageBase64()));
     }
 
