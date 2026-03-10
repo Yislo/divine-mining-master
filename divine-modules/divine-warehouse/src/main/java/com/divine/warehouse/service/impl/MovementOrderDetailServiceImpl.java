@@ -2,11 +2,13 @@ package com.divine.warehouse.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.divine.warehouse.domain.dto.MovementOrderDetailDto;
 import com.divine.warehouse.domain.entity.MovementOrderDetail;
+import com.divine.warehouse.domain.vo.MoveDetailVO;
 import com.divine.warehouse.domain.vo.MovementOrderDetailVO;
 import com.divine.warehouse.mapper.MovementOrderDetailMapper;
 import com.divine.warehouse.service.ItemSkuService;
@@ -48,9 +50,8 @@ public class MovementOrderDetailServiceImpl extends ServiceImpl<MovementOrderDet
      * 查询库存移动详情列表
      */
     @Override
-    public PageInfoRes<MovementOrderDetailVO> queryPageList(MovementOrderDetailDto dto, BasePage basePage) {
-        LambdaQueryWrapper<MovementOrderDetail> lqw = buildQueryWrapper(dto);
-        Page<MovementOrderDetailVO> result = movementOrderDetailMapper.selectVoPage(basePage.build(), lqw);
+    public PageInfoRes<MoveDetailVO> queryPageList(Long moveId, BasePage basePage) {
+        IPage<MoveDetailVO> result = movementOrderDetailMapper.getMoveDetailList(basePage.build(), moveId);
         return PageInfoRes.build(result);
     }
 

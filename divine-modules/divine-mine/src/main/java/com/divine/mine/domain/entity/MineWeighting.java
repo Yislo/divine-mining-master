@@ -61,7 +61,7 @@ public class MineWeighting extends BaseEntity {
      */
     private Date deliveryTime;
     /**
-     * 过磅状态(0:已过磅,1:已回磅)
+     * 过磅状态
      */
     private Integer weighingStatus;
     /**

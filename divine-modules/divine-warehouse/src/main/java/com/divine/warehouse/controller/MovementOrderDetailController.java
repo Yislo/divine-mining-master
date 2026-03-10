@@ -12,6 +12,7 @@ import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.web.core.BaseController;
 import com.divine.warehouse.domain.dto.MovementOrderDetailDto;
+import com.divine.warehouse.domain.vo.MoveDetailVO;
 import com.divine.warehouse.domain.vo.MovementOrderDetailVO;
 import com.divine.warehouse.service.MovementOrderDetailService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,20 +43,10 @@ public class MovementOrderDetailController extends BaseController {
      */
     @SaCheckPermission("wms:movement:all")
     @GetMapping("/list")
-    public PageInfoRes<MovementOrderDetailVO> list(MovementOrderDetailDto dto, BasePage basePage) {
-        return movementOrderDetailService.queryPageList(dto, basePage);
+    public PageInfoRes<MoveDetailVO> list(Long moveId, BasePage basePage) {
+        return movementOrderDetailService.queryPageList(moveId, basePage);
     }
 
-    /**
-     * 导出库存移动详情列表
-     */
-    @SaCheckPermission("wms:movement:all")
-    @Log(title = "库存移动详情", businessType = BusinessType.EXPORT)
-    @PostMapping("/export")
-    public void export(MovementOrderDetailDto dto, HttpServletResponse response) {
-        List<MovementOrderDetailVO> list = movementOrderDetailService.queryList(dto);
-        ExcelUtil.exportExcel(list, "库存移动详情", MovementOrderDetailVO.class, response);
-    }
 
     /**
      * 获取库存移动详情详细信息

@@ -111,4 +111,12 @@ public interface InventoryService {
      * @param skuIds
      */
     List<InventoryVo> getBySkuIds(List<Long> skuIds);
+
+    /**
+     * 获取指定货架的sku库存
+     * @param skuId
+     * @param storageShelf
+     * @return
+     */
+    Long getStock(Long skuId,String storageShelf);
 }

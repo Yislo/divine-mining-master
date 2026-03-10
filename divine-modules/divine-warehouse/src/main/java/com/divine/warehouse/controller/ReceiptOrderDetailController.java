@@ -48,17 +48,6 @@ public class ReceiptOrderDetailController extends BaseController {
     }
 
     /**
-     * 导出入库单详情列表
-     */
-    @SaCheckPermission("wms:receipt:all")
-    @Log(title = "入库单详情", businessType = BusinessType.EXPORT)
-    @PostMapping("/export")
-    public void export(ReceiptOrderDetailDto dto, HttpServletResponse response) {
-        List<ReceiptOrderDetailVO> list = receiptOrderDetailService.queryList(dto);
-        ExcelUtil.exportExcel(list, "入库单详情", ReceiptOrderDetailVO.class, response);
-    }
-
-    /**
      * 获取入库单详情详细信息
      *
      * @param id 主键

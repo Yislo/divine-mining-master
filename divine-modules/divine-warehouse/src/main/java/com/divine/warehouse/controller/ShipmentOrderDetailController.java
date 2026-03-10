@@ -12,6 +12,7 @@ import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.web.core.BaseController;
 import com.divine.warehouse.domain.dto.ShipmentOrderDetailDto;
+import com.divine.warehouse.domain.vo.ShipmentDetailVO;
 import com.divine.warehouse.domain.vo.ShipmentOrderDetailVO;
 import com.divine.warehouse.service.ShipmentOrderDetailService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -42,19 +43,8 @@ public class ShipmentOrderDetailController extends BaseController {
      */
     @SaCheckPermission("wms:shipment:all")
     @GetMapping("/list")
-    public PageInfoRes<ShipmentOrderDetailVO> list(ShipmentOrderDetailDto dto, BasePage basePage) {
-        return shipmentOrderDetailService.queryPageList(dto, basePage);
-    }
-
-    /**
-     * 导出出库单详情列表
-     */
-    @SaCheckPermission("wms:shipment:all")
-    @Log(title = "出库单详情", businessType = BusinessType.EXPORT)
-    @PostMapping("/export")
-    public void export(ShipmentOrderDetailDto dto, HttpServletResponse response) {
-        List<ShipmentOrderDetailVO> list = shipmentOrderDetailService.queryList(dto);
-        ExcelUtil.exportExcel(list, "出库单详情", ShipmentOrderDetailVO.class, response);
+    public PageInfoRes<ShipmentDetailVO> list(Long shipmentId, BasePage basePage) {
+        return shipmentOrderDetailService.queryPageList(shipmentId, basePage);
     }
 
     /**

@@ -64,6 +64,9 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
         if (shipmentOrderVo == null) {
             throw new BusinessException("出库单不存在");
         }
+        // 获取仓库名称
+        Warehouse warehouse = warehouseMapper.selectById(shipmentOrderVo.getWarehouseId());
+        shipmentOrderVo.setWarehouseName(warehouse.getWarehouseName());
         shipmentOrderVo.setDetails(shipmentOrderDetailService.queryByShipmentOrderId(shipmentOrderVo.getId()));
         return shipmentOrderVo;
     }
@@ -138,7 +141,6 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
     public void updateByBo(ShipmentOrderDto dto) {
         // 更新出库单
         ShipmentOrder shipmentOrder = MapstructUtils.convert(dto, ShipmentOrder.class);
-        shipmentOrder.setShipmentStatus(InventoryStatusEnum.FINISH.getCode());
         shipmentOrderMapper.updateById(shipmentOrder);
         // 保存出库单明细
         List<ShipmentOrderDetail> detailList = MapstructUtils.convert(dto.getDetails(), ShipmentOrderDetail.class);

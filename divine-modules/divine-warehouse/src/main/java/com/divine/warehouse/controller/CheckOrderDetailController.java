@@ -47,17 +47,6 @@ public class CheckOrderDetailController extends BaseController {
     }
 
     /**
-     * 导出库存盘点单据详情列表
-     */
-    @SaCheckPermission("wms:check:all")
-    @Log(title = "库存盘点单据详情", businessType = BusinessType.EXPORT)
-    @PostMapping("/export")
-    public void export(CheckOrderDetailDto dto, HttpServletResponse response) {
-        List<CheckOrderDetailVO> list = checkOrderDetailService.queryList(dto);
-        ExcelUtil.exportExcel(list, "库存盘点单据详情", CheckOrderDetailVO.class, response);
-    }
-
-    /**
      * 获取库存盘点单据详情详细信息
      *
      * @param id 主键

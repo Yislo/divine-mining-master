@@ -36,4 +36,9 @@ public class ShipmentOrderDto extends BaseOrderDto<ShipmentOrderDetailDto> {
      */
     @NotNull(message = "仓库不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long warehouseId;
+
+    /**
+     * 出库状态
+     */
+    private Long shipmentStatus;
 }

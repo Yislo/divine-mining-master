@@ -52,17 +52,6 @@ public class WarehouseController extends BaseController {
     }
 
     /**
-     * 导出仓库列表
-     */
-    @SaCheckPermission("wms:warehouse:list")
-    @Log(title = "仓库", businessType = BusinessType.EXPORT)
-    @PostMapping("/export")
-    public void export(WarehouseDto dto, HttpServletResponse response) {
-        List<WarehouseVo> list = warehouseService.queryList(dto);
-        ExcelUtil.exportExcel(list, "仓库", WarehouseVo.class, response);
-    }
-
-    /**
      * 获取仓库详细信息
      *
      * @param id 主键

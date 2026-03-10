@@ -4,4 +4,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.divine.warehouse.mapper.MovementOrderDetailMapper">
 
+    <select id="getMoveDetailList" resultType="com.divine.warehouse.domain.vo.MoveDetailVO">
+        SELECT
+            mo.move_id,
+            item.item_name,
+            sku.id skuId,
+            sku.sku_name,
+            mo.quantity,
+            mo.storage_shelf,
+            mo.unit_price
+        FROM
+            wms_movement_order_detail mo
+                LEFT JOIN wms_item_sku sku ON sku.id = mo.sku_id
+                LEFT JOIN wms_item item ON item.id = sku.item_id
+        WHERE mo.move_id = #{moveId}
+    </select>
+
+
 </mapper>

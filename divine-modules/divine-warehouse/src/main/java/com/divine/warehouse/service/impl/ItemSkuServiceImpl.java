@@ -213,6 +213,7 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
                 ItemSkuMapVo vo = itemSkuMap.get(detail.getSkuId());
                 detail.setItemSku(vo.getItemSku());
                 detail.setItem(vo.getItem());
+                detail.setRemainQuantity(inventoryService.getStock(detail.getSkuId(),detail.getStorageShelf()));
             });
         }
     }

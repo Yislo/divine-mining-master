@@ -1,6 +1,9 @@
 package com.divine.warehouse.mapper;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.divine.warehouse.domain.entity.ShipmentOrderDetail;
+import com.divine.warehouse.domain.vo.ReceiptDetailVO;
+import com.divine.warehouse.domain.vo.ShipmentDetailVO;
 import com.divine.warehouse.domain.vo.ShipmentOrderDetailVO;
 import com.divine.common.mybatis.core.mapper.BaseMapperPlus;
 import org.apache.ibatis.annotations.Mapper;
@@ -13,5 +16,14 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface ShipmentOrderDetailMapper extends BaseMapperPlus<ShipmentOrderDetail, ShipmentOrderDetailVO> {
+
+    /**
+     * 查询出库单详情列表
+     *
+     * @param page
+     * @param shipmentId 出库单id
+     * @return
+     */
+    IPage<ShipmentDetailVO> getShipmentDetailList(IPage<ReceiptDetailVO> page, Long shipmentId);
 
 }

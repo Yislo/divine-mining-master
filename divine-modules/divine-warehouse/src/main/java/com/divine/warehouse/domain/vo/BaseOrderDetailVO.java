@@ -35,6 +35,12 @@ public class BaseOrderDetailVO implements Serializable {
     private Long quantity;
 
     /**
+     * 剩余库存
+     */
+    @ExcelProperty(value = "剩余库存")
+    private Long remainQuantity;
+
+    /**
      * 单价
      */
     @ExcelProperty(value = "单价")

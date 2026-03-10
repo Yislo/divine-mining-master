@@ -48,7 +48,7 @@ public class MineAccessRecord extends BaseEntity {
      */
     private Long entryType;
     /**
-     * 状态(0:在厂,1:离厂)
+     * 状态
      */
     private Long status;
     /**

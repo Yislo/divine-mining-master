@@ -80,9 +80,9 @@ public class MineWeightingVo implements Serializable {
     private Date deliveryTime;
 
     /**
-     * 过磅状态(0:已过磅,1:已回磅)
+     * 过磅状态
      */
-    @ExcelProperty(value = "过磅状态(0:已过磅,1:已回磅)")
+    @ExcelProperty(value = "过磅状态")
     private String weighingStatus;
 
     /**

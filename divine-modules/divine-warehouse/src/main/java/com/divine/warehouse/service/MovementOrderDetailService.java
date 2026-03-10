@@ -2,6 +2,7 @@ package com.divine.warehouse.service;
 
 import com.divine.warehouse.domain.dto.MovementOrderDetailDto;
 import com.divine.warehouse.domain.entity.MovementOrderDetail;
+import com.divine.warehouse.domain.vo.MoveDetailVO;
 import com.divine.warehouse.domain.vo.MovementOrderDetailVO;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
@@ -25,7 +26,7 @@ public interface MovementOrderDetailService{
     /**
      * 查询库存移动详情列表
      */
-    PageInfoRes<MovementOrderDetailVO> queryPageList(MovementOrderDetailDto dto, BasePage basePage);
+    PageInfoRes<MoveDetailVO> queryPageList(Long moveId, BasePage basePage);
 
     /**
      * 查询库存移动详情列表

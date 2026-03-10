@@ -50,10 +50,9 @@ public interface ReceiptOrderDetailService{
     void deleteByIds(Collection<Long> ids);
 
     /**
-     * 根据入库单id删除入库单详情
+     * 保存入库单详情
+     * @param list
      */
-    void deleteByReceiptOrderId(@NotNull Long receiptOrderId);
-
     void saveDetails(List<ReceiptOrderDetailDto> list);
 
     /**

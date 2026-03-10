@@ -2,6 +2,7 @@ package com.divine.warehouse.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -299,7 +300,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
                 if (afterQuantity <= safeStock) {
                     sendNotice(inv.getWarehouseId(), d.getSkuId(), safeStock, afterQuantity, d.getStorageShelf());
                     //存入redis,确保每天每个物品只发送一次
-                    RedisUtils.set(RedisKeyConstants.STOCK_WARING_NOTICE_KEY + d.getSkuId(), d.getSkuId(),RedisUtils.getSecondsUntilMidnight());
+                    RedisUtils.set(RedisKeyConstants.STOCK_WARING_NOTICE_KEY + d.getSkuId(), d.getSkuId(), RedisUtils.getSecondsUntilMidnight());
                 }
 
             } finally {
@@ -382,5 +383,23 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         }
         return inventoryMapper.selectVoList(new LambdaQueryWrapper<>(Inventory.class)
             .in(Inventory::getSkuId, skuIds));
+    }
+
+    /**
+     * 获取指定货架库存
+     * @param skuId
+     * @param storageShelf
+     * @return
+     */
+    @Override
+    public Long getStock(Long skuId, String storageShelf) {
+        Inventory inventory = inventoryMapper.selectOne(new LambdaQueryWrapper<>(Inventory.class)
+            .eq(Inventory::getSkuId, skuId)
+            .eq(Inventory::getStorageShelf, storageShelf));
+        if (ObjUtil.isNull(inventory)){
+            log.error(inventory.getSkuId()+"库存信息异常");
+            throw new BusinessException("库存信息异常");
+        }
+        return inventory.getQuantity();
     }
 }
