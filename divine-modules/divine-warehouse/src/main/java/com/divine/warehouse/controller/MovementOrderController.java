@@ -1,6 +1,7 @@
 package com.divine.warehouse.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.divine.common.core.enums.InventoryStatusEnum;
 import com.divine.warehouse.domain.dto.MovementOrderDto;
 import com.divine.common.core.domain.Result;
 import com.divine.common.core.validate.AddGroup;
@@ -76,6 +77,7 @@ public class MovementOrderController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public Result<Void> add(@Validated(AddGroup.class) @RequestBody MovementOrderDto dto) {
+        dto.setMoveStatus(InventoryStatusEnum.PENDING.getCode());
         movementOrderService.insertByBo(dto);
         return Result.success();
     }

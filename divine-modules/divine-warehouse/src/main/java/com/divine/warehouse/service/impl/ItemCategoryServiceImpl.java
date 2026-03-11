@@ -1,6 +1,7 @@
 package com.divine.warehouse.service.impl;
 
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.expression.engine.rhino.RhinoEngine;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -101,8 +102,13 @@ public class ItemCategoryServiceImpl extends ServiceImpl<ItemCategoryMapper, Ite
      */
     @Override
     public void updateByBo(ItemCategoryDto dto) {
+        Long parentId = ObjUtil.isNull(dto.getParentId()) ? 0 : dto.getParentId();
+        if (ObjUtil.equals(parentId, dto.getId())) {
+            throw new BusinessException("上级分类不能选择自己");
+        }
         validateItemTypeName(dto);
         ItemCategory update = MapstructUtils.convert(dto, ItemCategory.class);
+        update.setParentId(parentId);
         itemCategoryMapper.updateById(update);
     }
 
@@ -110,7 +116,7 @@ public class ItemCategoryServiceImpl extends ServiceImpl<ItemCategoryMapper, Ite
         LambdaQueryWrapper<ItemCategory> queryWrapper = Wrappers.lambdaQuery();
         queryWrapper.eq(ItemCategory::getCategoryName, dto.getCategoryName());
         queryWrapper.ne(dto.getId() != null, ItemCategory::getId, dto.getId());
-        if (itemCategoryMapper.selectCount(queryWrapper) == 0){
+        if (itemCategoryMapper.selectCount(queryWrapper) > 0) {
             throw new BusinessException("分类名重复");
         }
     }
@@ -123,13 +129,13 @@ public class ItemCategoryServiceImpl extends ServiceImpl<ItemCategoryMapper, Ite
         // 有子分类不能删
         LambdaQueryWrapper<ItemCategory> itemCategoryLqw = new LambdaQueryWrapper<>();
         itemCategoryLqw.in(ItemCategory::getParentId, ids);
-        if (itemCategoryMapper.selectCount(itemCategoryLqw) > 0){
+        if (itemCategoryMapper.selectCount(itemCategoryLqw) > 0) {
             throw new BusinessException("删除失败！请先删除该分类下的子分类！");
         }
         // 被物品应用了不能删
         LambdaQueryWrapper<Item> itemLqw = Wrappers.lambdaQuery();
         itemLqw.in(Item::getItemCategory, ids);
-        if (itemMapper.selectCount(itemLqw) > 0){
+        if (itemMapper.selectCount(itemLqw) > 0) {
             throw new BusinessException("删除失败！分类已被物品使用！");
         }
         // 删除

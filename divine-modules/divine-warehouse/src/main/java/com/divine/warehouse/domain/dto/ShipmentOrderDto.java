@@ -40,5 +40,10 @@ public class ShipmentOrderDto extends BaseOrderDto<ShipmentOrderDetailDto> {
     /**
      * 出库状态
      */
-    private Long shipmentStatus;
+    private Integer shipmentStatus;
+
+    /**
+     * 出库单号
+     */
+    private String shipmentNo;
 }

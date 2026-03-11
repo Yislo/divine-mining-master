@@ -397,8 +397,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             .eq(Inventory::getSkuId, skuId)
             .eq(Inventory::getStorageShelf, storageShelf));
         if (ObjUtil.isNull(inventory)){
-            log.error(inventory.getSkuId()+"库存信息异常");
-            throw new BusinessException("库存信息异常");
+            return 0L;
         }
         return inventory.getQuantity();
     }

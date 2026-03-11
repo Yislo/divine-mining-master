@@ -23,6 +23,7 @@ import com.divine.warehouse.service.ItemSkuService;
 import com.divine.common.core.utils.MapstructUtils;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
+import com.google.api.client.util.Lists;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
@@ -64,26 +65,6 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
     public PageInfoRes<ItemSkuMapVo> queryPageList(ItemSkuDto dto, BasePage basePage) {
         //开始查sku
         IPage<ItemSkuMapVo> result = itemSkuMapper.selectByBo(basePage.build(), dto);
-        List<ItemSkuMapVo> records = result.getRecords();
-        List<Long> skuIds = records.stream().map(ItemSkuMapVo::getSkuId).toList();
-        List<InventoryVo> skuInventory = inventoryService.getBySkuIds(skuIds);
-        // 封装货架信息
-        Map<Long, List<String>> storageShelfMap = skuInventory.stream()
-            .filter(vo -> vo.getSkuId() != null) // 过滤掉 skuId 为 null 的记录
-            .collect(Collectors.groupingBy(
-                InventoryVo::getSkuId,
-                Collectors.mapping(
-                    InventoryVo::getStorageShelf,
-                    Collectors.collectingAndThen(
-                        Collectors.toCollection(HashSet::new), // 先去重
-                        ArrayList::new // 再转回 List
-                    )
-                )
-            ));
-        records.forEach(r -> {
-            List<String> storageShelf = storageShelfMap.get(r.getSkuId());
-            r.setStorageShelf(storageShelf);
-        });
         return PageInfoRes.build(result);
     }
 
@@ -216,5 +197,19 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
                 detail.setRemainQuantity(inventoryService.getStock(detail.getSkuId(),detail.getStorageShelf()));
             });
         }
+    }
+
+    /**
+     * 获取sku货架信息
+     * @param skuId
+     * @return
+     */
+    @Override
+    public List<String> getStorage(Long skuId) {
+        List<InventoryVo> bySkuIds = inventoryService.getBySkuIds(Collections.singletonList(skuId));
+        if (CollUtil.isEmpty(bySkuIds)){
+            return Collections.emptyList();
+        }
+        return  bySkuIds.stream().map(InventoryVo::getStorageShelf).toList();
     }
 }

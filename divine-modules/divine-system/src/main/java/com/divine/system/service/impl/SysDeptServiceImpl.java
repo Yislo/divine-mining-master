@@ -242,7 +242,7 @@ public class SysDeptServiceImpl implements SysDeptService,DeptService {
      * @return 结果
      */
     @Override
-    @CacheEvict(cacheNames = CacheNames.SYS_DEPT, key = "#dept.deptId")
+    @CacheEvict(cacheNames = CacheNames.SYS_DEPT, key = "#dto.deptId")
     public int updateDept(SysDeptDto dto) {
         SysDept dept = MapstructUtils.convert(dto, SysDept.class);
         SysDept newParentDept = deptMapper.selectById(dept.getParentId());

@@ -1,6 +1,8 @@
 package com.divine.warehouse.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.divine.common.core.enums.InventoryStatusEnum;
+import com.divine.common.core.enums.InventoryTypeEnum;
 import com.divine.warehouse.domain.dto.ShipmentOrderDto;
 import com.divine.common.core.domain.Result;
 import com.divine.common.core.validate.AddGroup;
@@ -87,6 +89,7 @@ public class ShipmentOrderController extends BaseController {
     @RepeatSubmit()
     @PostMapping()
     public Result<Long> add(@Validated(AddGroup.class) @RequestBody ShipmentOrderDto dto) {
+        dto.setShipmentStatus(InventoryStatusEnum.PENDING.getCode());
         Long id = shipmentOrderService.insertByBo(dto);
         return Result.success(id);
     }

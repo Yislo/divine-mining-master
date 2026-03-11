@@ -112,7 +112,6 @@ public class CheckOrderServiceImpl implements CheckOrderService {
         dto.setBizNo(checkNo);
         CheckOrder checkOrder = MapstructUtils.convert(dto, CheckOrder.class);
         checkOrder.setCheckNo(checkNo);
-        checkOrder.setCheckStatus(InventoryStatusEnum.FINISH.getCode());
         checkOrderMapper.insert(checkOrder);
         dto.setId(checkOrder.getId());
         // 创建盘库单明细
@@ -169,8 +168,10 @@ public class CheckOrderServiceImpl implements CheckOrderService {
         List<CheckOrderDetailDto> details = dto.getDetails();
         // 保存盘库单 check order
         if (Objects.isNull(dto.getId())) {
+            dto.setCheckStatus(InventoryStatusEnum.FINISH.getCode());
             insertByBo(dto);
         } else {
+            dto.setBizNo(dto.getCheckNo());
             updateByBo(dto);
         }
         // 保存库存 inventory

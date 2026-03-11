@@ -23,7 +23,7 @@ public class ReceiptOrderDto extends BaseOrderDto<ReceiptOrderDetailDto> {
     /**
      * 入库类型(0:采购入库,1:归还入库)
      */
-    @NotNull(message = "入库类型不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "入库类型不能为空", groups = {AddGroup.class, EditGroup.class})
     private Long optType;
 
     /**
@@ -42,9 +42,14 @@ public class ReceiptOrderDto extends BaseOrderDto<ReceiptOrderDetailDto> {
     private Integer receiptStatus;
 
     /**
+     * 入库单号
+     */
+    private String receiptNo;
+
+    /**
      * 仓库id
      */
-    @NotNull(message = "仓库不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "仓库不能为空", groups = {AddGroup.class, EditGroup.class})
     private Long warehouseId;
 
 }

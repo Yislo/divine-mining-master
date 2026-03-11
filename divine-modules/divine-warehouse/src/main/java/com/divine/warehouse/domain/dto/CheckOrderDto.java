@@ -24,4 +24,14 @@ public class CheckOrderDto extends BaseOrderDto<CheckOrderDetailDto> {
      */
     @NotNull(message = "仓库不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long warehouseId;
+
+    /**
+     * 盘库单状态
+     */
+    private Integer checkStatus;
+
+    /**
+     * 盘库单号
+     */
+    private String checkNo;
 }

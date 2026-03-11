@@ -99,6 +99,18 @@ public class ItemSkuController extends BaseController {
     }
 
     /**
+     * 获取sku货架信息
+     *
+     * @param skuId 主键
+     */
+    @Log(title = "sku信息", businessType = BusinessType.DELETE)
+    @GetMapping("/getStorage/{skuId}")
+    @SaCheckPermission("wms:item:edit")
+    public Result<List<String>> getStorage(@NotNull(message = "skuId不能为空") @PathVariable Long skuId) {
+        return Result.success(itemSkuService.getStorage(skuId));
+    }
+
+    /**
      * 删除sku信息
      *
      * @param id 主键

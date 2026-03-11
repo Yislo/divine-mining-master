@@ -123,7 +123,6 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
         //组装数据保存
         ShipmentOrder shipmentOrder = MapstructUtils.convert(dto, ShipmentOrder.class);
         shipmentOrder.setShipmentNo(shipmentNo);
-        shipmentOrder.setShipmentStatus(InventoryStatusEnum.PENDING.getCode());
         shipmentOrderMapper.insert(shipmentOrder);
         dto.setId(shipmentOrder.getId());
         List<ShipmentOrderDetailDto> detailBoList = dto.getDetails();
@@ -188,13 +187,14 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
         validateBeforeShipment(dto);
         // 2. 保存入库单和入库单明细
         if (Objects.isNull(dto.getId())) {
+            dto.setShipmentStatus(InventoryStatusEnum.FINISH.getCode());
             insertByBo(dto);
         } else {
+            dto.setBizNo(dto.getShipmentNo());
             updateByBo(dto);
         }
         // 3.更新库存：Inventory表
         inventoryService.subtract(dto.getDetails());
-
         // 4.创建库存记录
         inventoryHistoryService.saveInventoryHistory(dto, InventoryTypeEnum.SHIPMENT.getType(), false);
     }

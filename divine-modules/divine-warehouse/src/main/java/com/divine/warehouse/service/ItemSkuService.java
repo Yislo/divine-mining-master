@@ -68,4 +68,11 @@ public interface ItemSkuService{
     Map<Long, ItemSkuMapVo> queryItemSkuMapVosByIds(Set<Long> skuIds);
 
     void setItemSkuMap(List<? extends BaseOrderDetailVO> details);
+
+    /**
+     * 获取sku的货架信息
+     * @param skuId
+     * @return
+     */
+    List<String> getStorage(Long skuId);
 }

@@ -115,7 +115,6 @@ public class MovementOrderServiceImpl implements MovementOrderService {
         // 2.创建移库单
         MovementOrder movementOrder = MapstructUtils.convert(dto, MovementOrder.class);
         movementOrder.setMoveNo(generateNoUtil.getBizNo(NoTypeEnum.MOVE_NO));
-        movementOrder.setMoveStatus(InventoryStatusEnum.FINISH.getCode());
         movementOrderMapper.insert(movementOrder);
         dto.setId(movementOrder.getId());
         // 3.创建移库单明细
@@ -178,11 +177,12 @@ public class MovementOrderServiceImpl implements MovementOrderService {
     @Override
     @Transactional
     public void move(MovementOrderDto dto) {
-
         // 3.保存移库单核移库单明细
         if (Objects.isNull(dto.getId())) {
+            dto.setMoveStatus(InventoryStatusEnum.PENDING.getCode());
             insertByBo(dto);
         } else {
+            dto.setBizNo(dto.getMoveNo());
             updateByBo(dto);
         }
         // 4.更新库存Inventory

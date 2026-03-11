@@ -17,9 +17,9 @@ public @interface RepeatSubmit {
     /**
      * 间隔时间(ms)，小于此时间视为重复提交
      */
-    int interval() default 5000;
+    int interval() default 3;
 
-    TimeUnit timeUnit() default TimeUnit.MILLISECONDS;
+    TimeUnit timeUnit() default TimeUnit.SECONDS;
 
     /**
      * 提示消息 支持国际化 格式为 {code}

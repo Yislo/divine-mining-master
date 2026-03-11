@@ -28,6 +28,7 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 防止重复提交(参考美团GTIS防重系统)
@@ -40,11 +41,11 @@ public class RepeatSubmitAspect {
     private static final ThreadLocal<String> KEY_CACHE = new ThreadLocal<>();
 
     @Before("@annotation(repeatSubmit)")
-    public void doBefore(JoinPoint point, RepeatSubmit repeatSubmit) throws Throwable {
+    public void doBefore(JoinPoint point, RepeatSubmit repeatSubmit) {
         // 如果注解不为0 则使用注解数值
-        long interval = repeatSubmit.timeUnit().toMillis(repeatSubmit.interval());
+        long interval = repeatSubmit.timeUnit().toSeconds(repeatSubmit.interval());
 
-        if (interval < 1000) {
+        if (interval < 1) {
             throw new BusinessException("重复提交间隔时间不能小于'1'秒");
         }
         HttpServletRequest request = ServletUtils.getRequest();
@@ -59,7 +60,7 @@ public class RepeatSubmitAspect {
         submitKey = SecureUtil.md5(submitKey + ":" + nowParams);
         // 唯一标识（指定key + url + 消息头）
         String cacheRepeatKey = GlobalConstants.REPEAT_SUBMIT_KEY + url + submitKey;
-        if (RedisUtils.setIfAbsent(cacheRepeatKey, "", interval * 60L)) {
+        if (RedisUtils.setIfAbsent(cacheRepeatKey, "", interval)) {
             KEY_CACHE.set(cacheRepeatKey);
         } else {
             String message = repeatSubmit.message();

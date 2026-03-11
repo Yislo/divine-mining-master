@@ -32,5 +32,15 @@ public class MovementOrderDto extends BaseOrderDto<MovementOrderDetailDto> {
     @NotNull(message = "目标仓库不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long targetWarehouseId;
 
+    /**
+     * 移库单状态
+     */
+    private Integer moveStatus;
+
+    /**
+     * 移库单号
+     */
+    private String moveNo;
+
 
 }

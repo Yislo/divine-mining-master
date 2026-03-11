@@ -213,6 +213,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         if (Objects.isNull(dto.getId())) {
             insertReceipt(dto);
         } else {
+            dto.setBizNo(dto.getReceiptNo());
             updateByBo(dto);
             // 删除历史文件
             List<Long> list = dto.getDetails().stream().map(BaseOrderDetailDto::getId).toList();

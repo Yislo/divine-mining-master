@@ -12,7 +12,6 @@ import com.divine.mine.service.impl.MineAccessRecordServiceImpl;
 import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import com.divine.common.log.annotation.Log;
