@@ -39,6 +39,11 @@ public class SysNoticeDto extends BaseEntity {
     private Integer noticeType;
 
     /**
+     * 消息事件类型(1:库存预警通知,2:车辆进厂通知)
+     */
+    private Integer eventType;
+
+    /**
      * 公告内容
      */
     private String noticeContent;
@@ -46,12 +51,7 @@ public class SysNoticeDto extends BaseEntity {
     /**
      * 公告状态（0:关闭,1:正常）
      */
-    private String status;
-
-    /**
-     * 备注
-     */
-    private String remark;
+    private Integer status;
 
     /**
      * 创建人名称

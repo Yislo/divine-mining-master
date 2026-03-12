@@ -1,5 +1,7 @@
 package com.divine.system.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -9,19 +11,24 @@ import com.divine.common.core.utils.StringUtils;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.satoken.utils.LoginHelper;
-import com.divine.system.domain.dto.NoticeReadDto;
+import com.divine.system.domain.dto.SysNoticeReadDto;
 import com.divine.system.domain.dto.SysNoticeDto;
+import com.divine.system.domain.entity.SysNoticeRead;
+import com.divine.system.domain.entity.SysNoticeRule;
 import com.divine.system.domain.entity.SysNotice;
 import com.divine.system.domain.vo.MyNoticeVo;
 import com.divine.system.domain.vo.SysNoticeVo;
+import com.divine.system.domain.vo.SysUserVo;
 import com.divine.system.mapper.SysNoticeMapper;
+import com.divine.system.mapper.SysNoticeReadMapper;
+import com.divine.system.mapper.SysNoticeRuleMapper;
 import com.divine.system.service.SysNoticeService;
+import com.divine.system.service.SysPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 公告 服务层实现
@@ -33,7 +40,72 @@ import java.util.List;
 public class SysNoticeServiceImpl implements SysNoticeService {
 
     private final SysNoticeMapper noticeMapper;
-    private final NoticeReadService noticeReadService;
+    private final SysNoticeReadMapper noticeReadMapper;
+    private final SysNoticeRuleMapper noticeRuleMapper;
+    private final SysPostService postService;
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void sendMessage(SysNoticeDto dto) {
+        // 保存通知内容
+        SysNotice sysNotice = BeanUtil.copyProperties(dto, SysNotice.class);
+        noticeMapper.insert(sysNotice);
+        // 获取消息时间类型
+        Integer eventType = dto.getEventType();
+        // 查询该事件的消息规则
+        List<SysNoticeRule> ruleList = noticeRuleMapper.selectList(new LambdaQueryWrapper<>(SysNoticeRule.class)
+            .eq(SysNoticeRule::getEventType, eventType));
+        // 如果没有配置信息 则不发送
+        if (CollUtil.isEmpty(ruleList)) {
+            return;
+        }
+        // 获取收件人id
+        List<Long> sendUserId = getSendUserId(ruleList);
+        if (CollUtil.isEmpty(sendUserId)){
+            return;
+        }
+        // 推送指定用户消息 todo 如果用户量过大，该业务需要优化
+        List<SysNoticeRead> readList = sendUserId.stream().map(userId -> {
+            SysNoticeRead sysNoticeRead = new SysNoticeRead();
+            sysNoticeRead.setNoticeId(sysNotice.getNoticeId());
+            sysNoticeRead.setUserId(userId);
+            return sysNoticeRead;
+
+        }).toList();
+        noticeReadMapper.insertBatch(readList);
+    }
+
+    /**
+     * 获取消息推送用户id
+     * @param ruleList
+     * @return
+     */
+    private List<Long> getSendUserId(List<SysNoticeRule> ruleList) {
+        // 使用 Set 存储，自动去重，且避免不可变集合的 addAll 报错
+        Set<Long> finalUserIds = new HashSet<>();
+        // 1. 提取并加入直接指定的用户 ID
+        ruleList.stream()
+            .filter(r -> r.getTargetType() == 1)
+            .map(r -> Long.valueOf(r.getTargetId()))
+            .forEach(finalUserIds::add);
+        // 2. 提取岗位 ID 集合
+        List<Long> postIds = ruleList.stream()
+            .filter(r -> r.getTargetType() == 2)
+            .map(r -> Long.valueOf(r.getTargetId()))
+            .distinct()
+            .toList();
+        // 3. 根据岗位获取用户并加入 Set
+        if (CollUtil.isNotEmpty(postIds)) {
+            List<SysUserVo> postUserList = postService.getPostUser(postIds);
+            if (CollUtil.isNotEmpty(postUserList)) {
+                postUserList.stream()
+                    .map(SysUserVo::getUserId)
+                    .forEach(finalUserIds::add);
+            }
+        }
+        return new ArrayList<>(finalUserIds);
+    }
+
 
     @Override
     public PageInfoRes<SysNoticeVo> selectPageNoticeList(SysNoticeDto notice, BasePage basePage) {
@@ -75,16 +147,16 @@ public class SysNoticeServiceImpl implements SysNoticeService {
     @Override
     public void read(List<Long> ids) {
         Long userId = LoginHelper.getUserId();
+        List<SysNoticeRead> readList = noticeReadMapper.selectList(new LambdaQueryWrapper<>(SysNoticeRead.class)
+            .eq(SysNoticeRead::getUserId, userId)
+            .in(SysNoticeRead::getNoticeId, ids));
         // 组装数据新增
-        Date date = new Date();
-        List<NoticeReadDto> list = ids.stream().map(id ->
-            NoticeReadDto.builder()
-                .noticeId(id)
-                .userId(userId)
-                .readTime(date)
-                .build()).toList();
+        readList.forEach(read->{
+            read.setIsRead(1);
+            read.setReadTime(new Date());
+        });
         // 批量已读
-        noticeReadService.insertByDto(list);
+        noticeReadMapper.updateBatchById(readList);
     }
 
     /**
@@ -97,9 +169,6 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         // 获取当前登录人
         Long userId = LoginHelper.getUserId();
         return noticeMapper.getUnreadCont(userId);
-        // 获取所有通知消息
-        // 获取已读通知消息
-        // 计算未读消息
     }
 
     /**

@@ -17,6 +17,14 @@ import java.util.List;
 public interface SysNoticeService {
 
 
+    /**
+     * 发送消息通知
+     *
+     * @param dto
+     */
+    void sendMessage(SysNoticeDto dto);
+
+
     PageInfoRes<SysNoticeVo> selectPageNoticeList(SysNoticeDto notice, BasePage basePage);
 
     /**
@@ -29,6 +37,7 @@ public interface SysNoticeService {
 
     /**
      * 获取我的通知消息
+     *
      * @param basePage
      * @return
      */
@@ -36,12 +45,14 @@ public interface SysNoticeService {
 
     /**
      * 已读
+     *
      * @param id
      */
     void read(List<Long> id);
 
     /**
      * 获取为未读消息数量
+     *
      * @return
      */
     Long getUnreadCont();

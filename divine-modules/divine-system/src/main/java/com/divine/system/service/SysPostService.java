@@ -4,6 +4,7 @@ import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.system.domain.dto.SysPostDto;
 import com.divine.system.domain.vo.SysPostVo;
 import com.divine.common.mybatis.core.page.PageInfoRes;
+import com.divine.system.domain.vo.SysUserVo;
 
 import java.util.List;
 
@@ -103,4 +104,12 @@ public interface SysPostService {
      * @return 结果
      */
     int updatePost(SysPostDto dto);
+
+    /**
+     * 查询该岗位下有哪些用户
+     *
+     * @param postIds 岗位信息
+     * @return 结果
+     */
+    List<SysUserVo> getPostUser(List<Long> postIds);
 }

@@ -13,6 +13,7 @@ import com.divine.system.domain.dto.SysPostDto;
 import com.divine.system.domain.entity.SysPost;
 import com.divine.system.domain.entity.SysUserPost;
 import com.divine.system.domain.vo.SysPostVo;
+import com.divine.system.domain.vo.SysUserVo;
 import com.divine.system.mapper.SysPostMapper;
 import com.divine.system.mapper.SysUserPostMapper;
 import com.divine.system.service.SysPostService;
@@ -187,5 +188,15 @@ public class SysPostServiceImpl implements SysPostService {
     public int updatePost(SysPostDto dto) {
         SysPost post = MapstructUtils.convert(dto, SysPost.class);
         return postMapper.updateById(post);
+    }
+
+    /**
+     * 查询指定岗位下有哪些用户
+     * @param postIds 岗位信息
+     * @return
+     */
+    @Override
+    public List<SysUserVo> getPostUser(List<Long> postIds) {
+        return List.of();
     }
 }

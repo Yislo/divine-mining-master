@@ -49,11 +49,6 @@ public class SysNoticeVo implements Serializable {
     private String status;
 
     /**
-     * 备注
-     */
-    private String remark;
-
-    /**
      * 创建者
      */
     private String createBy;

@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
-import com.divine.system.domain.entity.NoticeRead;
+import com.divine.system.domain.entity.SysNoticeRead;
 import lombok.Data;
 import io.github.linpeilie.annotations.AutoMapper;
 
@@ -12,41 +12,47 @@ import java.io.Serializable;
 import java.io.Serial;
 
 /**
- * 公告已读记录视图对象 sys_notice_read
+ * 消息已读视图对象 sys_notice_read
  *
  * @author yisl
- * @date 2026-02-28
+ * @date 2026-03-12
  */
 @Data
 @ExcelIgnoreUnannotated
-@AutoMapper(target = NoticeRead.class)
-public class NoticeReadVo implements Serializable {
+@AutoMapper(target = SysNoticeRead.class)
+public class SysNoticeReadVo implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     /**
-     * 主键
+     *
      */
-    @ExcelProperty(value = "主键")
+    @ExcelProperty(value = "")
     private Long id;
 
     /**
-     * 公告ID
+     * 通知ID
      */
-    @ExcelProperty(value = "公告ID")
+    @ExcelProperty(value = "通知ID")
     private Long noticeId;
 
     /**
-     * 用户ID
+     * 接收用户
      */
-    @ExcelProperty(value = "用户ID")
+    @ExcelProperty(value = "接收用户")
     private Long userId;
 
     /**
-     * 阅读时间
+     * 是否已读
      */
-    @ExcelProperty(value = "阅读时间")
+    @ExcelProperty(value = "是否已读")
+    private Long isRead;
+
+    /**
+     *
+     */
+    @ExcelProperty(value = "")
     private Date readTime;
 
 

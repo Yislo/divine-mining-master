@@ -321,9 +321,10 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
                             String storageShelf) {
         SysNoticeDto sysNotice = new SysNoticeDto();
         sysNotice.setNoticeType(1);
+        sysNotice.setEventType(1);
         sysNotice.setNoticeTitle(NoticeConstant.STOCK_WARNING_TITLE);
         sysNotice.setNoticeContent(generateContent(warehouseId, skuId, safeStock, afterQuantity, storageShelf));
-        noticeService.insertNotice(sysNotice);
+        noticeService.sendMessage(sysNotice);
     }
 
     /**

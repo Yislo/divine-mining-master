@@ -1,9 +1,10 @@
 package com.divine.system.domain.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.divine.common.mybatis.core.domain.BaseEntity;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -11,32 +12,40 @@ import java.util.Date;
 import java.io.Serial;
 
 /**
- * 公告已读记录对象 sys_notice_read
+ * 消息已读对象 sys_notice_read
  *
  * @author yisl
- * @date 2026-02-28
+ * @date 2026-03-12
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @TableName("sys_notice_read")
-public class NoticeRead implements Serializable {
+public class SysNoticeRead implements Serializable {
 
+    @Serial
     private static final long serialVersionUID=1L;
 
     /**
-     * 主键
+     * 主键id
      */
     @TableId(value = "id")
     private Long id;
     /**
-     * 公告ID
+     * 通知ID
      */
     private Long noticeId;
     /**
-     * 用户ID
+     * 接收用户
      */
     private Long userId;
     /**
-     * 阅读时间
+     * 是否已读
+     */
+    private Integer isRead;
+    /**
+     * 已读时间
      */
     private Date readTime;
 
