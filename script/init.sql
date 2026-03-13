@@ -18,3 +18,5 @@ TRUNCATE TABLE wms_receipt_order;
 TRUNCATE TABLE wms_receipt_order_detail;
 TRUNCATE TABLE wms_shipment_order;
 TRUNCATE TABLE wms_shipment_order_detail;
+TRUNCATE TABLE wms_warehouse;
+TRUNCATE TABLE sys_file;

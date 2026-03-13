@@ -5,7 +5,7 @@ spring:
     # 动态数据源文档 https://www.kancloud.cn/tracy5546/dynamic-datasource/content
     dynamic:
       # 性能分析插件(有性能损耗 不建议生产环境使用)
-      p6spy: true
+      p6spy: false
       # 设置默认的数据源或者数据源组,默认值即为 master
       primary: master
       # 严格模式 匹配不到数据源则报错
@@ -17,9 +17,9 @@ spring:
           driverClassName: com.mysql.cj.jdbc.Driver
           # jdbc 所有参数配置参考 https://lionli.blog.csdn.net/article/details/122018562
           # rewriteBatchedStatements=true 批处理优化 大幅提升批量插入更新删除性能(对数据库有性能损耗 使用批量操作应考虑性能问题)
-          url: jdbc:mysql://localhost:3306/divine_minerals?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&autoReconnect=true&rewriteBatchedStatements=true
+          url: jdbc:mysql://47.239.3.188:3306/divine_wms?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8&autoReconnect=true&rewriteBatchedStatements=true
           username: root
-          password: root
+          password: Zb9#HD0mp#
         # 从库数据源
         slave:
           lazy: true
@@ -44,18 +44,16 @@ spring:
         # 多久检查一次连接的活性
         keepaliveTime: 30000
 
-
 --- # redis 单机配置(单机与集群只能开启一个另一个需要注释掉)
 spring.data:
   redis:
     # 地址
-#    host: 47.239.3.188
-#    password: xm9G5G2J7
-    host: 127.0.0.1
+    host: 47.239.3.188
     # 端口，默认为6379
     port: 6379
     # 数据库索引
     database: 0
+    password: xm9G5G2J7
     # 密码(如没有密码请注释掉)
     # password:
     # 连接超时时间
@@ -86,7 +84,7 @@ redisson:
     subscriptionConnectionPoolSize: 50
 
 captcha:
-  enable: false
+  enable: true
   # 页面 <参数设置> 可开启关闭 验证码校验
   # 验证码类型 math 数组计算 char 字符验证
   type: MATH

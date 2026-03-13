@@ -119,9 +119,7 @@ public class MovementOrderServiceImpl implements MovementOrderService {
         dto.setId(movementOrder.getId());
         // 3.创建移库单明细
         List<MovementOrderDetail> addDetailList = MapstructUtils.convert(dto.getDetails(), MovementOrderDetail.class);
-        addDetailList.forEach(it -> {
-            it.setId(movementOrder.getId());
-        });
+        addDetailList.forEach(it -> it.setMoveId(movementOrder.getId()));
         movementOrderDetailService.saveDetails(addDetailList);
     }
 

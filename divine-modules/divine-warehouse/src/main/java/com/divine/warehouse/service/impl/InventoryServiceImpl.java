@@ -63,7 +63,15 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
      */
     @Override
     public InventoryVo queryById(Long id) {
-        return inventoryMapper.selectVoById(id);
+        InventoryVo inventoryVo = inventoryMapper.selectVoById(id);
+        // 查询sku信息
+        Long skuId = inventoryVo.getSkuId();
+        ItemSkuVo itemSkuVo = itemSkuService.queryById(skuId);
+        inventoryVo.setItemSku(itemSkuVo);
+        // 查询item信息
+        ItemVo item = itemService.queryById(itemSkuVo.getItemId());
+        inventoryVo.setItem(item);
+        return inventoryVo;
     }
 
     /**
