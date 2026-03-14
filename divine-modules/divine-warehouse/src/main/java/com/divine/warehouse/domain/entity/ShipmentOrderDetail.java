@@ -14,12 +14,19 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName("wms_shipment_order_detail")
 public class ShipmentOrderDetail extends BaseOrderDetail {
+
     /**
      * 出库单id
      */
     private Long shipmentId;
+
     /**
      * 所属仓库
      */
     private Long warehouseId;
+
+    /**
+     * 货架
+     */
+    private String storageShelf;
 }

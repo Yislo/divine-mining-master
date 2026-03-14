@@ -1,8 +1,11 @@
 package com.divine.warehouse.domain.vo;
 
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
+import com.divine.common.core.validate.AddGroup;
+import com.divine.common.core.validate.EditGroup;
 import com.divine.warehouse.domain.entity.ReceiptOrderDetail;
 import io.github.linpeilie.annotations.AutoMapper;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -44,9 +47,14 @@ public class MoveDetailVO {
     private Long quantity;
 
     /**
-     * 货架
+     * 源货架
      */
-    private String storageShelf;
+    private String sourceStorageShelf;
+
+    /**
+     * 目标货架
+     */
+    private String targetStorageShelf;
 
     /**
      * 单价($)

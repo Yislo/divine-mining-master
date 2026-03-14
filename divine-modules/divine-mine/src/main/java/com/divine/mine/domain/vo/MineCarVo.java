@@ -69,7 +69,7 @@ public class MineCarVo implements Serializable {
      * 是否删除(0:未删除,1:已删除)
      */
     @ExcelProperty(value = "是否删除(0:未删除,1:已删除)")
-    private Long isDel;
+    private Integer isDel;
 
 
 }

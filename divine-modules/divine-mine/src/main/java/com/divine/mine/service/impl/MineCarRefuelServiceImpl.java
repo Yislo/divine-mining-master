@@ -78,7 +78,7 @@ public class MineCarRefuelServiceImpl implements MineCarRefuelService {
     @Override
     public void insertByBo(MineCarRefuelDto dto) {
         MineCarRefuel add = MapstructUtils.convert(dto, MineCarRefuel.class);
-        add.setRefuelNo(generateNoUtil.getBizNo(NoTypeEnum.REFUEL_NO));
+        add.setRefuelNo(generateNoUtil.getBizNo(NoTypeEnum.REFUEL_NO.getCode()));
         mineCarRefuelMapper.insert(add);
     }
 

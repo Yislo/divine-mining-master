@@ -2,11 +2,12 @@ package com.divine.mine.domain.dto;
 
 import com.divine.common.core.validate.EditGroup;
 import com.divine.common.mybatis.core.domain.BaseEntity;
+import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.mine.domain.entity.MineWeighting;
+import io.github.linpeilie.annotations.AutoMapper;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import jakarta.validation.constraints.*;
-import io.github.linpeilie.annotations.AutoMapper;
 
 import java.util.Date;
 
@@ -17,16 +18,10 @@ import java.util.Date;
  * @date 2026-02-28
  */
 
-@Data
 @EqualsAndHashCode(callSuper = true)
+@Data
 @AutoMapper(target = MineWeighting.class, reverseConvertGenerate = false)
-public class MineWeightingDto extends BaseEntity {
-
-    /**
-     * id
-     */
-    @NotNull(message = "id不能为空", groups = { EditGroup.class })
-    private Long id;
+public class WeightingQueryDto extends BasePage {
 
     /**
      * 过磅单编号
@@ -39,9 +34,9 @@ public class MineWeightingDto extends BaseEntity {
     private String carNumber;
 
     /**
-     * 商品名称
+     * 商品类型
      */
-    private String goodsType;
+    private Integer goodsType;
 
     /**
      * 过磅状态
@@ -54,44 +49,16 @@ public class MineWeightingDto extends BaseEntity {
     private Long shipMerchantId;
 
     /**
-     * 发货日期
+     * 开始时间
      */
-    private Date shipTime;
+    private Date startTime;
 
     /**
-     * 发货地址
+     * 结束时间
      */
-    private String shipAddress;
+    private Date endTime;
 
-    /**
-     * 收货单位
-     */
-    private String deliveryMerchant;
 
-    /**
-     * 收货日期
-     */
-    private Date deliveryTime;
-
-    /**
-     * 总重
-     */
-    private Long totalWeight;
-
-    /**
-     * 皮重
-     */
-    private Long tareWeight;
-
-    /**
-     * 净重
-     */
-    private Long netWeight;
-
-    /**
-     * 备注
-     */
-    private String remark;
 
 
 }

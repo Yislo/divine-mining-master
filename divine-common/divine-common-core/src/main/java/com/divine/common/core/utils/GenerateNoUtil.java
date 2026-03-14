@@ -5,6 +5,6 @@ import com.divine.common.core.enums.NoTypeEnum;
 
 public interface GenerateNoUtil {
 
-     String getBizNo(NoTypeEnum noType);
+     String getBizNo(String noType);
 
 }

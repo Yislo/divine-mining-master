@@ -3,6 +3,9 @@ package com.divine.mine.service;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.mine.domain.dto.MineWeightingDto;
+import com.divine.mine.domain.dto.WeightingAddDto;
+import com.divine.mine.domain.dto.WeightingQueryDto;
+import com.divine.mine.domain.dto.WeightingReturnDto;
 import com.divine.mine.domain.vo.MineWeightingVo;
 
 import java.util.Collection;
@@ -17,6 +20,17 @@ import java.util.List;
 public interface MineWeightingService {
 
     /**
+     * 新增过磅记录
+     */
+    void insertByBo(WeightingAddDto dto);
+
+    /**
+     * 回磅
+     * @param dto
+     */
+    void returnWeighting(WeightingReturnDto dto);
+
+    /**
      * 查询过磅记录
      */
     MineWeightingVo queryById(Long id);
@@ -24,17 +38,12 @@ public interface MineWeightingService {
     /**
      * 查询过磅记录列表
      */
-    PageInfoRes<MineWeightingVo> queryPageList(MineWeightingDto dto, BasePage basePage);
+    PageInfoRes<MineWeightingVo> queryPageList(WeightingQueryDto dto);
 
     /**
      * 查询过磅记录列表
      */
     List<MineWeightingVo> queryList(MineWeightingDto dto);
-
-    /**
-     * 新增过磅记录
-     */
-    void insertByBo(MineWeightingDto dto);
 
     /**
      * 修改过磅记录
@@ -45,5 +54,4 @@ public interface MineWeightingService {
      * 批量删除过磅记录
      */
     void deleteByIds(Collection<Long> ids);
-
 }

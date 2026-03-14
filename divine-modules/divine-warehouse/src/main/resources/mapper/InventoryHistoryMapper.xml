@@ -4,31 +4,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.divine.warehouse.mapper.InventoryHistoryMapper">
 
-    <resultMap id="inventoryHistoryVoMap" type="com.divine.warehouse.domain.vo.InventoryHistoryVo">
-        <association property="itemSku" javaType="com.divine.warehouse.domain.vo.ItemSkuVo">
-            <id property="id" column="sku_id"/> <!-- 映射 itemSku 的 id -->
-        </association>
-        <association property="item" javaType="com.divine.warehouse.domain.vo.ItemVo">
-            <id property="id" column="item_id"/> <!-- 映射 item 的 id -->
-        </association>
-    </resultMap>
-
-    <select id="selectVoPageByBo" resultMap="inventoryHistoryVoMap">
+    <select id="selectVoPageByBo" resultType="com.divine.warehouse.domain.vo.InventoryHistoryPageVo">
         select
-        history.*,
+        history.biz_id,
+        history.biz_no,
+        history.biz_type,
+        history.warehouse_id,
+        w.warehouse_name,
+        history.after_quantity,
+        history.before_quantity,
+        history.quantity,
+        history.unit_price,
+        history.create_time,
+        item.item_no,
+        item.item_name,
         sku.id as sku_id,
-        sku.*,
-        item.id as item_id,
-        item.*
+        sku.sku_no,
+        sku.sku_name
         from wms_inventory_history history
         left join wms_item_sku sku on history.sku_id=sku.id
         left join wms_item item on sku.item_id=item.id
+        left join wms_warehouse w on history.warehouse_id=w.id
         <where>
-            <if test="dto.orderType != null">
-                history.order_type=#{dto.orderType}
+            <if test="dto.bizType != null">
+                history.biz_type=#{dto.bizType}
             </if>
-            <if test="dto.orderNo != null and dto.orderNo != ''">
-                and history.order_no=#{dto.orderNo}
+            <if test="dto.bizNo != null and dto.bizNo != ''">
+                and history.biz_no=#{dto.bizNo}
             </if>
             <if test="dto.itemName != null and dto.itemName != ''">
                 and item.item_name like concat('%', #{dto.itemName}, '%')

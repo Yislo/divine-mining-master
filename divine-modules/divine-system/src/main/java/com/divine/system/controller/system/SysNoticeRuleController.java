@@ -31,7 +31,7 @@ import com.divine.common.log.enums.BusinessType;
 @Validated
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/wms/noticeRule")
+@RequestMapping("/noticeRule")
 public class SysNoticeRuleController extends BaseController {
 
     private final SysNoticeRuleService sysNoticeRuleService;

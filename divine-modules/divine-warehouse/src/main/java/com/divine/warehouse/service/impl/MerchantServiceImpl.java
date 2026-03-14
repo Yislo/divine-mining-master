@@ -114,4 +114,16 @@ public class MerchantServiceImpl implements MerchantService {
     public void deleteByIds(Collection<Long> ids) {
         merchantMapper.deleteBatchIds(ids);
     }
+
+    /**
+     * 根据id查询
+     * @param ids
+     */
+    @Override
+    public List<MerchantVo> queryByIds(Collection<Long> ids) {
+        return merchantMapper.selectVoList(new LambdaQueryWrapper<>(Merchant.class)
+            .in(Merchant::getId, ids));
+
+
+    }
 }

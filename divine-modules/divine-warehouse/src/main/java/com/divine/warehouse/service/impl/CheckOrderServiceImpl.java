@@ -25,6 +25,7 @@ import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -94,9 +95,10 @@ public class CheckOrderServiceImpl implements CheckOrderService {
 
     private LambdaQueryWrapper<CheckOrder> buildQueryWrapper(CheckOrderDto dto) {
         LambdaQueryWrapper<CheckOrder> lqw = Wrappers.lambdaQuery();
-//        lqw.eq(StringUtils.isNotBlank(dto.getOrderNo()), CheckOrder::getOrderNo, dto.getOrderNo());
+        lqw.like(StringUtils.isNotBlank(dto.getCheckNo()), CheckOrder::getCheckNo, dto.getCheckNo());
         lqw.eq(dto.getTotalQuantity() != null, CheckOrder::getTotalQuantity, dto.getTotalQuantity());
         lqw.eq(dto.getWarehouseId() != null, CheckOrder::getWarehouseId, dto.getWarehouseId());
+        lqw.eq(dto.getCheckStatus() != null, CheckOrder::getCheckStatus, dto.getCheckStatus());
         lqw.orderByDesc(BaseEntity::getCreateTime);
         return lqw;
     }
@@ -108,7 +110,7 @@ public class CheckOrderServiceImpl implements CheckOrderService {
     @Transactional
     public void insertByBo(CheckOrderDto dto) {
         // 创建盘库单
-        String checkNo = generateNoUtil.getBizNo(NoTypeEnum.CHECK_NO);
+        String checkNo = generateNoUtil.getBizNo(NoTypeEnum.CHECK_NO.getCode());
         dto.setBizNo(checkNo);
         CheckOrder checkOrder = MapstructUtils.convert(dto, CheckOrder.class);
         checkOrder.setCheckNo(checkNo);

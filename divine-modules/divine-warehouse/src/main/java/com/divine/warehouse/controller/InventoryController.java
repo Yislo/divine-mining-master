@@ -25,6 +25,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.divine.warehouse.service.InventoryService;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -99,6 +101,17 @@ public class InventoryController extends BaseController {
     public Result<InventoryVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
         return Result.success(inventoryService.queryById(id));
+    }
+
+    /**
+     * 获取sku库存详细信息
+     * @param skuId
+     * @return
+     */
+    @SaCheckPermission("wms:inventory:all")
+    @GetMapping("/getInventoryInfo/{skuId}")
+    public Result<List<InventoryVo>> getSkuStock(@NotNull(message = "skuId不能为空") @PathVariable Long skuId) {
+        return Result.success(inventoryService.getBySkuIds(Collections.singletonList(skuId)));
     }
 
     /**

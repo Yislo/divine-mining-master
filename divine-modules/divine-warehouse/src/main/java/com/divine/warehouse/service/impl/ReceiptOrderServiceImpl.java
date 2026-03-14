@@ -122,11 +122,11 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
 
     private LambdaQueryWrapper<ReceiptOrder> buildQueryWrapper(ReceiptOrderDto dto) {
         LambdaQueryWrapper<ReceiptOrder> lqw = Wrappers.lambdaQuery();
-        lqw.eq(StringUtils.isNotBlank(dto.getBizNo()), ReceiptOrder::getReceiptNo, dto.getBizNo());
+        lqw.like(StringUtils.isNotBlank(dto.getReceiptNo()), ReceiptOrder::getReceiptNo, dto.getReceiptNo());
         lqw.eq(dto.getOptType() != null, ReceiptOrder::getOptType, dto.getOptType());
         lqw.eq(dto.getMerchantId() != null, ReceiptOrder::getMerchantId, dto.getMerchantId());
         lqw.eq(dto.getReceiptStatus() != null, ReceiptOrder::getReceiptStatus, dto.getReceiptStatus());
-        lqw.eq(dto.getBizOrderNo() != null, ReceiptOrder::getBizOrderNo, dto.getBizOrderNo());
+        lqw.like(dto.getBizOrderNo() != null, ReceiptOrder::getBizOrderNo, dto.getBizOrderNo());
         lqw.orderByDesc(BaseEntity::getCreateTime);
         return lqw;
     }
@@ -149,7 +149,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
      */
     private Long insertReceipt(ReceiptOrderDto dto) {
         // 创建入库单
-        String receiptNo = generateNoUtil.getBizNo(NoTypeEnum.RECEIPT_NO);
+        String receiptNo = generateNoUtil.getBizNo(NoTypeEnum.RECEIPT_NO.getCode());
         dto.setBizNo(receiptNo);
         // 考虑是否计算总金额 是否完全信任前端
         ReceiptOrder receiptOrder = MapstructUtils.convert(dto, ReceiptOrder.class);

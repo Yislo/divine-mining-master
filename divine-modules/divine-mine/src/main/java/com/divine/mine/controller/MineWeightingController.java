@@ -8,17 +8,18 @@ import com.divine.common.idempotent.annotation.RepeatSubmit;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.mine.domain.dto.MineWeightingDto;
+import com.divine.mine.domain.dto.WeightingAddDto;
+import com.divine.mine.domain.dto.WeightingQueryDto;
+import com.divine.mine.domain.dto.WeightingReturnDto;
 import com.divine.mine.domain.vo.MineWeightingVo;
 import com.divine.mine.service.MineWeightingService;
 import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import com.divine.common.log.annotation.Log;
 import com.divine.common.web.core.BaseController;
-import com.divine.common.core.validate.AddGroup;
 import com.divine.common.core.validate.EditGroup;
 import com.divine.common.log.enums.BusinessType;
 
@@ -37,12 +38,36 @@ public class MineWeightingController extends BaseController {
     private final MineWeightingService mineWeightingService;
 
     /**
+     * 过磅
+     */
+//    @SaCheckPermission("weighting:add")
+    @Log(title = "过磅记录", businessType = BusinessType.INSERT)
+    @RepeatSubmit()
+    @PostMapping()
+    public Result<Void> add(@RequestBody WeightingAddDto dto) {
+        mineWeightingService.insertByBo(dto);
+        return Result.success();
+    }
+
+    /**
+     * 回磅
+     */
+//    @SaCheckPermission("weighting:add")
+    @Log(title = "过磅记录", businessType = BusinessType.INSERT)
+    @RepeatSubmit()
+    @PostMapping("/returnWeighting")
+    public Result<Void> returnWeighting(@RequestBody WeightingReturnDto dto) {
+        mineWeightingService.returnWeighting(dto);
+        return Result.success();
+    }
+
+    /**
      * 查询过磅记录列表
      */
 //    @SaCheckPermission("weighting:list")
-    @GetMapping("/list")
-    public PageInfoRes<MineWeightingVo> list(MineWeightingDto dto, BasePage basePage) {
-        return mineWeightingService.queryPageList(dto, basePage);
+    @PostMapping("/list")
+    public PageInfoRes<MineWeightingVo> list(@RequestBody WeightingQueryDto dto) {
+        return mineWeightingService.queryPageList(dto);
     }
 
     /**
@@ -66,18 +91,6 @@ public class MineWeightingController extends BaseController {
     public Result<MineWeightingVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
         return Result.success(mineWeightingService.queryById(id));
-    }
-
-    /**
-     * 新增过磅记录
-     */
-//    @SaCheckPermission("weighting:add")
-    @Log(title = "过磅记录", businessType = BusinessType.INSERT)
-    @RepeatSubmit()
-    @PostMapping()
-    public Result<Void> add(@Validated(AddGroup.class) @RequestBody MineWeightingDto dto) {
-        mineWeightingService.insertByBo(dto);
-        return Result.success();
     }
 
     /**

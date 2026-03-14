@@ -6,6 +6,7 @@ import com.divine.warehouse.domain.entity.Inventory;
 import com.divine.warehouse.domain.entity.MovementOrderDetail;
 import io.github.linpeilie.annotations.AutoMapper;
 import io.github.linpeilie.annotations.AutoMappers;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -41,5 +42,18 @@ public class MovementOrderDetailDto extends BaseOrderDetailDto {
      */
     @NotNull(message = "目标仓库不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long targetWarehouseId;
+
+    /**
+     * 源货架
+     */
+    @NotBlank(message = "源货架不能为空", groups = { AddGroup.class, EditGroup.class })
+    private String sourceStorageShelf;
+
+    /**
+     * 目标货架
+     */
+    @NotBlank(message = "目标货架不能为空", groups = { AddGroup.class, EditGroup.class })
+    private String targetStorageShelf;
+
 
 }

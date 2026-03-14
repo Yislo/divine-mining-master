@@ -47,7 +47,6 @@ public class MovementOrderDetailController extends BaseController {
         return movementOrderDetailService.queryPageList(moveId, basePage);
     }
 
-
     /**
      * 获取库存移动详情详细信息
      *

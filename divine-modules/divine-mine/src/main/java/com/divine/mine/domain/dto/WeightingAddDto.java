@@ -1,93 +1,81 @@
-package com.divine.mine.domain.entity;
+package com.divine.mine.domain.dto;
 
-import com.baomidou.mybatisplus.annotation.*;
-import com.divine.common.mybatis.core.domain.BaseEntity;
+import com.divine.mine.domain.entity.MineWeighting;
+import io.github.linpeilie.annotations.AutoMapper;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 
-import java.io.Serial;
-
 /**
- * 过磅记录对象 mine_weighting
+ * 过磅记录业务对象 mine_weighting
  *
  * @author yisl
  * @date 2026-02-28
  */
+
 @Data
-@EqualsAndHashCode(callSuper = true)
-@TableName("mine_weighting")
-public class MineWeighting extends BaseEntity {
+@AutoMapper(target = MineWeighting.class, reverseConvertGenerate = false)
+public class WeightingAddDto {
 
-    @Serial
-    private static final long serialVersionUID=1L;
-
-    /**
-     * id
-     */
-    @TableId(value = "id")
-    private Long id;
     /**
      * 车牌号
      */
+    @NotBlank(message = "车牌号不能为空")
     private String carNumber;
-    /**
-     * 过磅单编号
-     */
-    private String weighingNo;
+
     /**
      * 商品类型
      */
+    @NotBlank(message = "商品类型不能为空")
     private Integer goodsType;
+
     /**
      * 发货单位
      */
+    @NotNull(message = "发货单位不能为空")
     private Long shipMerchantId;
+
     /**
      * 发货日期
      */
     private Date shipTime;
+
     /**
      * 发货地址
      */
     private String shipAddress;
+
     /**
      * 收货单位
      */
     private String deliveryMerchant;
+
     /**
      * 收货日期
      */
     private Date deliveryTime;
-    /**
-     * 过磅状态
-     */
-    private Integer weighingStatus;
+
     /**
      * 总重
      */
     private Long totalWeight;
+
     /**
      * 皮重
      */
     private Long tareWeight;
+
     /**
      * 净重
      */
     private Long netWeight;
+
     /**
      * 备注
      */
     private String remark;
-    /**
-     * 质量id(取样之后生成)
-     */
-    private Long qualityId;
 
-    /**
-     * 是否删除(0:未删除,1:已删除)
-     */
-    private Integer isDel;
 
 }

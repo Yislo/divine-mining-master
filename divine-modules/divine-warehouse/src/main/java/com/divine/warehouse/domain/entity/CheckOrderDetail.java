@@ -35,4 +35,9 @@ public class CheckOrderDetail extends BaseOrderDetail {
      * 库存id
      */
     private Long inventoryId;
+
+    /**
+     * 货架
+     */
+    private String storageShelf;
 }

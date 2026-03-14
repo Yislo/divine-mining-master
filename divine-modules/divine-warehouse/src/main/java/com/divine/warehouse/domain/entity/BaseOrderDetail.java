@@ -29,10 +29,6 @@ public class BaseOrderDetail extends BaseEntity {
      */
     private BigDecimal unitPrice;
     /**
-     * 货架
-     */
-    private String storageShelf;
-    /**
      * 备注
      */
     private String remark;

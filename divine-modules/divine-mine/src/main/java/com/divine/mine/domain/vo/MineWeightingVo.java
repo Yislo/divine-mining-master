@@ -44,16 +44,22 @@ public class MineWeightingVo implements Serializable {
     private String weighingNo;
 
     /**
-     * 商品名称
+     * 商品类型
      */
-    @ExcelProperty(value = "商品名称")
-    private String goodsName;
+    @ExcelProperty(value = "商品类型")
+    private Integer goodsType;
 
     /**
      * 发货单位
      */
     @ExcelProperty(value = "发货单位")
     private Long shipMerchantId;
+
+    /**
+     * 发货单位
+     */
+    @ExcelProperty(value = "发货单位")
+    private String shipMerchantName;
 
     /**
      * 发货日期
@@ -83,7 +89,7 @@ public class MineWeightingVo implements Serializable {
      * 过磅状态
      */
     @ExcelProperty(value = "过磅状态")
-    private String weighingStatus;
+    private Integer weighingStatus;
 
     /**
      * 总重

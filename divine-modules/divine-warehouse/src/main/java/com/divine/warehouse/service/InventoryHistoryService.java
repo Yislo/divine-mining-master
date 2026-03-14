@@ -3,6 +3,7 @@ package com.divine.warehouse.service;
 import com.divine.warehouse.domain.dto.BaseOrderDetailDto;
 import com.divine.warehouse.domain.dto.BaseOrderDto;
 import com.divine.warehouse.domain.dto.InventoryHistoryDto;
+import com.divine.warehouse.domain.vo.InventoryHistoryPageVo;
 import com.divine.warehouse.domain.vo.InventoryHistoryVo;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
@@ -19,7 +20,7 @@ import java.util.List;
 public interface InventoryHistoryService {
 
 
-    void saveInventoryHistory(BaseOrderDto<? extends BaseOrderDetailDto> dto, Integer orderType, Boolean isAdd);
+    void saveInventoryHistory(BaseOrderDto<? extends BaseOrderDetailDto> dto, Integer bizType, Boolean isAdd);
 
     /**
      * 查询库存记录
@@ -29,7 +30,7 @@ public interface InventoryHistoryService {
     /**
      * 查询库存记录列表
      */
-    PageInfoRes<InventoryHistoryVo> queryPageList(InventoryHistoryDto dto, BasePage basePage);
+    PageInfoRes<InventoryHistoryPageVo> queryPageList(InventoryHistoryDto dto, BasePage basePage);
 
     /**
      * 查询库存记录列表

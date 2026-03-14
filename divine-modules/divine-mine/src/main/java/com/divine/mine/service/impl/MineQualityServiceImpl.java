@@ -41,6 +41,25 @@ public class MineQualityServiceImpl implements MineQualityService {
     private final GenerateNoUtil generateNoUtil;
 
     /**
+     * 新增送货质量
+     */
+    @Override
+    public void insertByDto(MineQualityDto dto) {
+        MineQuality add = MapstructUtils.convert(dto, MineQuality.class);
+        add.setQualityNo(generateNoUtil.getBizNo(NoTypeEnum.QUALITY_NO.getCode()));
+        mineQualityMapper.insert(add);
+        // 填充过磅记录质量id
+        List<Long> weightingId = dto.getWeightingId();
+        List<MineWeighting> list = weightingId.stream().map(id -> {
+            MineWeighting mineWeighting = new MineWeighting();
+            mineWeighting.setId(id);
+            mineWeighting.setQualityId(add.getId());
+            return mineWeighting;
+        }).toList();
+        mineWeightingMapper.updateBatchById(list);
+    }
+
+    /**
      * 查询送货质量
      */
     public MineQualityInfoVo queryById(Long id) {
@@ -78,25 +97,6 @@ public class MineQualityServiceImpl implements MineQualityService {
     @Override
     public List<MineQualityVo> queryList(MineQualityDto dto) {
         return mineQualityMapper.selectVoList(new LambdaQueryWrapper<>());
-    }
-
-    /**
-     * 新增送货质量
-     */
-    @Override
-    public void insertByBo(MineQualityDto dto) {
-        MineQuality add = MapstructUtils.convert(dto, MineQuality.class);
-        add.setQualityNo(generateNoUtil.getBizNo(NoTypeEnum.QUALITY_NO));
-        mineQualityMapper.insert(add);
-        // 填充过磅记录质量id
-        List<Long> weightingId = dto.getWeightingId();
-        List<MineWeighting> list = weightingId.stream().map(id -> {
-            MineWeighting mineWeighting = new MineWeighting();
-            mineWeighting.setId(id);
-            mineWeighting.setQualityId(add.getId());
-            return mineWeighting;
-        }).toList();
-        mineWeightingMapper.updateBatchById(list);
     }
 
     /**

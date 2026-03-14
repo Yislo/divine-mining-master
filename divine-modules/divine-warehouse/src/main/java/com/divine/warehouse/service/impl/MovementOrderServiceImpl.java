@@ -25,6 +25,7 @@ import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,7 +57,7 @@ public class MovementOrderServiceImpl implements MovementOrderService {
     public MovementOrderVo queryById(Long id) {
         MovementOrderVo movementOrderVo = movementOrderMapper.selectVoById(id);
         if (movementOrderVo == null) {
-            throw new com.divine.common.core.exception.base.BusinessException("移库单不存在");
+            throw new BusinessException("移库单不存在");
         }
         movementOrderVo.setDetails(movementOrderDetailService.queryByMovementOrderId(id));
         return movementOrderVo;
@@ -97,10 +98,10 @@ public class MovementOrderServiceImpl implements MovementOrderService {
     private LambdaQueryWrapper<MovementOrder> buildQueryWrapper(MovementOrderDto dto) {
         Map<String, Object> params = dto.getParams();
         LambdaQueryWrapper<MovementOrder> lqw = Wrappers.lambdaQuery();
-//        lqw.eq(StringUtils.isNotBlank(dto.getOrderNo()), MovementOrder::getOrderNo, dto.getOrderNo());
+        lqw.eq(StringUtils.isNotBlank(dto.getMoveNo()), MovementOrder::getMoveNo, dto.getMoveNo());
         lqw.eq(dto.getSourceWarehouseId() != null, MovementOrder::getSourceWarehouseId, dto.getSourceWarehouseId());
         lqw.eq(dto.getTargetWarehouseId() != null, MovementOrder::getTargetWarehouseId, dto.getTargetWarehouseId());
-//        lqw.eq(dto.getOrderStatus() != null, MovementOrder::getOrderStatus, dto.getOrderStatus());
+        lqw.eq(dto.getMoveStatus() != null, MovementOrder::getMoveStatus, dto.getMoveStatus());
         lqw.eq(dto.getTotalQuantity() != null, MovementOrder::getTotalQuantity, dto.getTotalQuantity());
         lqw.orderByDesc(BaseEntity::getCreateTime);
         return lqw;
@@ -113,8 +114,10 @@ public class MovementOrderServiceImpl implements MovementOrderService {
     @Transactional
     public void insertByBo(MovementOrderDto dto) {
         // 2.创建移库单
+        String bizNo = generateNoUtil.getBizNo(NoTypeEnum.MOVE_NO.getCode());
+        dto.setBizNo(bizNo);
         MovementOrder movementOrder = MapstructUtils.convert(dto, MovementOrder.class);
-        movementOrder.setMoveNo(generateNoUtil.getBizNo(NoTypeEnum.MOVE_NO));
+        movementOrder.setMoveNo(bizNo);
         movementOrderMapper.insert(movementOrder);
         dto.setId(movementOrder.getId());
         // 3.创建移库单明细
@@ -177,7 +180,7 @@ public class MovementOrderServiceImpl implements MovementOrderService {
     public void move(MovementOrderDto dto) {
         // 3.保存移库单核移库单明细
         if (Objects.isNull(dto.getId())) {
-            dto.setMoveStatus(InventoryStatusEnum.PENDING.getCode());
+            dto.setMoveStatus(InventoryStatusEnum.FINISH.getCode());
             insertByBo(dto);
         } else {
             dto.setBizNo(dto.getMoveNo());
@@ -188,20 +191,26 @@ public class MovementOrderServiceImpl implements MovementOrderService {
         inventoryService.subtract(shipmentBo.getDetails());
         MovementOrderDto receiptDto = getReceiptDto(dto);
         inventoryService.add(receiptDto.getDetails());
+        shipmentBo.setBizNo(dto.getMoveNo());
         // 6.创建库存记录流水
         inventoryHistoryService.saveInventoryHistory(shipmentBo, InventoryTypeEnum.MOVEMENT.getType(), false);
     }
 
     private MovementOrderDto getReceiptDto(MovementOrderDto dto) {
-
         MovementOrderDto receiptBo = SerializationUtils.clone(dto);
-        receiptBo.getDetails().forEach(detail -> detail.setWarehouseId(detail.getTargetWarehouseId()));
+        receiptBo.getDetails().forEach(detail -> {
+            detail.setWarehouseId(detail.getTargetWarehouseId());
+            detail.setStorageShelf(detail.getTargetStorageShelf());
+        });
         return receiptBo;
     }
 
     private MovementOrderDto getShipmentBo(MovementOrderDto dto) {
         MovementOrderDto shipmentBo = SerializationUtils.clone(dto);
-        shipmentBo.getDetails().forEach(detail -> detail.setWarehouseId(detail.getSourceWarehouseId()));
+        shipmentBo.getDetails().forEach(detail -> {
+            detail.setWarehouseId(detail.getSourceWarehouseId());
+            detail.setStorageShelf(detail.getSourceStorageShelf());
+        });
         return shipmentBo;
     }
 

@@ -3,6 +3,7 @@ package com.divine.warehouse.mapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.divine.warehouse.domain.dto.InventoryHistoryDto;
 import com.divine.warehouse.domain.entity.InventoryHistory;
+import com.divine.warehouse.domain.vo.InventoryHistoryPageVo;
 import com.divine.warehouse.domain.vo.InventoryHistoryVo;
 import com.divine.common.mybatis.core.mapper.BaseMapperPlus;
 import org.apache.ibatis.annotations.Mapper;
@@ -17,5 +18,5 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface InventoryHistoryMapper extends BaseMapperPlus<InventoryHistory, InventoryHistoryVo> {
 
-    Page<InventoryHistoryVo> selectVoPageByBo(Page<Object> page, @Param("dto") InventoryHistoryDto dto);
+    Page<InventoryHistoryPageVo> selectVoPageByBo(Page<Object> page, @Param("dto") InventoryHistoryDto dto);
 }

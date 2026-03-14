@@ -67,6 +67,18 @@ public class SysNoticeController extends BaseController {
     }
 
     /**
+     * 一键已读
+     * @id 消息id
+     * @return
+     */
+    @SaCheckPermission("system:notice:read")
+    @PutMapping("/oneClickRead")
+    public Result<Void> oneClickRead() {
+        noticeService.oneClickRead();
+        return Result.success();
+    }
+
+    /**
      * 获取未读消息数量
      * @return
      */

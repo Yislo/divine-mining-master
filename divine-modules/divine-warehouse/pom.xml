@@ -23,11 +23,6 @@
 
         <dependency>
             <groupId>com.divine</groupId>
-            <artifactId>divine-mine</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.divine</groupId>
             <artifactId>divine-common-oss</artifactId>
         </dependency>
 

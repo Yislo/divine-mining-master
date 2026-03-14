@@ -26,12 +26,11 @@ public class RedisNoGenerator implements GenerateNoUtil {
      * @return
      */
     @Override
-    public String getBizNo(NoTypeEnum noType) {
-        String code = noType.getCode();
+    public String getBizNo(String noType) {
         String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String redisKey = "no:" + code + ":" + dateStr;
+        String redisKey = "no:" + noType + ":" + dateStr;
         long num = RedisUtils.incrAtomicValue(redisKey, RedisUtils.getSecondsUntilMidnight());
-        return code + dateStr + String.format(SUFFIX, num);
+        return noType + dateStr + String.format(SUFFIX, num);
     }
 
 

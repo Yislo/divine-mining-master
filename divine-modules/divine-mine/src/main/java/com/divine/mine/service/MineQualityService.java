@@ -1,12 +1,10 @@
 package com.divine.mine.service;
 
-import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.mine.domain.dto.MineQualityDto;
 import com.divine.mine.domain.dto.QualityPageDTO;
 import com.divine.mine.domain.vo.MineQualityInfoVo;
 import com.divine.mine.domain.vo.MineQualityVo;
-import com.divine.mine.domain.vo.QualityPageVo;
 
 import java.util.Collection;
 import java.util.List;
@@ -18,6 +16,11 @@ import java.util.List;
  * @date 2026-02-28
  */
 public interface MineQualityService {
+
+    /**
+     * 新增送货质量
+     */
+    void insertByDto(MineQualityDto dto);
 
     /**
      * 查询送货质量
@@ -33,12 +36,6 @@ public interface MineQualityService {
      * 查询送货质量列表
      */
     List<MineQualityVo> queryList(MineQualityDto dto);
-
-    /**
-     * 新增送货质量
-     */
-    void insertByBo(MineQualityDto dto);
-
     /**
      * 修改送货质量
      */

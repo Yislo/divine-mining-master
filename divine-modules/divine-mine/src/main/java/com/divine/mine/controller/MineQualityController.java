@@ -5,18 +5,15 @@ import java.util.List;
 import com.divine.common.core.domain.Result;
 import com.divine.common.excel.utils.ExcelUtil;
 import com.divine.common.idempotent.annotation.RepeatSubmit;
-import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.mine.domain.dto.MineQualityDto;
 import com.divine.mine.domain.dto.QualityPageDTO;
 import com.divine.mine.domain.vo.MineQualityInfoVo;
 import com.divine.mine.domain.vo.MineQualityVo;
-import com.divine.mine.domain.vo.QualityPageVo;
 import com.divine.mine.service.MineQualityService;
 import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.*;
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import com.divine.common.log.annotation.Log;
@@ -38,6 +35,18 @@ import com.divine.common.log.enums.BusinessType;
 public class MineQualityController extends BaseController {
 
     private final MineQualityService mineQualityService;
+
+    /**
+     * 新增送货质量
+     */
+//    @SaCheckPermission("quality:add")
+    @Log(title = "送货质量", businessType = BusinessType.INSERT)
+    @RepeatSubmit()
+    @PostMapping()
+    public Result<Void> add(@Validated(AddGroup.class) @RequestBody MineQualityDto dto) {
+        mineQualityService.insertByDto(dto);
+        return Result.success();
+    }
 
     /**
      * 查询送货质量列表
@@ -71,17 +80,6 @@ public class MineQualityController extends BaseController {
         return Result.success(mineQualityService.queryById(id));
     }
 
-    /**
-     * 新增送货质量
-     */
-//    @SaCheckPermission("quality:add")
-    @Log(title = "送货质量", businessType = BusinessType.INSERT)
-    @RepeatSubmit()
-    @PostMapping()
-    public Result<Void> add(@Validated(AddGroup.class) @RequestBody MineQualityDto dto) {
-        mineQualityService.insertByBo(dto);
-        return Result.success();
-    }
 
     /**
      * 修改送货质量

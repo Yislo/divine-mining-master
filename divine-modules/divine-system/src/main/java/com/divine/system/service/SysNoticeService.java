@@ -51,6 +51,11 @@ public interface SysNoticeService {
     void read(List<Long> id);
 
     /**
+     * 一键已读
+     */
+    void oneClickRead();
+
+    /**
      * 获取为未读消息数量
      *
      * @return

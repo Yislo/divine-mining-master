@@ -51,7 +51,7 @@ public class InventoryHistoryVo implements Serializable {
      * 订单类型
      */
     @ExcelProperty(value = "订单类型")
-    private Integer orderType;
+    private Integer bizType;
 
     /**
      * 物料ID

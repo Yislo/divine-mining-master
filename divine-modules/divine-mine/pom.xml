@@ -16,79 +16,12 @@
     </description>
 
     <dependencies>
-        <!-- 通用工具-->
+        <!-- 仓库模块 -->
         <dependency>
             <groupId>com.divine</groupId>
-            <artifactId>divine-common-core</artifactId>
+            <artifactId>divine-warehouse</artifactId>
         </dependency>
 
-        <!-- OSS功能模块 -->
-        <dependency>
-            <groupId>com.divine</groupId>
-            <artifactId>divine-common-oss</artifactId>
-        </dependency>
-
-        <!-- SMS功能模块 -->
-        <dependency>
-            <groupId>com.divine</groupId>
-            <artifactId>divine-common-sms</artifactId>
-        </dependency>
-
-        <!-- excel -->
-        <dependency>
-            <groupId>com.divine</groupId>
-            <artifactId>divine-common-excel</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.divine</groupId>
-            <artifactId>divine-common-log</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.divine</groupId>
-            <artifactId>divine-common-translation</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.divine</groupId>
-            <artifactId>divine-common-sensitive</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.divine</groupId>
-            <artifactId>divine-common-redis</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.divine</groupId>
-            <artifactId>divine-common-web</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.divine</groupId>
-            <artifactId>divine-common-security</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.divine</groupId>
-            <artifactId>divine-common-mybatis</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.divine</groupId>
-            <artifactId>divine-common-encrypt</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.divine</groupId>
-            <artifactId>divine-common-idempotent</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.divine</groupId>
-            <artifactId>divine-common-doc</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>

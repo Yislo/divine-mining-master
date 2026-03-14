@@ -25,5 +25,10 @@ public class ReceiptOrderDetail extends BaseOrderDetail {
      */
     private Long warehouseId;
 
+    /**
+     * 货架
+     */
+    private String storageShelf;
+
 
 }

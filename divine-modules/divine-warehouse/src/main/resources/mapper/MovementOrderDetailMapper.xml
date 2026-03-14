@@ -11,7 +11,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             sku.id skuId,
             sku.sku_name,
             mo.quantity,
-            mo.storage_shelf,
+            mo.source_storage_shelf,
+            mo.target_storage_shelf,
             mo.unit_price
         FROM
             wms_movement_order_detail mo

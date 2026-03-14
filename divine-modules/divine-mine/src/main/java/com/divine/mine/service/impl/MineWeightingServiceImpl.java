@@ -1,6 +1,7 @@
 package com.divine.mine.service.impl;
 
-import com.divine.common.core.enums.NoTypeEnum;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjUtil;
 import com.divine.common.core.utils.GenerateNoUtil;
 import com.divine.common.core.utils.MapstructUtils;
 import com.divine.common.mybatis.core.page.PageInfoRes;
@@ -9,17 +10,24 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.divine.mine.domain.dto.MineWeightingDto;
+import com.divine.mine.domain.dto.WeightingAddDto;
+import com.divine.mine.domain.dto.WeightingQueryDto;
+import com.divine.mine.domain.dto.WeightingReturnDto;
 import com.divine.mine.domain.entity.MineWeighting;
 import com.divine.mine.domain.vo.MineWeightingVo;
 import com.divine.mine.service.MineWeightingService;
+import com.divine.warehouse.domain.vo.MerchantVo;
+import com.divine.warehouse.service.MerchantService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.divine.mine.mapper.MineWeightingMapper;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 过磅记录Service业务层处理
@@ -33,22 +41,70 @@ public class MineWeightingServiceImpl implements MineWeightingService {
 
     private final MineWeightingMapper mineWeightingMapper;
     private final GenerateNoUtil generateNoUtil;
+    private final MerchantService merchantService;
+
+    /**
+     * 新增过磅记录
+     */
+    @Override
+    public void insertByBo(WeightingAddDto dto) {
+        MineWeighting add = MapstructUtils.convert(dto, MineWeighting.class);
+        // 获取合作单位信息
+        MerchantVo merchantVo = merchantService.queryById(dto.getShipMerchantId());
+        add.setWeighingNo(generateNoUtil.getBizNo(merchantVo.getMerchantNo()));
+        add.setWeighingStatus(0);
+        mineWeightingMapper.insert(add);
+    }
+
+    /**
+     * 回磅
+     *
+     * @param dto
+     */
+    @Override
+    public void returnWeighting(WeightingReturnDto dto) {
+        MineWeighting add = MapstructUtils.convert(dto, MineWeighting.class);
+        mineWeightingMapper.updateById(add);
+    }
 
     /**
      * 查询过磅记录
      */
     @Override
     public MineWeightingVo queryById(Long id) {
-        return mineWeightingMapper.selectVoById(id);
+        MineWeightingVo mineWeightingVo = mineWeightingMapper.selectVoById(id);
+        // 获取合作单位信息
+        MerchantVo merchantVo = merchantService.queryById(mineWeightingVo.getShipMerchantId());
+        if (ObjUtil.isNotNull(merchantVo)) {
+            mineWeightingVo.setShipMerchantName(merchantVo.getMerchantName());
+        }
+        return mineWeightingVo;
     }
 
     /**
      * 查询过磅记录列表
      */
     @Override
-    public PageInfoRes<MineWeightingVo> queryPageList(MineWeightingDto dto, BasePage basePage) {
-        LambdaQueryWrapper<MineWeighting> lqw = buildQueryWrapper(dto);
-        Page<MineWeightingVo> result = mineWeightingMapper.selectVoPage(basePage.build(), lqw);
+    public PageInfoRes<MineWeightingVo> queryPageList(WeightingQueryDto dto) {
+        String weighingNo = dto.getWeighingNo();
+        String carNumber = dto.getCarNumber();
+        Integer weighingStatus = dto.getWeighingStatus();
+        Integer goodsType = dto.getGoodsType();
+        Long shipMerchantId = dto.getShipMerchantId();
+        Date startTime = dto.getStartTime();
+        Date endTime = dto.getEndTime();
+        Page<MineWeightingVo> result = mineWeightingMapper.selectVoPage(dto.build(), new LambdaQueryWrapper<>(MineWeighting.class)
+            .like(StringUtils.isNotBlank(weighingNo), MineWeighting::getWeighingNo, weighingNo)
+            .like(StringUtils.isNotBlank(carNumber), MineWeighting::getCarNumber, carNumber)
+            .eq(ObjUtil.isNotNull(weighingStatus), MineWeighting::getWeighingStatus, weighingStatus)
+            .eq(ObjUtil.isNotNull(goodsType), MineWeighting::getGoodsType, goodsType)
+            .eq(ObjUtil.isNotNull(shipMerchantId), MineWeighting::getShipMerchantId, shipMerchantId)
+            .between(ObjUtil.isNotNull(startTime) && ObjUtil.isNotNull(endTime), MineWeighting::getCreateTime, startTime, endTime)
+        );
+        // set送货单位名称
+        if (CollUtil.isNotEmpty(result.getRecords())){
+            setMerchantName(result.getRecords());
+        }
         return PageInfoRes.build(result);
     }
 
@@ -58,34 +114,37 @@ public class MineWeightingServiceImpl implements MineWeightingService {
     @Override
     public List<MineWeightingVo> queryList(MineWeightingDto dto) {
         LambdaQueryWrapper<MineWeighting> lqw = buildQueryWrapper(dto);
-        return mineWeightingMapper.selectVoList(lqw);
+        List<MineWeightingVo> mineWeightingVos = mineWeightingMapper.selectVoList(lqw);
+        // set送货单位名称
+        setMerchantName(mineWeightingVos);
+        return mineWeightingVos;
+    }
+
+    /**
+     * set送货单位名称
+     *
+     * @param result
+     */
+    private void setMerchantName(List<MineWeightingVo> result) {
+        //获取合作单位信息
+        List<Long> merchantIds = result.stream().map(MineWeightingVo::getShipMerchantId).distinct().toList();
+        List<MerchantVo> merchantVos = merchantService.queryByIds(merchantIds);
+        Map<Long, String> merchantMap = merchantVos.stream().collect(Collectors.toMap(MerchantVo::getId, MerchantVo::getMerchantName));
+        result.forEach(r -> r.setShipMerchantName(merchantMap.get(r.getId())));
     }
 
     private LambdaQueryWrapper<MineWeighting> buildQueryWrapper(MineWeightingDto dto) {
         LambdaQueryWrapper<MineWeighting> lqw = Wrappers.lambdaQuery();
         lqw.eq(StringUtils.isNotBlank(dto.getCarNumber()), MineWeighting::getCarNumber, dto.getCarNumber());
         lqw.eq(StringUtils.isNotBlank(dto.getWeighingNo()), MineWeighting::getWeighingNo, dto.getWeighingNo());
-        lqw.like(StringUtils.isNotBlank(dto.getGoodsName()), MineWeighting::getGoodsName, dto.getGoodsName());
+        lqw.like(dto.getGoodsType() != null, MineWeighting::getGoodsType, dto.getGoodsType());
         lqw.eq(dto.getShipMerchantId() != null, MineWeighting::getShipMerchantId, dto.getShipMerchantId());
         lqw.eq(dto.getShipTime() != null, MineWeighting::getShipTime, dto.getShipTime());
         lqw.eq(StringUtils.isNotBlank(dto.getShipAddress()), MineWeighting::getShipAddress, dto.getShipAddress());
         lqw.eq(StringUtils.isNotBlank(dto.getDeliveryMerchant()), MineWeighting::getDeliveryMerchant, dto.getDeliveryMerchant());
         lqw.eq(dto.getDeliveryTime() != null, MineWeighting::getDeliveryTime, dto.getDeliveryTime());
         lqw.eq(dto.getWeighingStatus() != null, MineWeighting::getWeighingStatus, dto.getWeighingStatus());
-        lqw.eq(dto.getTotalWeight() != null, MineWeighting::getTotalWeight, dto.getTotalWeight());
-        lqw.eq(dto.getTareWeight() != null, MineWeighting::getTareWeight, dto.getTareWeight());
-        lqw.eq(dto.getNetWeight() != null, MineWeighting::getNetWeight, dto.getNetWeight());
         return lqw;
-    }
-
-    /**
-     * 新增过磅记录
-     */
-    @Override
-    public void insertByBo(MineWeightingDto dto) {
-        MineWeighting add = MapstructUtils.convert(dto, MineWeighting.class);
-        add.setWeighingNo(generateNoUtil.getBizNo(NoTypeEnum.WEIGHING_NO));
-        mineWeightingMapper.insert(add);
     }
 
     /**

@@ -50,4 +50,9 @@ public interface MerchantService {
      * 批量删除往来单位
      */
     void deleteByIds(Collection<Long> ids);
+
+    /**
+     * 根据id查询
+     */
+    List<MerchantVo> queryByIds(Collection<Long> ids);
 }

@@ -16,14 +16,17 @@ import com.divine.system.domain.dto.SysNoticeDto;
 import com.divine.system.domain.entity.SysNoticeRead;
 import com.divine.system.domain.entity.SysNoticeRule;
 import com.divine.system.domain.entity.SysNotice;
+import com.divine.system.domain.entity.SysUser;
 import com.divine.system.domain.vo.MyNoticeVo;
 import com.divine.system.domain.vo.SysNoticeVo;
 import com.divine.system.domain.vo.SysUserVo;
 import com.divine.system.mapper.SysNoticeMapper;
 import com.divine.system.mapper.SysNoticeReadMapper;
 import com.divine.system.mapper.SysNoticeRuleMapper;
+import com.divine.system.mapper.SysUserMapper;
 import com.divine.system.service.SysNoticeService;
 import com.divine.system.service.SysPostService;
+import com.divine.system.service.SysUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +46,7 @@ public class SysNoticeServiceImpl implements SysNoticeService {
     private final SysNoticeReadMapper noticeReadMapper;
     private final SysNoticeRuleMapper noticeRuleMapper;
     private final SysPostService postService;
+    private final SysUserMapper userMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -55,13 +59,16 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         // 查询该事件的消息规则
         List<SysNoticeRule> ruleList = noticeRuleMapper.selectList(new LambdaQueryWrapper<>(SysNoticeRule.class)
             .eq(SysNoticeRule::getEventType, eventType));
-        // 如果没有配置信息 则不发送
-        if (CollUtil.isEmpty(ruleList)) {
-            return;
+        // 不配置 默认发送给所有人
+        List<Long> sendUserId;
+        if (ruleList.isEmpty()) {
+            List<SysUser> sysUsers = userMapper.selectList();
+            sendUserId = sysUsers.stream().map(SysUser::getUserId).toList();
+        } else {
+            // 获取收件人id
+            sendUserId = getSendUserId(ruleList);
         }
-        // 获取收件人id
-        List<Long> sendUserId = getSendUserId(ruleList);
-        if (CollUtil.isEmpty(sendUserId)){
+        if (CollUtil.isEmpty(sendUserId)) {
             return;
         }
         // 推送指定用户消息 todo 如果用户量过大，该业务需要优化
@@ -77,6 +84,7 @@ public class SysNoticeServiceImpl implements SysNoticeService {
 
     /**
      * 获取消息推送用户id
+     *
      * @param ruleList
      * @return
      */
@@ -151,10 +159,26 @@ public class SysNoticeServiceImpl implements SysNoticeService {
             .eq(SysNoticeRead::getUserId, userId)
             .in(SysNoticeRead::getNoticeId, ids));
         // 组装数据新增
-        readList.forEach(read->{
+        readList.forEach(read -> {
             read.setIsRead(1);
             read.setReadTime(new Date());
         });
+        // 批量已读
+        noticeReadMapper.updateBatchById(readList);
+    }
+
+    /**
+     * 一键已读
+     */
+    @Override
+    public void oneClickRead() {
+        Long userId = LoginHelper.getUserId();
+        List<SysNoticeRead> readList = noticeReadMapper.selectList(new LambdaQueryWrapper<>(SysNoticeRead.class)
+            .eq(SysNoticeRead::getUserId, userId));
+        if (readList.isEmpty()) {
+            return;
+        }
+        readList.forEach(r -> r.setIsRead(1));
         // 批量已读
         noticeReadMapper.updateBatchById(readList);
     }
@@ -199,9 +223,10 @@ public class SysNoticeServiceImpl implements SysNoticeService {
      * @return 结果
      */
     @Override
+    @Transactional
     public int insertNotice(SysNoticeDto dto) {
-        SysNotice notice = MapstructUtils.convert(dto, SysNotice.class);
-        return noticeMapper.insert(notice);
+        sendMessage(dto);
+        return 1;
     }
 
     /**

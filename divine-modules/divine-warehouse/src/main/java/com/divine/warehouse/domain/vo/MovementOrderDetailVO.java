@@ -2,8 +2,11 @@ package com.divine.warehouse.domain.vo;
 
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.divine.common.core.validate.AddGroup;
+import com.divine.common.core.validate.EditGroup;
 import com.divine.warehouse.domain.entity.MovementOrderDetail;
 import io.github.linpeilie.annotations.AutoMapper;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -21,8 +24,6 @@ import java.math.BigDecimal;
 @AutoMapper(target = MovementOrderDetail.class)
 public class MovementOrderDetailVO extends BaseOrderDetailVO {
 
-
-
     /**
      * 源仓库
      */
@@ -35,5 +36,20 @@ public class MovementOrderDetailVO extends BaseOrderDetailVO {
     @ExcelProperty(value = "目标仓库")
     private Long targetWarehouseId;
 
+    /**
+     * 源货架
+     */
+    @NotNull(message = "源货架不能为空", groups = { AddGroup.class, EditGroup.class })
+    private String sourceStorageShelf;
+
+    /**
+     * 目标货架
+     */
+    @NotNull(message = "目标货架不能为空", groups = { AddGroup.class, EditGroup.class })
+    private String targetStorageShelf;
+
+    /**
+     * 剩余数量
+     */
     private Long remainQuantity;
 }

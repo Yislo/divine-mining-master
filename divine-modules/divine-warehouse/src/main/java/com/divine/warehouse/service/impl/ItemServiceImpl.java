@@ -124,7 +124,7 @@ public class ItemServiceImpl implements ItemService {
     public void insertByForm(ItemDto dto) {
         validateBoBeforeSave(dto);
         Item item = MapstructUtils.convert(dto, Item.class);
-        item.setItemNo(generateNoUtil.getBizNo(NoTypeEnum.SPU_NO));
+        item.setItemNo(generateNoUtil.getBizNo(NoTypeEnum.SPU_NO.getCode()));
         itemMapper.insert(item);
         itemSkuService.setItemId(dto.getSku(), item.getId());
         itemSkuService.saveOrUpdateBatchByBo(dto.getSku());

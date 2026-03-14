@@ -24,9 +24,20 @@ public class MovementOrderDetail extends BaseOrderDetail {
      * 源仓库
      */
     private Long sourceWarehouseId;
+
     /**
      * 目标仓库
      */
     private Long targetWarehouseId;
+
+    /**
+     * 源货架
+     */
+    private String sourceStorageShelf;
+
+    /**
+     * 目标货架
+     */
+    private String targetStorageShelf;
 
 }

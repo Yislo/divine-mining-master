@@ -12,6 +12,7 @@ import com.divine.common.log.enums.BusinessType;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.web.core.BaseController;
+import com.divine.warehouse.domain.vo.InventoryHistoryPageVo;
 import com.divine.warehouse.domain.vo.InventoryHistoryVo;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotEmpty;
@@ -42,12 +43,12 @@ public class InventoryHistoryController extends BaseController {
      */
     @SaCheckPermission("wms:inventoryHistory:all")
     @GetMapping("/list")
-    public PageInfoRes<InventoryHistoryVo> list(InventoryHistoryDto dto, BasePage basePage) {
+    public PageInfoRes<InventoryHistoryPageVo> list(InventoryHistoryDto dto, BasePage basePage) {
         return inventoryHistoryService.queryPageList(dto, basePage);
     }
 
     /**
-     * 导出库存记录列表
+     * 导出库存记录列表x
      */
     @SaCheckPermission("wms:inventoryHistory:all")
     @Log(title = "库存记录", businessType = BusinessType.EXPORT)

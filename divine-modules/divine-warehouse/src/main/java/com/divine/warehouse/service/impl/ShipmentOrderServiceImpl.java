@@ -29,6 +29,7 @@ import com.divine.common.mybatis.core.domain.BaseEntity;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -101,11 +102,11 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
 
     private LambdaQueryWrapper<ShipmentOrder> buildQueryWrapper(ShipmentOrderDto dto) {
         LambdaQueryWrapper<ShipmentOrder> lqw = Wrappers.lambdaQuery();
-//        lqw.eq(StringUtils.isNotBlank(dto.getOrderNo()), ShipmentOrder::getOrderNo, dto.getOrderNo());
+        lqw.like(StringUtils.isNotBlank(dto.getShipmentNo()), ShipmentOrder::getShipmentNo, dto.getShipmentNo());
         lqw.eq(dto.getOptType() != null, ShipmentOrder::getOptType, dto.getOptType());
-//        lqw.eq(StringUtils.isNotBlank(dto.getOrderNo()), ShipmentOrder::getOrderNo, dto.getOrderNo());
-        lqw.eq(dto.getRecipient() != null, ShipmentOrder::getRecipient, dto.getRecipient());
+        lqw.like(dto.getRecipient() != null, ShipmentOrder::getRecipient, dto.getRecipient());
         lqw.eq(dto.getTotalPrice() != null, ShipmentOrder::getTotalPrice, dto.getTotalPrice());
+        lqw.eq(dto.getShipmentStatus() != null, ShipmentOrder::getShipmentStatus, dto.getShipmentStatus());
         lqw.eq(dto.getTotalQuantity() != null, ShipmentOrder::getTotalQuantity, dto.getTotalQuantity());
         lqw.orderByDesc(BaseEntity::getCreateTime);
         return lqw;
@@ -118,7 +119,7 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
     @Transactional
     public Long insertByBo(ShipmentOrderDto dto) {
         // 创建出库单
-        String shipmentNo = generateNoUtil.getBizNo(NoTypeEnum.SHIPMENT_NO);
+        String shipmentNo = generateNoUtil.getBizNo(NoTypeEnum.SHIPMENT_NO.getCode());
         dto.setBizNo(shipmentNo);
         //组装数据保存
         ShipmentOrder shipmentOrder = MapstructUtils.convert(dto, ShipmentOrder.class);
