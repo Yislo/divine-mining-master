@@ -39,6 +39,11 @@ public class SysNoticeVo implements Serializable {
     private Integer noticeType;
 
     /**
+     * 消息事件类型(1:库存预警通知,2:车辆进厂通知)
+     */
+    private Integer eventType;
+
+    /**
      * 公告内容
      */
     private String noticeContent;

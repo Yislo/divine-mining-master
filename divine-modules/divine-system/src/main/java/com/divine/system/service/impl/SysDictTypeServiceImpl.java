@@ -70,6 +70,7 @@ public class SysDictTypeServiceImpl implements SysDictTypeService,DictService {
         LambdaQueryWrapper<SysDictType> lqw = Wrappers.lambdaQuery();
         lqw.like(StringUtils.isNotBlank(dto.getDictName()), SysDictType::getDictName, dto.getDictName());
         lqw.like(StringUtils.isNotBlank(dto.getDictType()), SysDictType::getDictType, dto.getDictType());
+        lqw.like(StringUtils.isNotBlank(dto.getStatus()), SysDictType::getStatus, dto.getStatus());
         lqw.between(params.get("beginTime") != null && params.get("endTime") != null,
             SysDictType::getCreateTime, params.get("beginTime"), params.get("endTime"));
         lqw.orderByAsc(SysDictType::getDictId);

@@ -109,12 +109,12 @@ public class WarehouseServiceImpl extends ServiceImpl<WarehouseMapper, Warehouse
         List<Warehouse> warehouseList = warehouseMapper.selectList(queryWrapper);
         boolean validateNameResult = warehouseList.stream().anyMatch(
             it -> Objects.equals(it.getWarehouseName(), warehouse.getWarehouseName()) && !Objects.equals(it.getId(), warehouse.getId()));
-        if (!validateNameResult){
+        if (validateNameResult){
             throw new BusinessException("仓库名称重复");
         }
         boolean validateNoResult = warehouseList.stream().anyMatch(
             it -> Objects.equals(it.getWarehouseNo(), warehouse.getWarehouseNo()) && !Objects.equals(it.getId(), warehouse.getId()));
-        if (!validateNoResult){
+        if (validateNoResult){
             throw new BusinessException("仓库名称重复");
         }
     }

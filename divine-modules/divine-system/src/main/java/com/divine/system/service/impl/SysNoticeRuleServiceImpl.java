@@ -44,11 +44,11 @@ public class SysNoticeRuleServiceImpl implements SysNoticeRuleService {
         Page<SysNoticeRuleVo> result = noticeRuleMapper.selectVoPage(basePage.build(), lqw);
         // 包装用户名称/岗位名称
         result.getRecords().forEach(r -> {
-            if (r.getEventType() == 1) {
+            if (r.getTargetType() == 1) {
                 SysUserVo sysUserVo = userService.selectUserById(r.getTargetId());
                 r.setTargetName(ObjUtil.isNull(sysUserVo) ? "-" : sysUserVo.getNickName());
             }
-            if (r.getEventType() == 2) {
+            if (r.getTargetType() == 2) {
                 SysPostVo post = postService.selectPostById(r.getTargetId());
                 r.setTargetName(ObjUtil.isNull(post) ? "-" : post.getPostName());
             }

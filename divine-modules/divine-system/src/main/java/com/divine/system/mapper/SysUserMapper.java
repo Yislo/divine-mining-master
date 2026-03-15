@@ -67,5 +67,5 @@ public interface SysUserMapper extends BaseMapperPlus<SysUser, SysUserVo> {
 
     Long countUserById(Long userId);
 
-    List<SysUserExportVo> selectUserExportList(Wrapper<SysUser> sysUserWrapper);
+    List<SysUserExportVo> selectUserExportList(@Param(Constants.WRAPPER) Wrapper<SysUser> sysUserWrapper);
 }
