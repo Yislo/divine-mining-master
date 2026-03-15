@@ -11,6 +11,7 @@ import com.divine.common.core.utils.StringUtils;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.satoken.utils.LoginHelper;
+import com.divine.system.domain.dto.MyNoticeDto;
 import com.divine.system.domain.dto.SysNoticeReadDto;
 import com.divine.system.domain.dto.SysNoticeDto;
 import com.divine.system.domain.entity.SysNoticeRead;
@@ -140,10 +141,10 @@ public class SysNoticeServiceImpl implements SysNoticeService {
      * @return
      */
     @Override
-    public PageInfoRes<MyNoticeVo> getMyNotice(BasePage basePage) {
+    public PageInfoRes<MyNoticeVo> getMyNotice(MyNoticeDto dto) {
         Long userId = LoginHelper.getUserId();
-        Page<MyNoticeVo> res = new Page<>(basePage.getPageNum(), basePage.getPageSize());
-        res = noticeMapper.getMyNotice(res, userId);
+        Page<MyNoticeVo> res = new Page<>(dto.getPageNum(), dto.getPageSize());
+        res = noticeMapper.getMyNotice(res, userId,dto.getNoticeType());
         return PageInfoRes.build(res);
     }
 
@@ -158,6 +159,9 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         List<SysNoticeRead> readList = noticeReadMapper.selectList(new LambdaQueryWrapper<>(SysNoticeRead.class)
             .eq(SysNoticeRead::getUserId, userId)
             .in(SysNoticeRead::getNoticeId, ids));
+        if (readList.isEmpty()){
+            return;
+        }
         // 组装数据新增
         readList.forEach(read -> {
             read.setIsRead(1);

@@ -2,6 +2,7 @@ package com.divine.system.service;
 
 import com.divine.common.core.domain.Result;
 import com.divine.common.mybatis.core.page.BasePage;
+import com.divine.system.domain.dto.MyNoticeDto;
 import com.divine.system.domain.dto.SysNoticeDto;
 import com.divine.system.domain.vo.MyNoticeVo;
 import com.divine.system.domain.vo.SysNoticeVo;
@@ -41,7 +42,7 @@ public interface SysNoticeService {
      * @param basePage
      * @return
      */
-    PageInfoRes<MyNoticeVo> getMyNotice(BasePage basePage);
+    PageInfoRes<MyNoticeVo> getMyNotice(MyNoticeDto dto);
 
     /**
      * 已读

@@ -45,7 +45,6 @@ public class WarehouseController extends BaseController {
     /**
      * 查询仓库列表
      */
-    @SaCheckPermission("wms:warehouse:list")
     @GetMapping("/listNoPage")
     public Result<List<WarehouseVo>> listNoPage(WarehouseDto dto) {
         return Result.success(warehouseService.queryList(dto));

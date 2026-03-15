@@ -14,17 +14,16 @@
                n.create_time,
                n.update_by,
                n.update_time,
-               CASE
-                   WHEN r.id IS NULL THEN 0
-                   ELSE 1
-                   END AS isRead
+               r.is_read isRead
         FROM sys_notice_read r
                  LEFT JOIN sys_notice n
                            ON n.notice_id = r.notice_id
-                               AND r.user_id = 1
+                               AND r.user_id = #{userId}
         WHERE n.status = 1
-        ORDER BY isRead ASC,
-                 n.create_time DESC
+        <if test="noticeType != null">
+            and n.notice_type=#{noticeType}
+        </if>
+        ORDER BY isRead ASC,n.create_time DESC
     </select>
 
     <select id="getUnreadCont" resultType="java.lang.Long">

@@ -22,7 +22,7 @@ public interface SysNoticeMapper extends BaseMapperPlus<SysNotice, SysNoticeVo> 
      * @param userId
      * @return
      */
-    Page<MyNoticeVo> getMyNotice(Page<MyNoticeVo> page, Long userId);
+    Page<MyNoticeVo> getMyNotice(Page<MyNoticeVo> page, Long userId,Integer noticeType);
 
     /**
      * 获取未读消息数量

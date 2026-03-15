@@ -7,6 +7,7 @@ import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.web.core.BaseController;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.log.enums.BusinessType;
+import com.divine.system.domain.dto.MyNoticeDto;
 import com.divine.system.domain.dto.SysNoticeDto;
 import com.divine.system.domain.vo.MyNoticeVo;
 import com.divine.system.domain.vo.SysNoticeVo;
@@ -45,13 +46,13 @@ public class SysNoticeController extends BaseController {
 
     /**
      * 获取我的通知
-     * @param basePage
+     * @param dto
      * @return
      */
     @SaCheckPermission("system:notice:getMyNotice")
     @PostMapping("/getMyNotice")
-    public PageInfoRes<MyNoticeVo> getMyNotice(@RequestBody BasePage basePage) {
-        return noticeService.getMyNotice(basePage);
+    public PageInfoRes<MyNoticeVo> getMyNotice(@RequestBody MyNoticeDto dto) {
+        return noticeService.getMyNotice(dto);
     }
 
     /**
