@@ -1,5 +1,6 @@
 package com.divine.warehouse.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjUtil;
@@ -19,6 +20,7 @@ import com.divine.system.service.SysNoticeService;
 import com.divine.warehouse.domain.dto.BaseOrderDetailDto;
 import com.divine.warehouse.domain.dto.CheckOrderDetailDto;
 import com.divine.warehouse.domain.dto.InventoryDto;
+import com.divine.warehouse.domain.dto.InventoryUpdateDto;
 import com.divine.warehouse.domain.entity.Inventory;
 import com.divine.warehouse.domain.entity.Warehouse;
 import com.divine.warehouse.domain.vo.*;
@@ -116,8 +118,8 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
      * 修改库存
      */
     @Override
-    public void updateByBo(InventoryDto dto) {
-        Inventory update = MapstructUtils.convert(dto, Inventory.class);
+    public void updateByBo(InventoryUpdateDto dto) {
+        Inventory update = BeanUtil.copyProperties(dto, Inventory.class);
         inventoryMapper.updateById(update);
     }
 
@@ -244,6 +246,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
                 Long before = result.getQuantity();
                 Long after = before + orderDetailsBo.getQuantity();
                 result.setQuantity(after);
+                result.setRemark(orderDetailsBo.getRemark());
                 orderDetailsBo.setAfterQuantity(after);
                 orderDetailsBo.setBeforeQuantity(before);
                 updateList.add(result);
@@ -396,6 +399,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
 
     /**
      * 获取指定货架库存
+     *
      * @param skuId
      * @param storageShelf
      * @return
@@ -405,7 +409,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         Inventory inventory = inventoryMapper.selectOne(new LambdaQueryWrapper<>(Inventory.class)
             .eq(Inventory::getSkuId, skuId)
             .eq(Inventory::getStorageShelf, storageShelf));
-        if (ObjUtil.isNull(inventory)){
+        if (ObjUtil.isNull(inventory)) {
             return 0L;
         }
         return inventory.getQuantity();

@@ -24,7 +24,7 @@ public class ReceiptOrderDto extends BaseOrderDto<ReceiptOrderDetailDto> {
      * 入库类型(0:采购入库,1:归还入库)
      */
     @NotNull(message = "入库类型不能为空", groups = {AddGroup.class, EditGroup.class})
-    private Long optType;
+    private Integer optType;
 
     /**
      * 第三方订单号

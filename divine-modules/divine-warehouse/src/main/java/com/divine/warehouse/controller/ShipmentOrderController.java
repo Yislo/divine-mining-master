@@ -2,7 +2,6 @@ package com.divine.warehouse.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.divine.common.core.enums.InventoryStatusEnum;
-import com.divine.common.core.enums.InventoryTypeEnum;
 import com.divine.warehouse.domain.dto.ShipmentOrderDto;
 import com.divine.common.core.domain.Result;
 import com.divine.common.core.validate.AddGroup;
@@ -14,6 +13,7 @@ import com.divine.common.log.enums.BusinessType;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.web.core.BaseController;
+import com.divine.warehouse.domain.vo.ShipmentImportVO;
 import com.divine.warehouse.domain.vo.ShipmentOrderVo;
 import com.divine.warehouse.service.ShipmentOrderService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -54,8 +54,7 @@ public class ShipmentOrderController extends BaseController {
     @Log(title = "出库单", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(ShipmentOrderDto dto, HttpServletResponse response) {
-        List<ShipmentOrderVo> list = shipmentOrderService.queryList(dto);
-        ExcelUtil.exportExcel(list, "出库单", ShipmentOrderVo.class, response);
+        shipmentOrderService.export(dto,response);
     }
 
     /**

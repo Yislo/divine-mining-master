@@ -1,7 +1,48 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.divine.warehouse.mapper.ShipmentOrderMapper">
-
+    <select id="selectShipmentList" resultType="com.divine.warehouse.domain.vo.ShipmentImportVO">
+        SELECT
+        so.shipment_no,
+        i.item_name,
+        sku.sku_name,
+        sod.quantity,
+        sod.unit_price,
+        so.create_time shipmentTime,
+        w.warehouse_name,
+        so.shipment_status,
+        so.recipient,
+        so.remark
+        FROM
+        wms_shipment_order_detail sod
+        LEFT JOIN wms_shipment_order so ON so.id = sod.shipment_id
+        LEFT JOIN wms_item_sku sku on sod.sku_id=sku.id
+        LEFT JOIN wms_item i on i.id=sku.item_id
+        LEFT JOIN wms_warehouse w on w.id = so.warehouse_id
+        <where>
+            <if test="dto.shipmentNo != null and dto.shipmentNo != ''">
+                and so.shipment_no like concat('%', #{dto.shipmentNo}, '%')
+            </if>
+            <if test="dto.recipient != null and dto.recipient != ''">
+                and so.recipient like concat('%', #{dto.recipient}, '%')
+            </if>
+            <if test="dto.optType != null">
+                and so.opt_type = #{dto.optType}
+            </if>
+            <if test="dto.warehouseId != null">
+                and so.warehouse_id = #{dto.warehouseId}
+            </if>
+            <if test="dto.shipmentStatus != null ">
+                and so.shipment_status = #{dto.shipmentStatus}
+            </if>
+            <if test="dto.startTime != null">
+                and so.create_time &gt;= #{dto.startTime}
+            </if>
+            <if test="dto.endTime != null">
+                and so.create_time &lt;= #{dto.endTime}
+            </if>
+        </where>
+    </select>
 </mapper>

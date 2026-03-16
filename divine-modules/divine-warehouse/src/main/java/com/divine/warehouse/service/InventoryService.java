@@ -3,6 +3,7 @@ package com.divine.warehouse.service;
 import com.divine.warehouse.domain.dto.BaseOrderDetailDto;
 import com.divine.warehouse.domain.dto.CheckOrderDetailDto;
 import com.divine.warehouse.domain.dto.InventoryDto;
+import com.divine.warehouse.domain.dto.InventoryUpdateDto;
 import com.divine.warehouse.domain.vo.BoardListVO;
 import com.divine.warehouse.domain.vo.InventoryVo;
 import com.divine.common.mybatis.core.page.BasePage;
@@ -44,7 +45,7 @@ public interface InventoryService {
      * 修改库存
      * @param dto
      */
-    void updateByBo(InventoryDto dto);
+    void updateByBo(InventoryUpdateDto dto);
 
     /**
      * 删除库存

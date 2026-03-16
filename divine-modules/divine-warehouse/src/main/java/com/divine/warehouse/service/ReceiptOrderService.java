@@ -1,5 +1,6 @@
 package com.divine.warehouse.service;
 
+import com.divine.warehouse.domain.dto.ReceiptImportDTO;
 import com.divine.warehouse.domain.dto.ReceiptOrderDto;
 import com.divine.warehouse.domain.vo.ReceiptOrderVo;
 import com.divine.common.mybatis.core.page.BasePage;
@@ -32,7 +33,6 @@ public interface ReceiptOrderService {
      * 查询入库单列表
      */
     List<ReceiptOrderVo> queryList(ReceiptOrderDto dto) ;
-
 
     /**
      * 暂存入库单
@@ -69,5 +69,10 @@ public interface ReceiptOrderService {
      * 批量删除入库单
      */
     void deleteByIds(Collection<Long> ids);
+
+    /**
+     * 批量保存入库单
+     */
+    void importBatch(List<ReceiptImportDTO> dtoList);
 
 }

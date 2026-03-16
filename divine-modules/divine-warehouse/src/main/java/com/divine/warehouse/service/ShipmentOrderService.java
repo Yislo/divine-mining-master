@@ -1,9 +1,11 @@
 package com.divine.warehouse.service;
 
 import com.divine.warehouse.domain.dto.ShipmentOrderDto;
+import com.divine.warehouse.domain.vo.ShipmentImportVO;
 import com.divine.warehouse.domain.vo.ShipmentOrderVo;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
@@ -28,7 +30,7 @@ public interface ShipmentOrderService {
     /**
      * 查询出库单列表
      */
-    List<ShipmentOrderVo> queryList(ShipmentOrderDto dto) ;
+    void export(ShipmentOrderDto dto, HttpServletResponse response) ;
 
     /**
      * 暂存出库单

@@ -2,7 +2,6 @@ package com.divine.warehouse.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ObjUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -16,18 +15,17 @@ import com.divine.common.core.enums.NoTypeEnum;
 import com.divine.common.core.exception.base.BusinessException;
 import com.divine.common.core.utils.GenerateNoUtil;
 import com.divine.system.domain.dto.SysFileDTO;
-import com.divine.system.service.CommonService;
 import com.divine.system.service.SysFileService;
 import com.divine.warehouse.domain.dto.BaseOrderDetailDto;
+import com.divine.warehouse.domain.dto.ReceiptImportDTO;
 import com.divine.warehouse.domain.dto.ReceiptOrderDetailDto;
 import com.divine.warehouse.domain.dto.ReceiptOrderDto;
-import com.divine.warehouse.domain.entity.ItemSku;
-import com.divine.warehouse.domain.entity.ReceiptOrder;
-import com.divine.warehouse.domain.entity.Warehouse;
+import com.divine.warehouse.domain.entity.*;
 import com.divine.warehouse.domain.vo.BaseOrderDetailVO;
 import com.divine.warehouse.domain.vo.MerchantVo;
 import com.divine.warehouse.domain.vo.ReceiptOrderDetailVO;
 import com.divine.warehouse.domain.vo.ReceiptOrderVo;
+import com.divine.warehouse.mapper.ItemMapper;
 import com.divine.warehouse.mapper.ItemSkuMapper;
 import com.divine.warehouse.mapper.ReceiptOrderMapper;
 import com.divine.warehouse.mapper.WarehouseMapper;
@@ -39,10 +37,13 @@ import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.google.api.client.util.Lists;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.aspectj.weaver.ast.Var;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -64,6 +65,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
     private final SysFileService sysFileService;
     private final MerchantService merchantService;
     private final ItemSkuMapper itemSkuMapper;
+    private final ItemMapper itemMapper;
 
     /**
      * 查询入库单
@@ -71,7 +73,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
     @Override
     public ReceiptOrderVo queryById(Long id) {
         ReceiptOrderVo receiptOrderVo = receiptOrderMapper.selectVoById(id);
-        if (ObjUtil.isNull(receiptOrderVo)){
+        if (ObjUtil.isNull(receiptOrderVo)) {
             throw new BusinessException("入库单不存在");
         }
         // 获取仓库名称
@@ -279,7 +281,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
 
     private void validateIdBeforeDelete(Long id) {
         ReceiptOrderVo receiptOrderVo = queryById(id);
-        if (ObjUtil.isNull(receiptOrderVo)){
+        if (ObjUtil.isNull(receiptOrderVo)) {
             throw new BusinessException("入库单不存在");
         }
         if (InventoryStatusEnum.FINISH.getCode().equals(receiptOrderVo.getReceiptStatus())) {
@@ -295,5 +297,168 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         receiptOrderMapper.deleteBatchIds(ids);
     }
 
+    /**
+     * 批量导入入库单
+     *
+     * @param dtoList
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void importBatch(List<ReceiptImportDTO> dtoList) {
+        if (CollUtil.isEmpty(dtoList)) {
+            return;
+        }
+        // 保存入库单
+        ReceiptOrder receiptOrder = saveReceiptOrder(dtoList);
+        Long receiptId = receiptOrder.getId();
+        // 新增物品信息
+        saveItemInfo(dtoList);
+        // 创建入库单明细
+        List<ReceiptOrderDetailDto> list = dtoList.stream().map(dto -> {
+            ReceiptOrderDetailDto receiptOrderDetail = new ReceiptOrderDetailDto();
+            receiptOrderDetail.setReceiptId(receiptId);
+            receiptOrderDetail.setSkuId(dto.getSkuId());
+            receiptOrderDetail.setQuantity(dto.getQuantity());
+            receiptOrderDetail.setUnitPrice(dto.getUnitPrice());
+            receiptOrderDetail.setWarehouseId(dto.getWarehouseId());
+            receiptOrderDetail.setStorageShelf(dto.getStorageShelf());
+            receiptOrderDetail.setRemark(dto.getRemark());
+            return receiptOrderDetail;
+        }).toList();
+        // 创建入库单明细
+        receiptOrderDetailService.saveDetails(list);
+        // 3.增加库存
+        inventoryService.add(list);
+        // 4.保存库存记录
+        ReceiptOrderDto dto =new ReceiptOrderDto();
+        dto.setBizNo(receiptOrder.getReceiptNo());
+        dto.setId(receiptId);
+        dto.setDetails(list);
+        inventoryHistoryService.saveInventoryHistory(dto, InventoryTypeEnum.RECEIPT.getType(), true);
 
+    }
+
+    /**
+     * 保存入库单
+     *
+     * @param dtoList
+     */
+    private ReceiptOrder saveReceiptOrder(List<ReceiptImportDTO> dtoList) {
+        // 组装入库单数据
+        ReceiptOrder receiptOrder = new ReceiptOrder();
+        // 计算总数
+        Long totalQuantity = dtoList.stream()
+            .map(ReceiptImportDTO::getQuantity)
+            .filter(Objects::nonNull)
+            .reduce(0L, Long::sum);
+        // 计算总金额
+        BigDecimal totalPrice = dtoList.stream()
+            .filter(item -> item.getQuantity() != null && item.getUnitPrice() != null)
+            .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        receiptOrder.setTotalPrice(totalPrice);
+        receiptOrder.setTotalQuantity(totalQuantity);
+        receiptOrder.setReceiptNo(generateNoUtil.getBizNo(NoTypeEnum.RECEIPT_NO.getCode()));
+        receiptOrder.setReceiptStatus(InventoryStatusEnum.FINISH.getCode());
+        receiptOrder.setOptType(0);
+        receiptOrder.setWarehouseId(dtoList.get(0).getWarehouseId());
+        receiptOrderMapper.insert(receiptOrder);
+        return receiptOrder;
+    }
+
+    /**
+     * 保存物品信息
+     *
+     * @param dtoList
+     */
+    private void saveItemInfo(List<ReceiptImportDTO> dtoList) {
+
+        // 1 查询数据库已有物品（去重）
+        List<Item> items = itemMapper.selectList(new LambdaQueryWrapper<Item>()
+            .in(Item::getItemName, dtoList.stream()
+            .map(ReceiptImportDTO::getItemName).distinct()
+            .toList()));
+        // 2 转换为 Map：itemName -> Item
+        Map<String, Item> itemMap = items.stream()
+            .collect(Collectors.toMap(Item::getItemName, Function.identity()));
+        // 3 找出不存在的物品
+        List<Item> newItems = dtoList.stream()
+            .collect(Collectors.toMap(
+                ReceiptImportDTO::getItemName,
+                dto -> {
+                    Item item = new Item();
+                    item.setItemName(dto.getItemName());
+                    item.setItemNo(generateNoUtil.getBizNo(NoTypeEnum.SPU_NO.getCode()));
+                    item.setUnit(dto.getUnit());
+                    return item;
+                },
+                (a,b)->a
+            )).values().stream().filter(item -> !itemMap.containsKey(item.getItemName())).toList();
+        // 4 批量新增 Item
+        if (!newItems.isEmpty()) {
+            itemMapper.insertBatch(newItems);
+            newItems.forEach(item -> itemMap.put(item.getItemName(), item));
+        }
+        // 5 回填 itemId
+        dtoList.forEach(dto -> {
+            Item item = itemMap.get(dto.getItemName());
+            if (item != null) {
+                dto.setItemId(item.getId());
+            }
+        });
+        // ===============================
+        // 处理 SKU（规格）
+        // ===============================
+
+        // 6 获取 itemId + skuName 组合
+        Set<String> skuKeys = dtoList.stream()
+            .map(dto -> dto.getItemId() + "_" + dto.getSkuName())
+            .collect(Collectors.toSet());
+
+        // 7 查询已有 SKU
+        List<ItemSku> skus = itemSkuMapper.selectList(
+            new LambdaQueryWrapper<ItemSku>()
+                .in(ItemSku::getItemId, dtoList.stream().map(ReceiptImportDTO::getItemId).collect(Collectors.toSet()))
+                .in(ItemSku::getSkuName, dtoList.stream().map(ReceiptImportDTO::getSkuName).distinct().toList())
+        );
+
+        // 8 转换为 Map：itemId_skuName -> SKU
+        Map<String, ItemSku> skuMap = skus.stream()
+            .collect(Collectors.toMap(
+                sku -> sku.getItemId() + "_" + sku.getSkuName(),
+                Function.identity(),
+                (a, b) -> a
+            ));
+
+        // 9 找出不存在的 SKU
+        Map<String, ItemSku> skuToCreate = new HashMap<>();
+        dtoList.stream()
+            .filter(dto -> dto.getItemId() != null)
+            .filter(dto -> !skuMap.containsKey(dto.getItemId() + "_" + dto.getSkuName()))
+            .forEach(dto -> {
+                String key = dto.getItemId() + "_" + dto.getSkuName();
+                if (!skuToCreate.containsKey(key)) {
+                    ItemSku sku = new ItemSku();
+                    sku.setItemId(dto.getItemId());
+                    sku.setSkuName(StringUtils.isBlank(dto.getSkuName())?"-":dto.getSkuName());
+                    sku.setSkuNo(generateNoUtil.getBizNo(NoTypeEnum.SKU_NO.getCode()));
+                    skuToCreate.put(key, sku);
+                }
+            });
+        List<ItemSku> newSkus = new ArrayList<>(skuToCreate.values());
+        // 10 批量新增 SKU
+        if (!newSkus.isEmpty()) {
+            itemSkuMapper.insertBatch(newSkus);
+            newSkus.forEach(sku ->
+                skuMap.put(sku.getItemId() + "_" + sku.getSkuName(), sku)
+            );
+        }
+        // 11 回填 skuId
+        dtoList.forEach(dto -> {
+            ItemSku sku = skuMap.get(dto.getItemId() + "_" + dto.getSkuName());
+            if (sku != null) {
+                dto.setSkuId(sku.getId());
+            }
+        });
+    }
 }

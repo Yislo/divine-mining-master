@@ -33,7 +33,7 @@ public class ReceiptOrder extends BaseOrder {
     /**
      * 入库类型
      */
-    private Long optType;
+    private Integer optType;
     /**
      * 第三方订单号
      */

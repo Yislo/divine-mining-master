@@ -33,7 +33,7 @@ public class ReceiptOrderVo extends BaseOrderVo<ReceiptOrderDetailVO> {
      * 入库类型
      */
     @ExcelProperty(value = "入库类型")
-    private Long optType;
+    private Integer optType;
 
     /**
      * 供应商

@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Date;
+
 /**
  * 出库单业务对象 wms_shipment_order
  *
@@ -19,6 +21,11 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = ShipmentOrder.class, reverseConvertGenerate = false)
 public class ShipmentOrderDto extends BaseOrderDto<ShipmentOrderDetailDto> {
+
+    /**
+     * 出库单号
+     */
+    private String shipmentNo;
 
     /**
      * 出库类型
@@ -43,7 +50,12 @@ public class ShipmentOrderDto extends BaseOrderDto<ShipmentOrderDetailDto> {
     private Integer shipmentStatus;
 
     /**
-     * 出库单号
+     * 开始时间
      */
-    private String shipmentNo;
+    private String startTime;
+
+    /**
+     * 结束时间
+     */
+    private String endTime;
 }

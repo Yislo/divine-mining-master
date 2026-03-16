@@ -17,7 +17,8 @@
         w.id AS warehouse_id,
         w.warehouse_name,
         inv.storage_shelf,
-        inv.quantity
+        inv.quantity,
+        inv.remark
         FROM wms_inventory inv
         INNER JOIN (
         SELECT

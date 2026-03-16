@@ -2,8 +2,10 @@ package com.divine.warehouse.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.divine.common.core.domain.Result;
+import com.divine.common.core.utils.DateUtils;
 import com.divine.common.core.validate.AddGroup;
 import com.divine.common.core.validate.EditGroup;
+import com.divine.common.excel.core.ExcelResult;
 import com.divine.common.excel.utils.ExcelUtil;
 import com.divine.common.idempotent.annotation.RepeatSubmit;
 import com.divine.common.log.annotation.Log;
@@ -12,14 +14,19 @@ import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.web.core.BaseController;
 import com.divine.warehouse.domain.dto.ReceiptOrderDto;
+import com.divine.warehouse.domain.vo.ReceiptImportVO;
 import com.divine.warehouse.domain.vo.ReceiptOrderVo;
+import com.divine.warehouse.listener.ReceiptImportListener;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.divine.warehouse.service.ReceiptOrderService;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,6 +45,7 @@ public class ReceiptOrderController extends BaseController {
 
     /**
      * 查询入库单列表
+     *
      * @param dto
      * @param basePage
      * @return
@@ -50,6 +58,7 @@ public class ReceiptOrderController extends BaseController {
 
     /**
      * 导出入库单列表
+     *
      * @param dto
      * @param response
      */
@@ -63,18 +72,20 @@ public class ReceiptOrderController extends BaseController {
 
     /**
      * 获取入库单详细信息
+     *
      * @param id
      * @return
      */
     @SaCheckPermission("wms:receipt:all")
     @GetMapping("/{id}")
     public Result<ReceiptOrderVo> getInfo(@NotNull(message = "id不能为空")
-                                     @PathVariable Long id) {
+                                          @PathVariable Long id) {
         return Result.success(receiptOrderService.queryById(id));
     }
 
     /**
      * 获取id
+     *
      * @param orderNo
      * @return
      */
@@ -85,7 +96,33 @@ public class ReceiptOrderController extends BaseController {
     }
 
     /**
+     * 导入入库单
+     *
+     * @param file        导入文件
+     * @param warehouseId 仓库id
+     */
+    @Log(title = "入库", businessType = BusinessType.IMPORT)
+    @SaCheckPermission("wms:receipt:all")
+    @PostMapping(value = "/importData", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Result<String> importData(@RequestPart("file") MultipartFile file, Long warehouseId) throws Exception {
+        ExcelResult<ReceiptImportVO> result = ExcelUtil.importExcel(file.getInputStream(),
+            ReceiptImportVO.class, new ReceiptImportListener(warehouseId));
+        return Result.success(result.getAnalysis());
+    }
+
+    /**
+     * 下载入库单导入模板
+     *
+     * @param response
+     */
+    @PostMapping("/importTemplate")
+    public void importTemplate(HttpServletResponse response) {
+        ExcelUtil.exportExcel(new ArrayList<>(), "入库单导入模板" + "-" + DateUtils.getDate(), ReceiptImportVO.class, response);
+    }
+
+    /**
      * 暂存入库单
+     *
      * @param dto
      * @return
      */
@@ -99,6 +136,7 @@ public class ReceiptOrderController extends BaseController {
 
     /**
      * 入库
+     *
      * @param dto
      * @return
      */
@@ -113,6 +151,7 @@ public class ReceiptOrderController extends BaseController {
 
     /**
      * 修改入库单
+     *
      * @param dto
      * @return
      */
@@ -127,6 +166,7 @@ public class ReceiptOrderController extends BaseController {
 
     /**
      * 删除入库单
+     *
      * @param id
      * @return
      */
@@ -134,7 +174,7 @@ public class ReceiptOrderController extends BaseController {
     @Log(title = "入库单", businessType = BusinessType.DELETE)
     @DeleteMapping("/{id}")
     public Result<Void> remove(@NotNull(message = "主键不能为空")
-                          @PathVariable Long id) {
+                               @PathVariable Long id) {
         receiptOrderService.deleteById(id);
         return Result.success();
     }

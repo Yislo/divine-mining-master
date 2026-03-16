@@ -80,5 +80,10 @@ public class BoardListVO {
      */
     private Long quantity;
 
+    /**
+     * 备注
+     */
+    private String remark;
+
 
 }

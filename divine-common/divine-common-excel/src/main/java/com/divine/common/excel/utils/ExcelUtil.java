@@ -2,7 +2,6 @@ package com.divine.common.excel.utils;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
-import cn.hutool.core.util.IdUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.builder.ExcelWriterSheetBuilder;
@@ -11,6 +10,7 @@ import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.divine.common.core.exception.base.BusinessException;
+import com.divine.common.core.utils.DateUtils;
 import com.divine.common.excel.convert.ExcelBigNumberConvert;
 import com.divine.common.excel.core.*;
 import jakarta.servlet.ServletOutputStream;
@@ -189,7 +189,7 @@ public class ExcelUtil {
         ExcelWriterSheetBuilder builder = EasyExcel.write(os, clazz)
             .autoCloseStream(false)
             // 自动适配
-            .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+//            .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
             // 大数值自动转换 防止失真
             .registerConverter(new ExcelBigNumberConvert())
             .sheet(sheetName);
@@ -431,7 +431,7 @@ public class ExcelUtil {
      * 编码文件名
      */
     public static String encodingFilename(String filename) {
-        return IdUtil.fastSimpleUUID() + "_" + filename + ".xlsx";
+        return filename + ".xlsx";
     }
 
 }

@@ -14,6 +14,7 @@ import com.divine.common.log.enums.BusinessType;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.web.core.BaseController;
+import com.divine.warehouse.domain.dto.InventoryUpdateDto;
 import com.divine.warehouse.domain.vo.BoardListVO;
 import com.divine.warehouse.domain.vo.InventoryVo;
 import com.fasterxml.jackson.databind.ser.Serializers;
@@ -137,7 +138,7 @@ public class InventoryController extends BaseController {
     @Log(title = "库存", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
-    public Result<Void> edit(@Validated(EditGroup.class) @RequestBody InventoryDto dto) {
+    public Result<Void> edit(@Validated(EditGroup.class) @RequestBody InventoryUpdateDto dto) {
         inventoryService.updateByBo(dto);
         return Result.success();
     }
