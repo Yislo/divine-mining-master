@@ -330,7 +330,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         // 3.增加库存
         inventoryService.add(list);
         // 4.保存库存记录
-        ReceiptOrderDto dto =new ReceiptOrderDto();
+        ReceiptOrderDto dto = new ReceiptOrderDto();
         dto.setBizNo(receiptOrder.getReceiptNo());
         dto.setId(receiptId);
         dto.setDetails(list);
@@ -376,8 +376,8 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         // 1 查询数据库已有物品（去重）
         List<Item> items = itemMapper.selectList(new LambdaQueryWrapper<Item>()
             .in(Item::getItemName, dtoList.stream()
-            .map(ReceiptImportDTO::getItemName).distinct()
-            .toList()));
+                .map(ReceiptImportDTO::getItemName).distinct()
+                .toList()));
         // 2 转换为 Map：itemName -> Item
         Map<String, Item> itemMap = items.stream()
             .collect(Collectors.toMap(Item::getItemName, Function.identity()));
@@ -392,7 +392,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
                     item.setUnit(dto.getUnit());
                     return item;
                 },
-                (a,b)->a
+                (a, b) -> a
             )).values().stream().filter(item -> !itemMap.containsKey(item.getItemName())).toList();
         // 4 批量新增 Item
         if (!newItems.isEmpty()) {
@@ -421,7 +421,6 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
                 .in(ItemSku::getItemId, dtoList.stream().map(ReceiptImportDTO::getItemId).collect(Collectors.toSet()))
                 .in(ItemSku::getSkuName, dtoList.stream().map(ReceiptImportDTO::getSkuName).distinct().toList())
         );
-
         // 8 转换为 Map：itemId_skuName -> SKU
         Map<String, ItemSku> skuMap = skus.stream()
             .collect(Collectors.toMap(
@@ -440,7 +439,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
                 if (!skuToCreate.containsKey(key)) {
                     ItemSku sku = new ItemSku();
                     sku.setItemId(dto.getItemId());
-                    sku.setSkuName(StringUtils.isBlank(dto.getSkuName())?"-":dto.getSkuName());
+                    sku.setSkuName(dto.getSkuName());
                     sku.setSkuNo(generateNoUtil.getBizNo(NoTypeEnum.SKU_NO.getCode()));
                     skuToCreate.put(key, sku);
                 }

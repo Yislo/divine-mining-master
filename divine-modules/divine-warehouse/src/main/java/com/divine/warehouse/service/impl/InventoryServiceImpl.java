@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.divine.common.core.constant.NoticeConstant;
 import com.divine.common.core.constant.RedisKeyConstants;
 import com.divine.common.core.exception.base.BusinessException;
+import com.divine.common.core.utils.StringUtils;
 import com.divine.common.redis.utils.RedisDistributedLock;
 import com.divine.common.redis.utils.RedisUtils;
 import com.divine.system.domain.dto.SysNoticeDto;
@@ -240,7 +241,11 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             LambdaQueryWrapper<Inventory> wrapper = Wrappers.lambdaQuery();
             wrapper.eq(Inventory::getWarehouseId, orderDetailsBo.getWarehouseId());
             wrapper.eq(Inventory::getSkuId, orderDetailsBo.getSkuId());
-            wrapper.eq(Inventory::getStorageShelf, orderDetailsBo.getStorageShelf());
+            if (StringUtils.isNotBlank(orderDetailsBo.getStorageShelf())){
+                wrapper.eq(Inventory::getStorageShelf, orderDetailsBo.getStorageShelf());
+            }else {
+                wrapper.isNull(Inventory::getStorageShelf);
+            }
             Inventory result = inventoryMapper.selectOne(wrapper);
             if (result != null) {
                 Long before = result.getQuantity();

@@ -5,6 +5,7 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.divine.warehouse.domain.entity.ReceiptOrderDetail;
 import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 
@@ -69,5 +70,8 @@ public class ReceiptImportDTO {
     private String remark;
 
 
+    public String getSkuName(){
+        return StringUtils.isBlank(skuName) ? "-" : skuName;
+    }
 
 }
