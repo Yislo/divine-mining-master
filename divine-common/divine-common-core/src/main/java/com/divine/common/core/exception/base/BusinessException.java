@@ -13,6 +13,11 @@ public class BusinessException extends RuntimeException {
      */
     private final Integer code;
 
+    public BusinessException() {
+        super("");
+        this.code = HttpStatusEnum.FAIL.getCode();
+    }
+
     public BusinessException(HttpStatusEnum errorCode) {
         super(errorCode.getMsg());
         this.code = errorCode.getCode();

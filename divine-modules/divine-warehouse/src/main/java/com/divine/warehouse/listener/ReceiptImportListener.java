@@ -2,11 +2,13 @@ package com.divine.warehouse.listener;
 
 import cn.dev33.satoken.secure.BCrypt;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.divine.common.core.exception.base.BusinessException;
 import com.divine.common.core.utils.SpringUtils;
+import com.divine.common.core.utils.StringUtils;
 import com.divine.common.core.utils.ValidatorUtils;
 import com.divine.common.excel.core.ExcelListener;
 import com.divine.common.excel.core.ExcelResult;
@@ -56,16 +58,20 @@ public class ReceiptImportListener extends AnalysisEventListener<ReceiptImportVO
     @Override
     public void invoke(ReceiptImportVO receiptImportVO, AnalysisContext context) {
         try {
+            if (ObjUtil.isNull(receiptImportVO.getQuantity()) || StringUtils.isBlank(receiptImportVO.getItemName())) {
+                throw new BusinessException();
+            }
             ReceiptImportDTO receiptImportDTO = BeanUtil.copyProperties(receiptImportVO, ReceiptImportDTO.class);
             receiptImportDTO.setWarehouseId(warehouseId);
             cachedDataList.add(receiptImportDTO);
-            if (cachedDataList.size() >= 100) {
+            if (cachedDataList.size() >= 1000) {
                 saveData();
                 cachedDataList.clear();
             }
         } catch (Exception e) {
             failureNum++;
-            String msg = "<br/>" + failureNum + "、物品 " + receiptImportVO.getItemName() + receiptImportVO.getSkuName() + " 导入失败：";
+            String s = StringUtils.isBlank(receiptImportVO.getItemName()) ? "" : receiptImportVO.getItemName();
+            String msg = failureNum + "、物品 【" + s + "】" + "导入失败，";
             failureMsg.append(msg).append(e.getMessage());
             log.error(msg, e);
         }
@@ -85,8 +91,12 @@ public class ReceiptImportListener extends AnalysisEventListener<ReceiptImportVO
      * 保存数据
      */
     private void saveData() {
-        receiptOrderService.importBatch(cachedDataList);
-        successNum += cachedDataList.size();
+        try {
+            receiptOrderService.importBatch(cachedDataList);
+            successNum += cachedDataList.size();
+        } catch (Exception e) {
+            throw new BusinessException("导入失败，请检查文件格式");
+        }
     }
 
     @Override
@@ -96,7 +106,7 @@ public class ReceiptImportListener extends AnalysisEventListener<ReceiptImportVO
             @Override
             public String getAnalysis() {
                 if (failureNum > 0) {
-                    failureMsg.insert(0, "很抱歉，导入失败！共 " + failureNum + " 条数据格式不正确，错误如下：");
+                    failureMsg.insert(0, "很抱歉，导入失败！共 " + failureNum + " 条数据格式不正确:");
                     throw new BusinessException(failureMsg.toString());
                 } else {
                     successMsg.insert(0, "导入完成！已成功导入 " + successNum + " 条数据");

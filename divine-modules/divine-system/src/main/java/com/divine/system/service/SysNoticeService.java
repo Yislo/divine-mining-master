@@ -7,6 +7,7 @@ import com.divine.system.domain.dto.SysNoticeDto;
 import com.divine.system.domain.vo.MyNoticeVo;
 import com.divine.system.domain.vo.SysNoticeVo;
 import com.divine.common.mybatis.core.page.PageInfoRes;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.List;
 
@@ -61,7 +62,7 @@ public interface SysNoticeService {
      *
      * @return
      */
-    Long getUnreadCont();
+    DeferredResult<Long> getUnreadCont();
 
     /**
      * 查询公告列表

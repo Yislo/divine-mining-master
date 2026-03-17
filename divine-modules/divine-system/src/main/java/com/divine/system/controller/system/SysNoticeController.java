@@ -15,6 +15,7 @@ import com.divine.system.service.SysNoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.List;
 
@@ -85,7 +86,7 @@ public class SysNoticeController extends BaseController {
      */
     @SaCheckPermission("system:notice:getUnreadCont")
     @GetMapping("/getUnreadCont")
-    public Result<Long> getUnreadCont() {
+    public Result<DeferredResult<Long>> getUnreadCont() {
         return Result.success(noticeService.getUnreadCont());
     }
 

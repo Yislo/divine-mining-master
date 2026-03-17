@@ -428,33 +428,38 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
                 Function.identity(),
                 (a, b) -> a
             ));
+        // 9. 构造“覆盖式”更新/新增列表
+        Map<String, ItemSku> skuToSaveMap = new HashMap<>();
+        for (ReceiptImportDTO dto : dtoList) {
+            String key = dto.getItemId() + "_" + dto.getSkuName();
 
-        // 9 找出不存在的 SKU
-        Map<String, ItemSku> skuToCreate = new HashMap<>();
-        dtoList.stream()
-            .filter(dto -> dto.getItemId() != null)
-            .filter(dto -> !skuMap.containsKey(dto.getItemId() + "_" + dto.getSkuName()))
-            .forEach(dto -> {
-                String key = dto.getItemId() + "_" + dto.getSkuName();
-                if (!skuToCreate.containsKey(key)) {
-                    ItemSku sku = new ItemSku();
-                    sku.setItemId(dto.getItemId());
-                    sku.setSkuName(dto.getSkuName());
-                    sku.setSkuNo(generateNoUtil.getBizNo(NoTypeEnum.SKU_NO.getCode()));
-                    skuToCreate.put(key, sku);
-                }
-            });
-        List<ItemSku> newSkus = new ArrayList<>(skuToCreate.values());
-        // 10 批量新增 SKU
-        if (!newSkus.isEmpty()) {
-            itemSkuMapper.insertBatch(newSkus);
-            newSkus.forEach(sku ->
-                skuMap.put(sku.getItemId() + "_" + sku.getSkuName(), sku)
-            );
+            // 如果已经在本次循环处理过了，跳过（或者根据业务逻辑取最后一条/最新单价）
+            if (skuToSaveMap.containsKey(key)) continue;
+
+            ItemSku sku = new ItemSku();
+            // 如果数据库里已有该 SKU，把 ID 拿出来赋值给对象，触发 MyBatis-Plus 的 Update 逻辑
+            if (skuMap.containsKey(key)) {
+                sku.setId(skuMap.get(key).getId());
+            } else {
+                // 如果数据库没有，则是新增，生成编号
+                sku.setSkuNo(generateNoUtil.getBizNo(NoTypeEnum.SKU_NO.getCode()));
+            }
+            // 覆盖历史单价
+            sku.setUnitPrice(dto.getUnitPrice());
+            skuToSaveMap.put(key, sku);
         }
-        // 11 回填 skuId
+        // 10. 执行批量操作并回填 ID
+        if (!skuToSaveMap.isEmpty()) {
+            List<ItemSku> saveList = new ArrayList<>(skuToSaveMap.values());
+            itemSkuMapper.insertOrUpdateBatch(saveList);
+            // 将最新的对象（包含已回填的 ID）同步更新到 skuMap，供下一步回填给 DTO
+            saveList.forEach(sku -> skuMap.put(sku.getItemId() + "_" + sku.getSkuName(), sku));
+        }
+
+        // 11. 统一回填最新的 skuId 到 dtoList
         dtoList.forEach(dto -> {
-            ItemSku sku = skuMap.get(dto.getItemId() + "_" + dto.getSkuName());
+            String key = dto.getItemId() + "_" + dto.getSkuName();
+            ItemSku sku = skuMap.get(key);
             if (sku != null) {
                 dto.setSkuId(sku.getId());
             }

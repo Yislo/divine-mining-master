@@ -6,13 +6,13 @@ import cn.hutool.core.util.ObjUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.divine.common.core.domain.Result;
 import com.divine.common.core.utils.MapstructUtils;
 import com.divine.common.core.utils.StringUtils;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.satoken.utils.LoginHelper;
 import com.divine.system.domain.dto.MyNoticeDto;
-import com.divine.system.domain.dto.SysNoticeReadDto;
 import com.divine.system.domain.dto.SysNoticeDto;
 import com.divine.system.domain.entity.SysNoticeRead;
 import com.divine.system.domain.entity.SysNoticeRule;
@@ -27,12 +27,14 @@ import com.divine.system.mapper.SysNoticeRuleMapper;
 import com.divine.system.mapper.SysUserMapper;
 import com.divine.system.service.SysNoticeService;
 import com.divine.system.service.SysPostService;
-import com.divine.system.service.SysUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 公告 服务层实现
@@ -48,6 +50,12 @@ public class SysNoticeServiceImpl implements SysNoticeService {
     private final SysNoticeRuleMapper noticeRuleMapper;
     private final SysPostService postService;
     private final SysUserMapper userMapper;
+
+    /**
+     * 存放所有正在挂起的长轮询请求 (Key可以是用户ID)
+     */
+    private static final ConcurrentHashMap<Long, CopyOnWriteArrayList<DeferredResult<Long>>> WATCH_REQUESTS = new ConcurrentHashMap<>();
+
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -74,6 +82,9 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         }
         // 推送指定用户消息 todo 如果用户量过大，该业务需要优化
         List<SysNoticeRead> readList = sendUserId.stream().map(userId -> {
+            //唤醒长轮训
+            rouseCountLongPolling(userId);
+
             SysNoticeRead sysNoticeRead = new SysNoticeRead();
             sysNoticeRead.setNoticeId(sysNotice.getNoticeId());
             sysNoticeRead.setUserId(userId);
@@ -137,7 +148,7 @@ public class SysNoticeServiceImpl implements SysNoticeService {
     /**
      * 获取我的消息
      *
-     * @param basePage
+     * @param dto
      * @return
      */
     @Override
@@ -193,11 +204,60 @@ public class SysNoticeServiceImpl implements SysNoticeService {
      * @return
      */
     @Override
-    public Long getUnreadCont() {
-        // 获取当前登录人
+    public DeferredResult<Long> getUnreadCont() {
         Long userId = LoginHelper.getUserId();
-        return noticeMapper.getUnreadCont(userId);
+        DeferredResult<Long> deferredResult = new DeferredResult<>(30000L, 0L);
+        // 1. 先查一次
+        Long count = noticeMapper.getUnreadCont(userId);
+        if (count > 0) {
+            deferredResult.setResult(count);
+            return deferredResult;
+        }
+
+        // 2. 长轮训 加入监听队列（支持多请求）
+        WATCH_REQUESTS.computeIfAbsent(userId, k -> new CopyOnWriteArrayList<>())
+            .add(deferredResult);
+
+        // 3. 请求完成/超时清理
+        deferredResult.onCompletion(() -> {
+            List<DeferredResult<Long>> list = WATCH_REQUESTS.get(userId);
+            if (list != null) {
+                list.remove(deferredResult);
+                if (list.isEmpty()) {
+                    WATCH_REQUESTS.remove(userId);
+                }
+            }
+        });
+
+        return deferredResult;
     }
+
+    /**
+     * 唤醒长轮训请求
+     * @param userId
+     * @return
+     */
+    public void rouseCountLongPolling(Long userId) {
+        List<DeferredResult<Long>> list = WATCH_REQUESTS.get(userId);
+
+        if (list == null) {
+            return;
+        }
+
+        Long count = noticeMapper.getUnreadCont(userId);
+
+        for (DeferredResult<Long> dr : list) {
+            if (!dr.isSetOrExpired()) {
+                dr.setResult(count);
+            }
+        }
+
+        WATCH_REQUESTS.remove(userId);
+    }
+
+
+
+
 
     /**
      * 查询公告列表
