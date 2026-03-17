@@ -12,6 +12,9 @@ import com.divine.common.core.utils.StringUtils;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.satoken.utils.LoginHelper;
+import com.divine.common.web.enums.WsMsgType;
+import com.divine.common.web.websocket.MessageWebSocketHandler;
+import com.divine.common.web.websocket.WsMessage;
 import com.divine.system.domain.dto.MyNoticeDto;
 import com.divine.system.domain.dto.SysNoticeDto;
 import com.divine.system.domain.entity.SysNoticeRead;
@@ -19,6 +22,7 @@ import com.divine.system.domain.entity.SysNoticeRule;
 import com.divine.system.domain.entity.SysNotice;
 import com.divine.system.domain.entity.SysUser;
 import com.divine.system.domain.vo.MyNoticeVo;
+import com.divine.system.domain.vo.SysNoticeUnreadVo;
 import com.divine.system.domain.vo.SysNoticeVo;
 import com.divine.system.domain.vo.SysUserVo;
 import com.divine.system.mapper.SysNoticeMapper;
@@ -50,6 +54,7 @@ public class SysNoticeServiceImpl implements SysNoticeService {
     private final SysNoticeRuleMapper noticeRuleMapper;
     private final SysPostService postService;
     private final SysUserMapper userMapper;
+    private final MessageWebSocketHandler messageWebSocketHandler;
 
     /**
      * 存放所有正在挂起的长轮询请求 (Key可以是用户ID)
@@ -82,8 +87,6 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         }
         // 推送指定用户消息 todo 如果用户量过大，该业务需要优化
         List<SysNoticeRead> readList = sendUserId.stream().map(userId -> {
-            //唤醒长轮训
-            rouseCountLongPolling(userId);
 
             SysNoticeRead sysNoticeRead = new SysNoticeRead();
             sysNoticeRead.setNoticeId(sysNotice.getNoticeId());
@@ -91,8 +94,23 @@ public class SysNoticeServiceImpl implements SysNoticeService {
             return sysNoticeRead;
 
         }).toList();
+        // 调用查询消息数量方法，根据userIds
         noticeReadMapper.insertBatch(readList);
     }
+
+    /**
+     * 发送websocket消息
+     *
+     * @param userIds
+     */
+    private void sendNewMessage(List<Long> userIds) {
+        List<SysNoticeUnreadVo> sysNoticeUnreadVos = noticeMapper.selectUnreadCountByUserIds(userIds);
+        sysNoticeUnreadVos.forEach(notice -> messageWebSocketHandler.sendMessage(notice.getUserId(), WsMessage.builder()
+            .type(WsMsgType.UNREAD_COUNT)
+            .data(notice.getUnreadCount())
+            .build()));
+    }
+
 
     /**
      * 获取消息推送用户id
@@ -155,7 +173,7 @@ public class SysNoticeServiceImpl implements SysNoticeService {
     public PageInfoRes<MyNoticeVo> getMyNotice(MyNoticeDto dto) {
         Long userId = LoginHelper.getUserId();
         Page<MyNoticeVo> res = new Page<>(dto.getPageNum(), dto.getPageSize());
-        res = noticeMapper.getMyNotice(res, userId,dto.getNoticeType());
+        res = noticeMapper.getMyNotice(res, userId, dto.getNoticeType());
         return PageInfoRes.build(res);
     }
 
@@ -170,7 +188,7 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         List<SysNoticeRead> readList = noticeReadMapper.selectList(new LambdaQueryWrapper<>(SysNoticeRead.class)
             .eq(SysNoticeRead::getUserId, userId)
             .in(SysNoticeRead::getNoticeId, ids));
-        if (readList.isEmpty()){
+        if (readList.isEmpty()) {
             return;
         }
         // 组装数据新增
@@ -204,36 +222,15 @@ public class SysNoticeServiceImpl implements SysNoticeService {
      * @return
      */
     @Override
-    public DeferredResult<Long> getUnreadCont() {
+    public Long getUnreadCont() {
         Long userId = LoginHelper.getUserId();
-        DeferredResult<Long> deferredResult = new DeferredResult<>(30000L, 0L);
-        // 1. 先查一次
-        Long count = noticeMapper.getUnreadCont(userId);
-        if (count > 0) {
-            deferredResult.setResult(count);
-            return deferredResult;
-        }
-
-        // 2. 长轮训 加入监听队列（支持多请求）
-        WATCH_REQUESTS.computeIfAbsent(userId, k -> new CopyOnWriteArrayList<>())
-            .add(deferredResult);
-
-        // 3. 请求完成/超时清理
-        deferredResult.onCompletion(() -> {
-            List<DeferredResult<Long>> list = WATCH_REQUESTS.get(userId);
-            if (list != null) {
-                list.remove(deferredResult);
-                if (list.isEmpty()) {
-                    WATCH_REQUESTS.remove(userId);
-                }
-            }
-        });
-
-        return deferredResult;
+        sendNewMessage(List.of(userId));
+        return noticeMapper.getUnreadCont(userId);
     }
 
     /**
      * 唤醒长轮训请求
+     *
      * @param userId
      * @return
      */
@@ -254,9 +251,6 @@ public class SysNoticeServiceImpl implements SysNoticeService {
 
         WATCH_REQUESTS.remove(userId);
     }
-
-
-
 
 
     /**

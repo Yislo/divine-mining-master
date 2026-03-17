@@ -5,7 +5,6 @@ import java.util.List;
 import com.divine.common.core.domain.Result;
 import com.divine.common.excel.utils.ExcelUtil;
 import com.divine.common.idempotent.annotation.RepeatSubmit;
-import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.mine.domain.dto.MineWeightingDto;
 import com.divine.mine.domain.dto.WeightingAddDto;
@@ -62,6 +61,26 @@ public class MineWeightingController extends BaseController {
     }
 
     /**
+     * 回磅-前置查询
+     */
+//    @SaCheckPermission("weighting:add")
+    @RepeatSubmit()
+    @GetMapping("/getReturnWeighting")
+    public Result<MineWeightingVo> getReturnWeighting(@RequestParam String carNumber) {
+        return Result.success(mineWeightingService.getReturnWeighting(carNumber));
+    }
+
+    /**
+     * 查询未回磅的车辆
+     */
+//    @SaCheckPermission("weighting:add")
+    @RepeatSubmit()
+    @GetMapping("/getNotReturnCar")
+    public Result<List<String>> getNotReturnCar() {
+        return Result.success(mineWeightingService.getNotReturnCar());
+    }
+
+    /**
      * 查询过磅记录列表
      */
 //    @SaCheckPermission("weighting:list")
@@ -89,7 +108,7 @@ public class MineWeightingController extends BaseController {
 //    @SaCheckPermission("weighting:query")
     @GetMapping("/{id}")
     public Result<MineWeightingVo> getInfo(@NotNull(message = "主键不能为空")
-                                     @PathVariable Long id) {
+                                           @PathVariable Long id) {
         return Result.success(mineWeightingService.queryById(id));
     }
 
@@ -106,6 +125,19 @@ public class MineWeightingController extends BaseController {
     }
 
     /**
+     * 作废
+     *
+     * @param id 主键串
+     */
+//    @SaCheckPermission("weighting:remove")
+    @Log(title = "过磅记录", businessType = BusinessType.UPDATE)
+    @PutMapping("invalid/{id}")
+    public Result<Void> invalid(@NotNull(message = "主键不能为空") @PathVariable Long id) {
+        mineWeightingService.invalid(id);
+        return Result.success();
+    }
+
+    /**
      * 删除过磅记录
      *
      * @param ids 主键串
@@ -114,7 +146,7 @@ public class MineWeightingController extends BaseController {
     @Log(title = "过磅记录", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public Result<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] ids) {
+                               @PathVariable Long[] ids) {
         mineWeightingService.deleteByIds(List.of(ids));
         return Result.success();
     }

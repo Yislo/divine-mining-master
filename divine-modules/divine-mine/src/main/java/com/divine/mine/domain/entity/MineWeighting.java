@@ -80,6 +80,7 @@ public class MineWeighting extends BaseEntity {
      * 备注
      */
     private String remark;
+
     /**
      * 质量id(取样之后生成)
      */

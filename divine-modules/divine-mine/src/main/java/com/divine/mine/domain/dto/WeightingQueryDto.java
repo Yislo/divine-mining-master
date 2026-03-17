@@ -49,6 +49,11 @@ public class WeightingQueryDto extends BasePage {
     private Long shipMerchantId;
 
     /**
+     * 查询可生成质量单的数据(0:否，1:是)
+     */
+    private Integer isQuality;
+
+    /**
      * 开始时间
      */
     private Date startTime;

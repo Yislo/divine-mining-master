@@ -32,4 +32,26 @@
         WHERE user_id = #{userId}
           AND is_read = 0;
     </select>
+
+    <select id="selectUnreadCountByUserIds" resultType="com.divine.system.domain.vo.SysNoticeUnreadVo">
+        SELECT
+        u.user_id,
+        COUNT(nr.notice_id) AS unread_count
+        FROM
+        sys_user u
+        LEFT JOIN
+        sys_notice_read nr ON u.user_id = nr.user_id AND nr.is_read = 0
+        <where>
+            <if test="userIds != null and userIds.size() > 0">
+                u.user_id IN
+                <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                    #{userId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        u.user_id, u.nick_name
+        ORDER BY
+        unread_count DESC
+    </select>
 </mapper>

@@ -110,10 +110,21 @@ public class MineWeightingVo implements Serializable {
     private Long netWeight;
 
     /**
+     * 质量id(取样之后生成)
+     */
+    private Long qualityId;
+
+    /**
      * 备注
      */
     @ExcelProperty(value = "备注")
     private String remark;
+
+    /**
+     * 过磅时间
+     */
+    @ExcelProperty(value = "过磅时间")
+    private Date createTime;
 
 
 }

@@ -1,9 +1,6 @@
 package com.divine.warehouse.domain.vo;
 
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
-import com.alibaba.excel.annotation.ExcelProperty;
-import com.divine.common.excel.annotation.ExcelDictFormat;
-import com.divine.common.excel.convert.ExcelDictConvert;
 import com.divine.warehouse.domain.entity.Merchant;
 import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
@@ -28,45 +25,66 @@ public class MerchantVo implements Serializable {
     /**
      * id
      */
-    @ExcelProperty(value = "id")
     private Long id;
 
     /**
      * 编号
      */
-    @ExcelProperty(value = "编号")
     private String merchantNo;
 
     /**
      * 名称
      */
-    @ExcelProperty(value = "名称")
     private String merchantName;
 
     /**
      * 企业类型
      */
-    @ExcelProperty(value = "企业类型", converter = ExcelDictConvert.class)
-    @ExcelDictFormat(dictType = "merchant_type")
     private Integer merchantType;
 
     /**
      * 级别
      */
-    @ExcelProperty(value = "级别")
     private String merchantLevel;
+
+    /**
+     * 开户行
+     */
+    private String bankName;
+
+    /**
+     * 银行账户
+     */
+    private String bankAccount;
+
+    /**
+     * 地址
+     */
+    private String address;
+
+    /**
+     * 手机号
+     */
+    private String mobile;
+
+    /**
+     * 座机号
+     */
+    private String tel;
 
     /**
      * 联系人
      */
-    @ExcelProperty(value = "联系人")
     private String contactPerson;
+
+    /**
+     * Email
+     */
+    private String email;
 
     /**
      * 备注
      */
-    @ExcelProperty(value = "备注")
     private String remark;
-
 
 }

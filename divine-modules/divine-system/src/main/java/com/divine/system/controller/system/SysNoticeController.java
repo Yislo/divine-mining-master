@@ -86,7 +86,7 @@ public class SysNoticeController extends BaseController {
      */
     @SaCheckPermission("system:notice:getUnreadCont")
     @GetMapping("/getUnreadCont")
-    public Result<DeferredResult<Long>> getUnreadCont() {
+    public Result<Long> getUnreadCont() {
         return Result.success(noticeService.getUnreadCont());
     }
 

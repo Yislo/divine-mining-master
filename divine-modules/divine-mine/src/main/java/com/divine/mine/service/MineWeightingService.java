@@ -26,9 +26,18 @@ public interface MineWeightingService {
 
     /**
      * 回磅
+     *
      * @param dto
      */
     void returnWeighting(WeightingReturnDto dto);
+
+    /**
+     * 根据车牌号查询未回磅信息
+     *
+     * @param carNumber
+     * @return
+     */
+    MineWeightingVo getReturnWeighting(String carNumber);
 
     /**
      * 查询过磅记录
@@ -49,6 +58,20 @@ public interface MineWeightingService {
      * 修改过磅记录
      */
     void updateByBo(MineWeightingDto dto);
+
+    /**
+     * 作废
+     *
+     * @param id
+     */
+    void invalid(Long id);
+
+    /**
+     * 查询未回磅车牌号
+     *
+     * @return
+     */
+    List<String> getNotReturnCar();
 
     /**
      * 批量删除过磅记录

@@ -24,7 +24,7 @@ public class ReceiptImportVO {
      * 物品名称
      */
     @ColumnWidth(18)
-    @ExcelProperty(value = "物品名称")
+    @ExcelProperty(value = "物品名称*")
     private String itemName;
 
     /**
@@ -45,7 +45,7 @@ public class ReceiptImportVO {
      * 数量
      */
     @ColumnWidth(15)
-    @ExcelProperty(value = "数量")
+    @ExcelProperty(value = "数量*")
     private Long quantity;
 
     /**

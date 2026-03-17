@@ -20,6 +20,10 @@
             <groupId>com.divine</groupId>
             <artifactId>divine-common-json</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.divine</groupId>
+            <artifactId>divine-common-satoken</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.divine</groupId>
@@ -56,6 +60,10 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-crypto</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
     </dependencies>
 
