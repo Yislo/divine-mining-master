@@ -53,6 +53,10 @@ public class MineQuality extends BaseEntity {
      */
     private BigDecimal acidDemand;
     /**
+     * 酸耗
+     */
+    private String remark;
+    /**
      * 是否删除(0:未删除,1:已删除)
      */
     private Integer isDel;

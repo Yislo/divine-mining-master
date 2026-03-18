@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.metrics.buffering.BufferingApplicationStartup;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.net.InetAddress;
 import java.time.ZoneId;
@@ -18,6 +19,7 @@ import java.util.TimeZone;
  */
 
 @Slf4j
+@EnableAsync
 @SpringBootApplication(scanBasePackages = "com.divine")
 public class DivineApplication {
     public static void main(String[] args) throws Exception {

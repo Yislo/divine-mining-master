@@ -9,6 +9,7 @@ import io.github.linpeilie.annotations.AutoMapper;
 
 import java.io.Serializable;
 import java.io.Serial;
+import java.util.Date;
 
 /**
  * 送货质量视图对象 mine_quality
@@ -45,8 +46,13 @@ public class MineQualityVo implements Serializable {
     /**
      * 送货单位id
      */
-    @ExcelProperty(value = "送货单位id")
     private Long shipMerchantId;
+
+    /**
+     * 送货单位
+     */
+    @ExcelProperty(value = "送货单位")
+    private String shipMerchantName;
 
     /**
      * 水份
@@ -65,6 +71,18 @@ public class MineQualityVo implements Serializable {
      */
     @ExcelProperty(value = "酸耗")
     private BigDecimal acidDemand;
+
+    /**
+     * 备注
+     */
+    @ExcelProperty(value = "备注")
+    private String remark;
+
+    /**
+     * 取样时间
+     */
+    @ExcelProperty(value = "取样时间")
+    private Date createTime;
 
 
 }

@@ -18,14 +18,19 @@ import com.divine.mine.domain.vo.MineQualityVo;
 import com.divine.mine.domain.vo.MineWeightingVo;
 import com.divine.mine.mapper.MineWeightingMapper;
 import com.divine.mine.service.MineQualityService;
+import com.divine.warehouse.domain.vo.MerchantVo;
+import com.divine.warehouse.service.MerchantService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import com.divine.mine.mapper.MineQualityMapper;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 送货质量Service业务层处理
@@ -40,14 +45,26 @@ public class MineQualityServiceImpl implements MineQualityService {
     private final MineQualityMapper mineQualityMapper;
     private final MineWeightingMapper mineWeightingMapper;
     private final GenerateNoUtil generateNoUtil;
+    private final MerchantService merchantService;
 
     /**
      * 新增送货质量
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void insertByDto(MineQualityDto dto) {
+        List<MineWeighting> mineWeightings = mineWeightingMapper.selectList(new LambdaQueryWrapper<>(MineWeighting.class)
+            .in(MineWeighting::getId, dto.getWeightingId()));
+        boolean b = mineWeightings.stream()
+            .map(MineWeighting::getShipMerchantId)
+            .distinct()
+            .count() == 1;
+        if (!b) {
+            throw new BusinessException("送货单位不一致");
+        }
         MineQuality mineQuality = MapstructUtils.convert(dto, MineQuality.class);
         mineQuality.setQualityNo(generateNoUtil.getBizNo(NoTypeEnum.QUALITY_NO.getCode()));
+        mineQuality.setShipMerchantId(mineWeightings.get(0).getShipMerchantId());
         mineQualityMapper.insert(mineQuality);
         // 填充过磅记录质量id
         List<Long> weightingId = dto.getWeightingId();
@@ -63,12 +80,16 @@ public class MineQualityServiceImpl implements MineQualityService {
     /**
      * 查询送货质量
      */
+    @Override
     public MineQualityInfoVo queryById(Long id) {
         // 查询质量
         MineQualityVo mineQualityVo = mineQualityMapper.selectVoById(id);
         MineQualityInfoVo mineQualityInfoVo = BeanUtil.copyProperties(mineQualityVo, MineQualityInfoVo.class);
         List<MineWeightingVo> mineWeightingVos = mineWeightingMapper.selectVoList(new LambdaQueryWrapper<>(MineWeighting.class)
             .eq(MineWeighting::getQualityId, id));
+        MerchantVo merchantVo = merchantService.queryById(mineQualityVo.getShipMerchantId());
+        // 前置限制 同一个发货单位才能为一组数据
+        mineWeightingVos.forEach(w->w.setShipMerchantName(merchantVo.getMerchantName()));
         mineQualityInfoVo.setWeightingList(mineWeightingVos);
         return mineQualityInfoVo;
     }
@@ -76,8 +97,8 @@ public class MineQualityServiceImpl implements MineQualityService {
     /**
      * 查询送货质量列表
      */
+    @Override
     public PageInfoRes<MineQualityVo> queryPageList(QualityPageDTO dto) {
-        String weightingNo = dto.getWeightingNo();
         String qualityNo = dto.getQualityNo();
         Long shipMerchantId = dto.getShipMerchantId();
         Date startTime = dto.getStartTime();
@@ -89,6 +110,10 @@ public class MineQualityServiceImpl implements MineQualityService {
             .between(ObjUtil.isNotNull(startTime) || ObjUtil.isNotNull(endTime),
                 MineQuality::getCreateTime, startTime, endTime)
         );
+        List<Long> list = res.getRecords().stream().map(MineQualityVo::getShipMerchantId).toList();
+        List<MerchantVo> merchantVos = merchantService.queryByIds(list);
+        Map<Long, String> merchantMap = merchantVos.stream().collect(Collectors.toMap(MerchantVo::getId, MerchantVo::getMerchantName));
+        res.getRecords().forEach(r -> r.setShipMerchantName(merchantMap.get(r.getShipMerchantId())));
         return PageInfoRes.build(res);
     }
 

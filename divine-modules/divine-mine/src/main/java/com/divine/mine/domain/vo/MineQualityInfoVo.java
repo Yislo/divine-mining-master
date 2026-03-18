@@ -9,6 +9,7 @@ import lombok.Data;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -41,11 +42,6 @@ public class MineQualityInfoVo implements Serializable {
     private String weightingNo;
 
     /**
-     * 送货单位id
-     */
-    private Long shipMerchantId;
-
-    /**
      * 水份
      */
     private BigDecimal moisture;
@@ -59,6 +55,16 @@ public class MineQualityInfoVo implements Serializable {
      * 酸耗
      */
     private BigDecimal acidDemand;
+
+    /**
+     * 取样时间
+     */
+    private Date createTime;
+
+    /**
+     * 取样时间
+     */
+    private String remark;
 
     /**
      * 样品明细

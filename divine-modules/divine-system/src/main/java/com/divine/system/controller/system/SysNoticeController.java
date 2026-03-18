@@ -81,7 +81,7 @@ public class SysNoticeController extends BaseController {
      * @return
      */
     @GetMapping("/getUnreadCont")
-    public Result<Long> getUnreadCont() {
+    public Result<Integer> getUnreadCont() {
         return Result.success(noticeService.getUnreadCont());
     }
 

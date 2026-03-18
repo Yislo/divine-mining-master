@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.divine.common.core.constant.NoticeConstant;
+import com.divine.common.core.constant.NoticeTemplate;
 import com.divine.common.core.constant.RedisKeyConstants;
 import com.divine.common.core.exception.base.BusinessException;
 import com.divine.common.core.utils.StringUtils;
@@ -35,6 +35,8 @@ import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -244,7 +246,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             if (StringUtils.isNotBlank(orderDetailsBo.getStorageShelf())) {
                 wrapper.eq(Inventory::getStorageShelf, orderDetailsBo.getStorageShelf());
             } else {
-                wrapper.isNull(Inventory::getStorageShelf).or().eq(Inventory::getStorageShelf,"");
+                wrapper.isNull(Inventory::getStorageShelf).or().eq(Inventory::getStorageShelf, "");
             }
             Inventory result = inventoryMapper.selectOne(wrapper);
             if (result != null) {
@@ -289,7 +291,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
                     .eq(Inventory::getWarehouseId, d.getWarehouseId())
                     .eq(Inventory::getSkuId, d.getSkuId());
                 if (StringUtils.isBlank(d.getStorageShelf())) {
-                    qw.isNull(Inventory::getStorageShelf).or().eq(Inventory::getStorageShelf,"");
+                    qw.isNull(Inventory::getStorageShelf).or().eq(Inventory::getStorageShelf, "");
                 } else {
                     qw.eq(Inventory::getStorageShelf, d.getStorageShelf());
                 }
@@ -316,7 +318,8 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
                 // 库存是否到达预警值
                 // 如果到达则发送预警消息通知-每日只发送一次
                 long safeStock = Long.parseLong(configParam.getConfigValue());
-                if (afterQuantity <= safeStock) {
+                boolean exists = RedisUtils.isExists(RedisKeyConstants.STOCK_WARING_NOTICE_KEY + d.getSkuId());
+                if (afterQuantity <= safeStock && !exists) {
                     sendNotice(inv.getWarehouseId(), d.getSkuId(), safeStock, afterQuantity, d.getStorageShelf());
                     //存入redis,确保每天每个物品只发送一次
                     RedisUtils.set(RedisKeyConstants.STOCK_WARING_NOTICE_KEY + d.getSkuId(), d.getSkuId(), RedisUtils.getSecondsUntilMidnight());
@@ -333,7 +336,8 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
      *
      * @param skuId
      */
-    private void sendNotice(Long warehouseId,
+    @Async
+    public void sendNotice(Long warehouseId,
                             Long skuId,
                             Long safeStock,
                             Long afterQuantity,
@@ -341,7 +345,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         SysNoticeDto sysNotice = new SysNoticeDto();
         sysNotice.setNoticeType(1);
         sysNotice.setEventType(1);
-        sysNotice.setNoticeTitle(NoticeConstant.STOCK_WARNING_TITLE);
+        sysNotice.setNoticeTitle(NoticeTemplate.SYSTEMATIC_NOTIFICATION);
         sysNotice.setNoticeContent(generateContent(warehouseId, skuId, safeStock, afterQuantity, storageShelf));
         noticeService.sendMessage(sysNotice);
     }
@@ -357,29 +361,15 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         ItemSkuVo sku = itemSkuService.queryById(skuId);
         ItemVo item = itemService.queryById(sku.getItemId());
         Warehouse warehouse = warehouseMapper.selectById(warehouseId);
-
         String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        return String.format(
-            "⚠️ 【库存预警通知】\n\n" +
-                "尊敬的负责人：\n\n" +
-                "您好！系统检测到以下商品库存已低于安全库存线，请及时安排补货：\n\n" +
-                "📦 物品名称：%s\n" +
-                "🏷️ SKU编码：%s\n" +
-                "📍 所在仓库：%s\n" +
-                "📊 当前库存：%d %s\n" +
-                "⚠️ 安全库存：%d %s\n" +
-                "⏰ 预警时间：%s\n\n" +
-                "请尽快处理！",
-
+        return NoticeTemplate.buildStockWarning(
             item.getItemName() + "(" + sku.getSkuName() + ")",                // 商品名称
             sku.getSkuNo(),                                             // SKU编码
             warehouse.getWarehouseName() + "-" + storageShelf + "货架",      // 仓库名称
-            afterQuantity,                                              // 当前库存
-            item.getUnit(),                                             // 单位
-            safeStock,                                                  // 安全库存
-            item.getUnit(),                                             // 单位
-            currentTime                                                 // 预警时间
-        );
+            afterQuantity,                                              // 单位
+            safeStock,                                                // 当前库存
+            item.getUnit(),                                               // 安全库存
+            currentTime);                                                 // 预警时间
     }
 
 
@@ -419,7 +409,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         if (StringUtils.isNotBlank(storageShelf)) {
             wq.eq(Inventory::getStorageShelf, wq);
         } else {
-            wq.isNull(Inventory::getStorageShelf).or().eq(Inventory::getStorageShelf,"");
+            wq.isNull(Inventory::getStorageShelf).or().eq(Inventory::getStorageShelf, "");
         }
         Inventory inventory = inventoryMapper.selectOne(wq);
         if (ObjUtil.isNull(inventory)) {

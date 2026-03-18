@@ -1,5 +1,6 @@
 package com.divine.warehouse.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -39,7 +40,7 @@ public class MerchantServiceImpl implements MerchantService {
      * 查询往来单位
      */
     @Override
-    public MerchantVo queryById(Long id){
+    public MerchantVo queryById(Long id) {
         return merchantMapper.selectVoById(id);
     }
 
@@ -117,10 +118,14 @@ public class MerchantServiceImpl implements MerchantService {
 
     /**
      * 根据id查询
+     *
      * @param ids
      */
     @Override
     public List<MerchantVo> queryByIds(Collection<Long> ids) {
+        if (CollUtil.isEmpty(ids)) {
+            return List.of();
+        }
         return merchantMapper.selectVoList(new LambdaQueryWrapper<>(Merchant.class)
             .in(Merchant::getId, ids));
 

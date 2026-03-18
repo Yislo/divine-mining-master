@@ -33,6 +33,7 @@ import com.divine.system.mapper.SysUserMapper;
 import com.divine.system.service.SysNoticeService;
 import com.divine.system.service.SysPostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.async.DeferredResult;
@@ -88,18 +89,19 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         }
         // 推送指定用户消息 todo 如果用户量过大，该业务需要优化
         List<SysNoticeRead> readList = sendUserId.stream().map(userId -> {
-            // 测试使用生产移除
-            String redisKey = RedisKeyConstants.UNREAD_MESSAGE + userId;
-            // 更新redis未读消息数量
-            Long num = RedisUtils.get(redisKey);
-            num = ObjUtil.isNull(num) ? 0 : num;
-            RedisUtils.set(redisKey, num + 1);
+//            String redisKey = RedisKeyConstants.UNREAD_MESSAGE + userId;
+//            // 更新redis未读消息数量
+//            Integer num = RedisUtils.get(redisKey);
+//            num = ObjUtil.isNull(num) ? 0 : num;
+//            RedisUtils.set(redisKey, num + 1);
 
             SysNoticeRead sysNoticeRead = new SysNoticeRead();
             sysNoticeRead.setNoticeId(sysNotice.getNoticeId());
             sysNoticeRead.setUserId(userId);
             return sysNoticeRead;
         }).toList();
+        // 推送消息
+        sendNewMessage(sendUserId);
         // 调用查询消息数量方法，根据userIds
         noticeReadMapper.insertBatch(readList);
     }
@@ -207,7 +209,7 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         // 测试使用生产移除
         String redisKey = RedisKeyConstants.UNREAD_MESSAGE + userId;
         // 更新redis未读消息数量
-        Long num = RedisUtils.get(redisKey);
+        Integer num = RedisUtils.get(redisKey);
         num = ObjUtil.isNull(num) || num == 0 ? 0 : num - 1;
         RedisUtils.set(redisKey, num);
     }
@@ -237,11 +239,11 @@ public class SysNoticeServiceImpl implements SysNoticeService {
      * @return
      */
     @Override
-    public Long getUnreadCont() {
+    public Integer getUnreadCont() {
         Long userId = LoginHelper.getUserId();
         // 测试使用生产移除
         String redisKey = RedisKeyConstants.UNREAD_MESSAGE + userId;
-        Long num = RedisUtils.get(redisKey);
+        Integer num = RedisUtils.get(redisKey);
         return ObjUtil.isNull(num) ? 0 : num;
     }
 

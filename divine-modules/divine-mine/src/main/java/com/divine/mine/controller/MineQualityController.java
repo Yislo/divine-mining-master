@@ -99,7 +99,7 @@ public class MineQualityController extends BaseController {
     /**
      * 修改质量单
      */
-    @SaCheckPermission("quality:edit")
+//    @SaCheckPermission("quality:edit")
     @Log(title = "送货质量", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()

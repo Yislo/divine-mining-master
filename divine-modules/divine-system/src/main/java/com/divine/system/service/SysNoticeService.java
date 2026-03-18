@@ -62,7 +62,7 @@ public interface SysNoticeService {
      *
      * @return
      */
-    Long getUnreadCont();
+    Integer getUnreadCont();
 
     /**
      * 查询公告列表

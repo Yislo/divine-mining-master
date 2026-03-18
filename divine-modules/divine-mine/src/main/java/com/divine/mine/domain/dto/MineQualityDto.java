@@ -42,6 +42,7 @@ public class MineQualityDto {
     /**
      * 过磅单id
      */
+    @NotEmpty(message = "过磅单不能为空", groups = { EditGroup.class })
     private List<Long> weightingId;
 
     /**
@@ -63,6 +64,11 @@ public class MineQualityDto {
      * 酸耗
      */
     private BigDecimal acidDemand;
+
+    /**
+     * 备注
+     */
+    private String remark;
 
 
 }
