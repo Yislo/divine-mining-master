@@ -36,17 +36,17 @@ public interface HomeService {
     RefuelInfoVO getRefuel();
 
     /**
+     * 获取取样客户占比
+     * @return
+     */
+    List<SamplingMerchantVO> getSamplingMerchant();
+
+    /**
      * 获取近期取样趋势
      * @param type
      * @return
      */
     List<SamplingInfoVO> getSampling(Integer type);
-
-    /**
-     * 获取取样客户占比
-     * @return
-     */
-    List<SamplingMerchantVO> getSamplingMerchant();
 
     /**
      * 获取近7日出库

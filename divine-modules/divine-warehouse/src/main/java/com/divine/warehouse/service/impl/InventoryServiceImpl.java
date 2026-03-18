@@ -241,9 +241,9 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             LambdaQueryWrapper<Inventory> wrapper = Wrappers.lambdaQuery();
             wrapper.eq(Inventory::getWarehouseId, orderDetailsBo.getWarehouseId());
             wrapper.eq(Inventory::getSkuId, orderDetailsBo.getSkuId());
-            if (StringUtils.isNotBlank(orderDetailsBo.getStorageShelf())){
+            if (StringUtils.isNotBlank(orderDetailsBo.getStorageShelf())) {
                 wrapper.eq(Inventory::getStorageShelf, orderDetailsBo.getStorageShelf());
-            }else {
+            } else {
                 wrapper.isNull(Inventory::getStorageShelf);
             }
             Inventory result = inventoryMapper.selectOne(wrapper);
@@ -285,12 +285,17 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             String lockKey = d.getWarehouseId() + d.getSkuId() + d.getStorageShelf();
             String requestId = redisDistributedLock.lock("stock");
             try {
-                Inventory inv = inventoryMapper.selectOne(
-                    Wrappers.lambdaQuery(Inventory.class)
-                        .eq(Inventory::getWarehouseId, d.getWarehouseId())
-                        .eq(Inventory::getSkuId, d.getSkuId())
-                        .eq(Inventory::getStorageShelf, d.getStorageShelf())
-                );
+                LambdaQueryWrapper<Inventory> qw = Wrappers.lambdaQuery(Inventory.class)
+                    .eq(Inventory::getWarehouseId, d.getWarehouseId())
+                    .eq(Inventory::getSkuId, d.getSkuId());
+                if (StringUtils.isBlank(d.getStorageShelf())) {
+                    qw.isNull(Inventory::getStorageShelf);
+                } else {
+                    qw.eq(Inventory::getStorageShelf, d.getStorageShelf());
+                }
+
+
+                Inventory inv = inventoryMapper.selectOne(qw);
                 if (inv == null) {
                     throw new BusinessException("未找到相关物品信息");
                 }
@@ -411,9 +416,15 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
      */
     @Override
     public Long getStock(Long skuId, String storageShelf) {
-        Inventory inventory = inventoryMapper.selectOne(new LambdaQueryWrapper<>(Inventory.class)
+        LambdaQueryWrapper<Inventory> wq = new LambdaQueryWrapper<>(Inventory.class)
             .eq(Inventory::getSkuId, skuId)
-            .eq(Inventory::getStorageShelf, storageShelf));
+            .eq(Inventory::getStorageShelf, storageShelf);
+        if (StringUtils.isNotBlank(storageShelf)) {
+            wq.eq(Inventory::getStorageShelf, wq);
+        } else {
+            wq.isNull(Inventory::getStorageShelf);
+        }
+        Inventory inventory = inventoryMapper.selectOne(wq);
         if (ObjUtil.isNull(inventory)) {
             return 0L;
         }

@@ -21,7 +21,7 @@ public class RefuelInfoVO {
     private Long interiorGasoline;
 
     /**
-     * 外部车汽油(L)
+     * 外部车柴油(L)
      */
     private Long externalDiesel;
 

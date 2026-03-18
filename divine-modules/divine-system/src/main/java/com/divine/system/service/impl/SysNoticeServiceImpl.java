@@ -224,6 +224,7 @@ public class SysNoticeServiceImpl implements SysNoticeService {
     @Override
     public Long getUnreadCont() {
         Long userId = LoginHelper.getUserId();
+        // 测试使用生产移除
         sendNewMessage(List.of(userId));
         return noticeMapper.getUnreadCont(userId);
     }

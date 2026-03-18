@@ -30,56 +30,45 @@ public class SysHomeController {
 
     private final HomeService homeService;
 
-    /**
-     * 获取今日出入库
-     * @return
-     */
-    @SaCheckPermission("system:home:all")
-    @GetMapping("/getWarehouseInfo")
-    public Result<WarehouseInfoVO> getWarehouseInfo() {
-        return Result.success(homeService.getWarehouseInfo());
-    }
-
-    /**
-     * 获取今日进厂数量
-     * @return
-     */
-    @SaCheckPermission("system:home:all")
-    @GetMapping("/getAccessRecord")
-    public Result<AccessRecordInfoVO> getAccessRecord() {
-        return Result.success(homeService.getAccessRecord());
-    }
-
-    /**
-     * 获取今日过磅数量
-     * @return
-     */
-    @SaCheckPermission("system:home:all")
-    @GetMapping("/getWeighting")
-    public Result<List<WeightingInfoVO>> getWeighting() {
-        return Result.success(homeService.getWeighting());
-    }
-
-    /**
-     * 获取今日加油量
-     * @return
-     */
-    @SaCheckPermission("system:home:all")
-    @GetMapping("/getRefuel")
-    public Result<RefuelInfoVO> getRefuel() {
-        return Result.success(homeService.getRefuel());
-    }
-
-    /**
-     * 获取近期取样趋势
-     * @param type 查询维度(0:按月，1:按年)
-     * @return
-     */
-    @SaCheckPermission("system:home:all")
-    @GetMapping("/getSampling")
-    public Result<List<SamplingInfoVO>> getSampling(@NotNull(message = "查询维度不能为空") Integer type) {
-        return Result.success(homeService.getSampling(type));
-    }
+//    /**
+//     * 获取今日出入库
+//     * @return
+//     */
+//    @SaCheckPermission("system:home:all")
+//    @GetMapping("/getWarehouseInfo")
+//    public Result<WarehouseInfoVO> getWarehouseInfo() {
+//        return Result.success(homeService.getWarehouseInfo());
+//    }
+//
+//    /**
+//     * 获取今日进厂数量
+//     * @return
+//     */
+//    @SaCheckPermission("system:home:all")
+//    @GetMapping("/getAccessRecord")
+//    public Result<AccessRecordInfoVO> getAccessRecord() {
+//        return Result.success(homeService.getAccessRecord());
+//    }
+//
+//    /**
+//     * 获取今日过磅数量
+//     * @return
+//     */
+//    @SaCheckPermission("system:home:all")
+//    @GetMapping("/getWeighting")
+//    public Result<List<WeightingInfoVO>> getWeighting() {
+//        return Result.success(homeService.getWeighting());
+//    }
+//
+//    /**
+//     * 获取今日加油量
+//     * @return
+//     */
+//    @SaCheckPermission("system:home:all")
+//    @GetMapping("/getRefuel")
+//    public Result<RefuelInfoVO> getRefuel() {
+//        return Result.success(homeService.getRefuel());
+//    }
 
     /**
      * 获取取样客户占比
@@ -89,6 +78,17 @@ public class SysHomeController {
     @GetMapping("/getSamplingMerchant")
     public Result<List<SamplingMerchantVO>> getSamplingMerchant() {
         return Result.success(homeService.getSamplingMerchant());
+    }
+
+    /**
+     * 过磅取样趋势
+     * @param type 查询维度(0:按月，1:按年)
+     * @return
+     */
+    @SaCheckPermission("system:home:all")
+    @GetMapping("/getSampling")
+    public Result<List<SamplingInfoVO>> getSampling(@NotNull(message = "查询维度不能为空") Integer type) {
+        return Result.success(homeService.getSampling(type));
     }
 
     /**
@@ -130,9 +130,5 @@ public class SysHomeController {
     public Result<List<SevenRecordVO>> get7dayRefuel() {
         return Result.success(homeService.get7dayRefuel());
     }
-
-
-
-
 
 }

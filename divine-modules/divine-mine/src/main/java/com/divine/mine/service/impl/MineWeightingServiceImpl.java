@@ -91,7 +91,7 @@ public class MineWeightingServiceImpl implements MineWeightingService {
             .eq(MineWeighting::getWeighingStatus, 0)
         );
         if (CollUtil.isEmpty(mineWeightings)) {
-            throw new BusinessException("车辆信息不存在");
+            throw new BusinessException("未查到该车辆的过磅新增，请新增过磅信息");
         }
         if (mineWeightings.size() > 1) {
             throw new BusinessException("该车辆有多条未回磅记录，如果是无效数据，请作废后再试");
@@ -135,7 +135,9 @@ public class MineWeightingServiceImpl implements MineWeightingService {
             .between(ObjUtil.isNotNull(startTime) && ObjUtil.isNotNull(endTime), MineWeighting::getCreateTime, startTime, endTime)
             .orderByDesc(MineWeighting::getCreateTime);
         if (ObjUtil.isNotNull(isQuality) && isQuality == 1) {
-            qw.isNull(MineWeighting::getQualityId);
+            // 只查询已过磅和未生成质量单的数据
+            qw.isNull(MineWeighting::getQualityId)
+                .eq(MineWeighting::getWeighingStatus, 1);
         }
         Page<MineWeightingVo> result = mineWeightingMapper.selectVoPage(dto.build(), qw);
         // set送货单位名称

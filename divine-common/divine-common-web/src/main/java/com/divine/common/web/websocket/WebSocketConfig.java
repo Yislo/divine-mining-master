@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
-import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 @Configuration
 @EnableWebSocket
@@ -14,10 +13,15 @@ public class WebSocketConfig implements WebSocketConfigurer {
     @Autowired
     private MessageWebSocketHandler messageWebSocketHandler;
 
+    @Autowired
+    private WebSocketAuthInterceptor webSocketAuthInterceptor;
+
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(messageWebSocketHandler, "/ws/notice")
-                .addInterceptors(new HttpSessionHandshakeInterceptor()) // 基础拦截器
-                .setAllowedOrigins("*"); // 允许跨域
+        registry.addHandler(messageWebSocketHandler, "/ws")
+            // 基础拦截器
+            .addInterceptors(webSocketAuthInterceptor)
+            // 允许跨域
+            .setAllowedOrigins("*");
     }
 }

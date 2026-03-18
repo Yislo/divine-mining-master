@@ -383,17 +383,20 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
             .collect(Collectors.toMap(Item::getItemName, Function.identity()));
         // 3 找出不存在的物品
         List<Item> newItems = dtoList.stream()
-            .collect(Collectors.toMap(
-                ReceiptImportDTO::getItemName,
-                dto -> {
-                    Item item = new Item();
-                    item.setItemName(dto.getItemName());
-                    item.setItemNo(generateNoUtil.getBizNo(NoTypeEnum.SPU_NO.getCode()));
-                    item.setUnit(dto.getUnit());
-                    return item;
-                },
-                (a, b) -> a
-            )).values().stream().filter(item -> !itemMap.containsKey(item.getItemName())).toList();
+            .collect(Collectors.toMap(ReceiptImportDTO::getItemName, dto -> dto, (a, b) -> a))
+            .values()
+            .stream()
+            // 2. 过滤掉 itemMap 中已存在的（数据库已有的）
+            .filter(dto -> !itemMap.containsKey(dto.getItemName()))
+            // 3. 构造新对象
+            .map(dto -> {
+                Item item = new Item();
+                item.setItemName(dto.getItemName());
+                item.setItemNo(generateNoUtil.getBizNo(NoTypeEnum.SPU_NO.getCode()));
+                item.setUnit(dto.getUnit());
+                return item;
+            })
+            .toList();
         // 4 批量新增 Item
         if (!newItems.isEmpty()) {
             itemMapper.insertBatch(newItems);
@@ -414,7 +417,6 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         Set<String> skuKeys = dtoList.stream()
             .map(dto -> dto.getItemId() + "_" + dto.getSkuName())
             .collect(Collectors.toSet());
-
         // 7 查询已有 SKU
         List<ItemSku> skus = itemSkuMapper.selectList(
             new LambdaQueryWrapper<ItemSku>()
@@ -446,6 +448,8 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
             }
             // 覆盖历史单价
             sku.setUnitPrice(dto.getUnitPrice());
+            sku.setItemId(dto.getItemId());
+            sku.setSkuName(dto.getSkuName());
             skuToSaveMap.put(key, sku);
         }
         // 10. 执行批量操作并回填 ID
