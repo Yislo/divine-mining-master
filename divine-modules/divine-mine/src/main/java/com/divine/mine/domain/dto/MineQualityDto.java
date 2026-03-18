@@ -35,6 +35,11 @@ public class MineQualityDto {
     private String qualityNo;
 
     /**
+     * 质量状态
+     */
+    private Integer qualityStatus;
+
+    /**
      * 过磅单id
      */
     private List<Long> weightingId;

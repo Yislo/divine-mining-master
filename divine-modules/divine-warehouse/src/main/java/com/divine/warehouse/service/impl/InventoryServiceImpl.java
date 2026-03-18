@@ -244,7 +244,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             if (StringUtils.isNotBlank(orderDetailsBo.getStorageShelf())) {
                 wrapper.eq(Inventory::getStorageShelf, orderDetailsBo.getStorageShelf());
             } else {
-                wrapper.isNull(Inventory::getStorageShelf);
+                wrapper.isNull(Inventory::getStorageShelf).or().eq(Inventory::getStorageShelf,"");
             }
             Inventory result = inventoryMapper.selectOne(wrapper);
             if (result != null) {
@@ -289,12 +289,10 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
                     .eq(Inventory::getWarehouseId, d.getWarehouseId())
                     .eq(Inventory::getSkuId, d.getSkuId());
                 if (StringUtils.isBlank(d.getStorageShelf())) {
-                    qw.isNull(Inventory::getStorageShelf);
+                    qw.isNull(Inventory::getStorageShelf).or().eq(Inventory::getStorageShelf,"");
                 } else {
                     qw.eq(Inventory::getStorageShelf, d.getStorageShelf());
                 }
-
-
                 Inventory inv = inventoryMapper.selectOne(qw);
                 if (inv == null) {
                     throw new BusinessException("未找到相关物品信息");
@@ -417,12 +415,11 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
     @Override
     public Long getStock(Long skuId, String storageShelf) {
         LambdaQueryWrapper<Inventory> wq = new LambdaQueryWrapper<>(Inventory.class)
-            .eq(Inventory::getSkuId, skuId)
-            .eq(Inventory::getStorageShelf, storageShelf);
+            .eq(Inventory::getSkuId, skuId);
         if (StringUtils.isNotBlank(storageShelf)) {
             wq.eq(Inventory::getStorageShelf, wq);
         } else {
-            wq.isNull(Inventory::getStorageShelf);
+            wq.isNull(Inventory::getStorageShelf).or().eq(Inventory::getStorageShelf,"");
         }
         Inventory inventory = inventoryMapper.selectOne(wq);
         if (ObjUtil.isNull(inventory)) {

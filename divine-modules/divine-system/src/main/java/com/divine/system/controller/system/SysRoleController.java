@@ -43,7 +43,6 @@ public class SysRoleController extends BaseController {
     /**
      * 获取角色信息列表
      */
-    @SaCheckPermission("system:role:list")
     @GetMapping("/list")
     public PageInfoRes<SysRoleVo> list(SysRoleDto role, BasePage basePage) {
         return roleService.selectPageRoleList(role, basePage);
@@ -53,7 +52,6 @@ public class SysRoleController extends BaseController {
      * 导出角色信息列表
      */
     @Log(title = "角色管理", businessType = BusinessType.EXPORT)
-    @SaCheckPermission("system:role:export")
     @PostMapping("/export")
     public void export(SysRoleDto role, HttpServletResponse response) {
         List<SysRoleVo> list = roleService.selectRoleList(role);
@@ -65,7 +63,6 @@ public class SysRoleController extends BaseController {
      *
      * @param roleId 角色ID
      */
-    @SaCheckPermission("system:role:query")
     @GetMapping(value = "/{roleId}")
     public Result<SysRoleVo> getInfo(@PathVariable Long roleId) {
         roleService.checkRoleDataScope(roleId);
@@ -150,7 +147,6 @@ public class SysRoleController extends BaseController {
     /**
      * 获取角色选择框列表
      */
-    @SaCheckPermission("system:role:query")
     @GetMapping("/optionselect")
     public Result<List<SysRoleVo>> optionselect() {
         return Result.success(roleService.selectRoleAll());
@@ -159,7 +155,6 @@ public class SysRoleController extends BaseController {
     /**
      * 查询已分配用户角色列表
      */
-    @SaCheckPermission("system:role:list")
     @GetMapping("/authUser/allocatedList")
     public PageInfoRes<SysUserVo> allocatedList(SysUserDto user, BasePage basePage) {
         return userService.selectAllocatedList(user, basePage);
@@ -168,7 +163,6 @@ public class SysRoleController extends BaseController {
     /**
      * 查询未分配用户角色列表
      */
-    @SaCheckPermission("system:role:list")
     @GetMapping("/authUser/unallocatedList")
     public PageInfoRes<SysUserVo> unallocatedList(SysUserDto user, BasePage basePage) {
         return userService.selectUnallocatedList(user, basePage);

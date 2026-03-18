@@ -6,11 +6,12 @@ import cn.hutool.core.util.ObjUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.divine.common.core.domain.Result;
+import com.divine.common.core.constant.RedisKeyConstants;
 import com.divine.common.core.utils.MapstructUtils;
 import com.divine.common.core.utils.StringUtils;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
+import com.divine.common.redis.utils.RedisUtils;
 import com.divine.common.satoken.utils.LoginHelper;
 import com.divine.common.web.enums.WsMsgType;
 import com.divine.common.web.websocket.MessageWebSocketHandler;
@@ -87,12 +88,17 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         }
         // 推送指定用户消息 todo 如果用户量过大，该业务需要优化
         List<SysNoticeRead> readList = sendUserId.stream().map(userId -> {
+            // 测试使用生产移除
+            String redisKey = RedisKeyConstants.UNREAD_MESSAGE + userId;
+            // 更新redis未读消息数量
+            Long num = RedisUtils.get(redisKey);
+            num = ObjUtil.isNull(num) ? 0 : num;
+            RedisUtils.set(redisKey, num + 1);
 
             SysNoticeRead sysNoticeRead = new SysNoticeRead();
             sysNoticeRead.setNoticeId(sysNotice.getNoticeId());
             sysNoticeRead.setUserId(userId);
             return sysNoticeRead;
-
         }).toList();
         // 调用查询消息数量方法，根据userIds
         noticeReadMapper.insertBatch(readList);
@@ -198,6 +204,12 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         });
         // 批量已读
         noticeReadMapper.updateBatchById(readList);
+        // 测试使用生产移除
+        String redisKey = RedisKeyConstants.UNREAD_MESSAGE + userId;
+        // 更新redis未读消息数量
+        Long num = RedisUtils.get(redisKey);
+        num = ObjUtil.isNull(num) || num == 0 ? 0 : num - 1;
+        RedisUtils.set(redisKey, num);
     }
 
     /**
@@ -214,6 +226,9 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         readList.forEach(r -> r.setIsRead(1));
         // 批量已读
         noticeReadMapper.updateBatchById(readList);
+        // 清除缓存
+        String redisKey = RedisKeyConstants.UNREAD_MESSAGE + userId;
+        RedisUtils.delete(redisKey);
     }
 
     /**
@@ -225,8 +240,9 @@ public class SysNoticeServiceImpl implements SysNoticeService {
     public Long getUnreadCont() {
         Long userId = LoginHelper.getUserId();
         // 测试使用生产移除
-        sendNewMessage(List.of(userId));
-        return noticeMapper.getUnreadCont(userId);
+        String redisKey = RedisKeyConstants.UNREAD_MESSAGE + userId;
+        Long num = RedisUtils.get(redisKey);
+        return ObjUtil.isNull(num) ? 0 : num;
     }
 
     /**

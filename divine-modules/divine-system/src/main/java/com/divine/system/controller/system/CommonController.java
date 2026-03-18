@@ -1,6 +1,5 @@
 package com.divine.system.controller.system;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.divine.common.core.domain.Result;
 import com.divine.common.core.enums.OptionTypeEnum;
 import com.divine.system.domain.vo.SysConfigVo;
@@ -35,7 +34,6 @@ public class CommonController {
      * @return
      */
     @GetMapping("/getOption")
-    @SaCheckPermission("wms:common:all")
     public Result<List<OptionVO>> getOption(@RequestParam
                                             @Parameter(
                                                 description = "下拉框类型",
@@ -51,7 +49,6 @@ public class CommonController {
      * @return
      */
     @GetMapping("/getConfigParam")
-    @SaCheckPermission("wms:common:all")
     public Result<SysConfigVo> getConfigParam(@RequestParam String keyName) {
         return Result.success(commonService.getConfigParam(keyName));
     }

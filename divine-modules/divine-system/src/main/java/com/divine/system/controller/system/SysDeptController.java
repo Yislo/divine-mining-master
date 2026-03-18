@@ -33,7 +33,6 @@ public class SysDeptController extends BaseController {
      * @param dept
      * @return
      */
-    @SaCheckPermission("system:dept:list")
     @GetMapping("/list")
     public Result<List<SysDeptVo>> list(SysDeptDto dept) {
         List<SysDeptVo> depts = deptService.selectDeptList(dept);
@@ -45,7 +44,6 @@ public class SysDeptController extends BaseController {
      * @param deptId
      * @return
      */
-    @SaCheckPermission("system:dept:list")
     @GetMapping("/list/exclude/{deptId}")
     public Result<List<SysDeptVo>> excludeChild(@PathVariable(value = "deptId", required = false) Long deptId) {
         List<SysDeptVo> depts = deptService.selectDeptList(new SysDeptDto());
@@ -59,7 +57,6 @@ public class SysDeptController extends BaseController {
      * @param deptId
      * @return
      */
-    @SaCheckPermission("system:dept:query")
     @GetMapping(value = "/{deptId}")
     public Result<SysDeptVo> getInfo(@PathVariable Long deptId) {
         deptService.checkDeptDataScope(deptId);

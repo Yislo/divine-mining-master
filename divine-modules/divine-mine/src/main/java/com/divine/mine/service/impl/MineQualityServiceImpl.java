@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.divine.common.core.enums.NoTypeEnum;
+import com.divine.common.core.exception.base.BusinessException;
 import com.divine.common.core.utils.GenerateNoUtil;
 import com.divine.common.core.utils.MapstructUtils;
 import com.divine.common.mybatis.core.page.PageInfoRes;
@@ -45,15 +46,15 @@ public class MineQualityServiceImpl implements MineQualityService {
      */
     @Override
     public void insertByDto(MineQualityDto dto) {
-        MineQuality add = MapstructUtils.convert(dto, MineQuality.class);
-        add.setQualityNo(generateNoUtil.getBizNo(NoTypeEnum.QUALITY_NO.getCode()));
-        mineQualityMapper.insert(add);
+        MineQuality mineQuality = MapstructUtils.convert(dto, MineQuality.class);
+        mineQuality.setQualityNo(generateNoUtil.getBizNo(NoTypeEnum.QUALITY_NO.getCode()));
+        mineQualityMapper.insert(mineQuality);
         // 填充过磅记录质量id
         List<Long> weightingId = dto.getWeightingId();
         List<MineWeighting> list = weightingId.stream().map(id -> {
             MineWeighting mineWeighting = new MineWeighting();
             mineWeighting.setId(id);
-            mineWeighting.setQualityId(add.getId());
+            mineWeighting.setQualityId(mineQuality.getId());
             return mineWeighting;
         }).toList();
         mineWeightingMapper.updateBatchById(list);
@@ -64,10 +65,10 @@ public class MineQualityServiceImpl implements MineQualityService {
      */
     public MineQualityInfoVo queryById(Long id) {
         // 查询质量
-        List<MineWeightingVo> mineWeightingVos = mineWeightingMapper.selectVoList(new LambdaQueryWrapper<>(MineWeighting.class)
-            .eq(MineWeighting::getQualityId, id));
         MineQualityVo mineQualityVo = mineQualityMapper.selectVoById(id);
         MineQualityInfoVo mineQualityInfoVo = BeanUtil.copyProperties(mineQualityVo, MineQualityInfoVo.class);
+        List<MineWeightingVo> mineWeightingVos = mineWeightingMapper.selectVoList(new LambdaQueryWrapper<>(MineWeighting.class)
+            .eq(MineWeighting::getQualityId, id));
         mineQualityInfoVo.setWeightingList(mineWeightingVos);
         return mineQualityInfoVo;
     }
@@ -106,6 +107,21 @@ public class MineQualityServiceImpl implements MineQualityService {
     public void updateByBo(MineQualityDto dto) {
         MineQuality update = MapstructUtils.convert(dto, MineQuality.class);
         mineQualityMapper.updateById(update);
+    }
+
+    /**
+     * 作废
+     *
+     * @param id
+     */
+    @Override
+    public void invalid(Long id) {
+        MineQuality mineQuality = mineQualityMapper.selectById(id);
+        if (ObjUtil.isNull(mineQuality)) {
+            throw new BusinessException("质量单不存在");
+        }
+        mineQuality.setQualityStatus(-1);
+        mineQualityMapper.updateById(mineQuality);
     }
 
     /**

@@ -48,7 +48,7 @@ public class ItemBrandController extends BaseController {
     /**
      * 查询物品品牌列表
      */
-    @SaCheckPermission("wms:itemBrand:list")
+//    @SaCheckPermission("wms:itemBrand:list")
     @GetMapping("/listNoPage")
     public Result<List<ItemBrandVo>> listNoPage(ItemBrandDto dto) {
         return Result.success(itemBrandService.queryList(dto));

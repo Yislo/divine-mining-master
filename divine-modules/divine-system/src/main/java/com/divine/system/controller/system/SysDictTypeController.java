@@ -35,7 +35,6 @@ public class SysDictTypeController extends BaseController {
      * @param basePage
      * @return
      */
-    @SaCheckPermission("system:dict:list")
     @GetMapping("/list")
     public PageInfoRes<SysDictTypeVo> list(SysDictTypeDto dictType, BasePage basePage) {
         return dictTypeService.selectPageDictTypeList(dictType, basePage);
@@ -47,7 +46,6 @@ public class SysDictTypeController extends BaseController {
      * @param response
      */
     @Log(title = "字典类型", businessType = BusinessType.EXPORT)
-    @SaCheckPermission("system:dict:export")
     @PostMapping("/export")
     public void export(SysDictTypeDto dictType, HttpServletResponse response) {
         List<SysDictTypeVo> list = dictTypeService.selectDictTypeList(dictType);
@@ -59,7 +57,6 @@ public class SysDictTypeController extends BaseController {
      * @param dictId
      * @return
      */
-    @SaCheckPermission("system:dict:query")
     @GetMapping(value = "/{dictId}")
     public Result<SysDictTypeVo> getInfo(@PathVariable Long dictId) {
         return Result.success(dictTypeService.selectDictTypeById(dictId));
@@ -114,7 +111,6 @@ public class SysDictTypeController extends BaseController {
      * 刷新字典缓存
      * @return
      */
-    @SaCheckPermission("system:dict:remove")
     @Log(title = "字典类型", businessType = BusinessType.CLEAN)
     @DeleteMapping("/refreshCache")
     public Result<Void> refreshCache() {

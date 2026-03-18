@@ -48,7 +48,7 @@ public class MerchantController extends BaseController {
     /**
      * 查询往来单位列表
      */
-    @SaCheckPermission("wms:merchant:list")
+//    @SaCheckPermission("wms:merchant:list")
     @GetMapping("/listNoPage")
     public Result<List<MerchantVo>> listNoPage(MerchantDto dto) {
         return Result.success(merchantService.queryList(dto));

@@ -39,7 +39,6 @@ public class SysDictDataController extends BaseController {
      * @param basePage
      * @return
      */
-    @SaCheckPermission("system:dict:list")
     @GetMapping("/list")
     public PageInfoRes<SysDictDataVo> list(SysDictDataDto dictData, BasePage basePage) {
         return dictDataService.selectPageDictDataList(dictData, basePage);
@@ -49,7 +48,6 @@ public class SysDictDataController extends BaseController {
      * 导出字典数据列表
      */
     @Log(title = "字典数据", businessType = BusinessType.EXPORT)
-    @SaCheckPermission("system:dict:export")
     @PostMapping("/export")
     public void export(SysDictDataDto dictData, HttpServletResponse response) {
         List<SysDictDataVo> list = dictDataService.selectDictDataList(dictData);
@@ -61,7 +59,6 @@ public class SysDictDataController extends BaseController {
      *
      * @param dictCode 字典code
      */
-    @SaCheckPermission("system:dict:query")
     @GetMapping(value = "/{dictCode}")
     public Result<SysDictDataVo> getInfo(@PathVariable Long dictCode) {
         return Result.success(dictDataService.selectDictDataById(dictCode));

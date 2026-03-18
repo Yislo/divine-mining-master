@@ -39,7 +39,6 @@ public class SysNoticeController extends BaseController {
      * @param basePage
      * @return
      */
-    @SaCheckPermission("system:notice:list")
     @GetMapping("/list")
     public PageInfoRes<SysNoticeVo> list(SysNoticeDto notice, BasePage basePage) {
         return noticeService.selectPageNoticeList(notice, basePage);
@@ -50,7 +49,6 @@ public class SysNoticeController extends BaseController {
      * @param dto
      * @return
      */
-    @SaCheckPermission("system:notice:getMyNotice")
     @PostMapping("/getMyNotice")
     public PageInfoRes<MyNoticeVo> getMyNotice(@RequestBody MyNoticeDto dto) {
         return noticeService.getMyNotice(dto);
@@ -61,7 +59,6 @@ public class SysNoticeController extends BaseController {
      * @id 消息id
      * @return
      */
-    @SaCheckPermission("system:notice:read")
     @PutMapping("/read")
     public Result<Void> read(@RequestParam List<Long> ids) {
         noticeService.read(ids);
@@ -73,7 +70,6 @@ public class SysNoticeController extends BaseController {
      * @id 消息id
      * @return
      */
-    @SaCheckPermission("system:notice:read")
     @PutMapping("/oneClickRead")
     public Result<Void> oneClickRead() {
         noticeService.oneClickRead();
@@ -84,7 +80,6 @@ public class SysNoticeController extends BaseController {
      * 获取未读消息数量
      * @return
      */
-    @SaCheckPermission("system:notice:getUnreadCont")
     @GetMapping("/getUnreadCont")
     public Result<Long> getUnreadCont() {
         return Result.success(noticeService.getUnreadCont());
@@ -95,7 +90,6 @@ public class SysNoticeController extends BaseController {
      *
      * @param noticeId 公告ID
      */
-    @SaCheckPermission("system:notice:query")
     @GetMapping(value = "/{noticeId}")
     public Result<SysNoticeVo> getInfo(@PathVariable Long noticeId) {
         return Result.success(noticeService.selectNoticeById(noticeId));

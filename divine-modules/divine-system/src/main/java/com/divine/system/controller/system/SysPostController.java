@@ -35,7 +35,6 @@ public class SysPostController extends BaseController {
     /**
      * 获取岗位列表
      */
-    @SaCheckPermission("system:post:list")
     @GetMapping("/list")
     public PageInfoRes<SysPostVo> list(SysPostDto post, BasePage basePage) {
         return postService.selectPagePostList(post, basePage);
@@ -45,7 +44,6 @@ public class SysPostController extends BaseController {
      * 导出岗位列表
      */
     @Log(title = "岗位管理", businessType = BusinessType.EXPORT)
-    @SaCheckPermission("system:post:export")
     @PostMapping("/export")
     public void export(SysPostDto post, HttpServletResponse response) {
         List<SysPostVo> list = postService.selectPostList(post);
@@ -57,7 +55,6 @@ public class SysPostController extends BaseController {
      *
      * @param postId 岗位ID
      */
-    @SaCheckPermission("system:post:query")
     @GetMapping(value = "/{postId}")
     public Result<SysPostVo> getInfo(@PathVariable Long postId) {
         return Result.success(postService.selectPostById(postId));

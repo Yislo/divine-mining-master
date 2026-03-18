@@ -37,6 +37,10 @@ public class MineQuality extends BaseEntity {
      */
     private Long shipMerchantId;
     /**
+     * 质量状态
+     */
+    private Integer qualityStatus;
+    /**
      * 水份
      */
     private BigDecimal moisture;

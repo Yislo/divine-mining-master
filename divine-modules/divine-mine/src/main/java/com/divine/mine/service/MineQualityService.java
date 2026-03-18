@@ -42,6 +42,12 @@ public interface MineQualityService {
     void updateByBo(MineQualityDto dto);
 
     /**
+     * 作废
+     * @param id
+     */
+    void invalid(Long id);
+
+    /**
      * 批量删除送货质量
      */
     void deleteByIds(Collection<Long> ids);

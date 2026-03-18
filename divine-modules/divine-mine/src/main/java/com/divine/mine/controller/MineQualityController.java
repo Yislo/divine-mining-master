@@ -2,6 +2,7 @@ package com.divine.mine.controller;
 
 import java.util.List;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.divine.common.core.domain.Result;
 import com.divine.common.excel.utils.ExcelUtil;
 import com.divine.common.idempotent.annotation.RepeatSubmit;
@@ -37,19 +38,33 @@ public class MineQualityController extends BaseController {
     private final MineQualityService mineQualityService;
 
     /**
-     * 新增送货质量
+     * 新增质量单
      */
 //    @SaCheckPermission("quality:add")
     @Log(title = "送货质量", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
     public Result<Void> add(@Validated(AddGroup.class) @RequestBody MineQualityDto dto) {
+        dto.setQualityStatus(1);
         mineQualityService.insertByDto(dto);
         return Result.success();
     }
 
     /**
-     * 查询送货质量列表
+     * 暂存质量单
+     */
+//    @SaCheckPermission("quality:add")
+    @Log(title = "送货质量", businessType = BusinessType.INSERT)
+    @RepeatSubmit()
+    @PostMapping("/ts")
+    public Result<Void> ts(@Validated(AddGroup.class) @RequestBody MineQualityDto dto) {
+        dto.setQualityStatus(0);
+        mineQualityService.insertByDto(dto);
+        return Result.success();
+    }
+
+    /**
+     * 查询质量单列表
      */
 //    @SaCheckPermission("quality:list")
     @PostMapping("/list")
@@ -58,7 +73,7 @@ public class MineQualityController extends BaseController {
     }
 
     /**
-     * 导出送货质量列表
+     * 导出质量单
      */
 //    @SaCheckPermission("quality:export")
     @Log(title = "送货质量", businessType = BusinessType.EXPORT)
@@ -69,7 +84,7 @@ public class MineQualityController extends BaseController {
     }
 
     /**
-     * 获取送货质量详细信息
+     * 获取质量单详细信息
      *
      * @param id 主键
      */
@@ -82,9 +97,9 @@ public class MineQualityController extends BaseController {
 
 
     /**
-     * 修改送货质量
+     * 修改质量单
      */
-//    @SaCheckPermission("quality:edit")
+    @SaCheckPermission("quality:edit")
     @Log(title = "送货质量", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -93,12 +108,25 @@ public class MineQualityController extends BaseController {
         return Result.success();
     }
 
+
+    /**
+     * 作废质量单
+     */
+    @SaCheckPermission("quality:edit")
+    @Log(title = "送货质量", businessType = BusinessType.UPDATE)
+    @RepeatSubmit()
+    @PutMapping("/invalid/{id}")
+    public Result<Void> invalid(@NotNull(message = "主键不能为空") @PathVariable Long id) {
+        mineQualityService.invalid(id);
+        return Result.success();
+    }
+
     /**
      * 删除送货质量
      *
      * @param ids 主键串
      */
-//    @SaCheckPermission("quality:remove")
+    @SaCheckPermission("quality:remove")
     @Log(title = "送货质量", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public Result<Void> remove(@NotEmpty(message = "主键不能为空")

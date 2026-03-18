@@ -45,7 +45,6 @@ public class SysFileController extends BaseController {
      * @param basePage
      * @return
      */
-    @SaCheckPermission("system:file:list")
     @GetMapping("/list")
     public PageInfoRes<SysFileVo> list(@Validated(QueryGroup.class) SysQueryFileDto dto, BasePage basePage) {
         return sysSssService.queryPageList(dto, basePage);
@@ -56,7 +55,6 @@ public class SysFileController extends BaseController {
      * @param ossIds
      * @return
      */
-    @SaCheckPermission("system:file:list")
     @GetMapping("/listByIds/{ossIds}")
     public Result<List<SysFileVo>> listByIds(@NotEmpty(message = "主键不能为空")
                                        @PathVariable Long[] ossIds) {
@@ -69,7 +67,6 @@ public class SysFileController extends BaseController {
      * @param file
      * @return
      */
-    @SaCheckPermission("system:file:upload")
     @Log(title = "OSS对象存储", businessType = BusinessType.INSERT)
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Result<UploadFileVO> upload(@RequestPart("file") MultipartFile file) {
@@ -84,7 +81,6 @@ public class SysFileController extends BaseController {
      * @param dto
      * @return
      */
-    @SaCheckPermission("system:file:save")
     @Log(title = "OSS对象存储", businessType = BusinessType.INSERT)
     @PostMapping(value = "/save")
     public Result<Boolean> saveFile(@RequestBody SysFileDTO dto) {
@@ -98,7 +94,6 @@ public class SysFileController extends BaseController {
      * @param response
      * @throws IOException
      */
-    @SaCheckPermission("system:file:download")
     @GetMapping("/download/{ossId}")
     public void download(@PathVariable Long ossId, HttpServletResponse response) throws IOException {
         sysSssService.download(ossId,response);

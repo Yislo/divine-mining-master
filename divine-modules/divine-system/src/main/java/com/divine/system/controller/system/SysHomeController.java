@@ -34,7 +34,6 @@ public class SysHomeController {
 //     * 获取今日出入库
 //     * @return
 //     */
-//    @SaCheckPermission("system:home:all")
 //    @GetMapping("/getWarehouseInfo")
 //    public Result<WarehouseInfoVO> getWarehouseInfo() {
 //        return Result.success(homeService.getWarehouseInfo());
@@ -44,7 +43,6 @@ public class SysHomeController {
 //     * 获取今日进厂数量
 //     * @return
 //     */
-//    @SaCheckPermission("system:home:all")
 //    @GetMapping("/getAccessRecord")
 //    public Result<AccessRecordInfoVO> getAccessRecord() {
 //        return Result.success(homeService.getAccessRecord());
@@ -54,7 +52,6 @@ public class SysHomeController {
 //     * 获取今日过磅数量
 //     * @return
 //     */
-//    @SaCheckPermission("system:home:all")
 //    @GetMapping("/getWeighting")
 //    public Result<List<WeightingInfoVO>> getWeighting() {
 //        return Result.success(homeService.getWeighting());
@@ -64,7 +61,6 @@ public class SysHomeController {
 //     * 获取今日加油量
 //     * @return
 //     */
-//    @SaCheckPermission("system:home:all")
 //    @GetMapping("/getRefuel")
 //    public Result<RefuelInfoVO> getRefuel() {
 //        return Result.success(homeService.getRefuel());
@@ -74,7 +70,6 @@ public class SysHomeController {
      * 获取取样客户占比
      * @return
      */
-    @SaCheckPermission("system:home:all")
     @GetMapping("/getSamplingMerchant")
     public Result<List<SamplingMerchantVO>> getSamplingMerchant() {
         return Result.success(homeService.getSamplingMerchant());
@@ -85,7 +80,6 @@ public class SysHomeController {
      * @param type 查询维度(0:按月，1:按年)
      * @return
      */
-    @SaCheckPermission("system:home:all")
     @GetMapping("/getSampling")
     public Result<List<SamplingInfoVO>> getSampling(@NotNull(message = "查询维度不能为空") Integer type) {
         return Result.success(homeService.getSampling(type));
@@ -95,7 +89,6 @@ public class SysHomeController {
      * 近七日出库
      * @return
      */
-    @SaCheckPermission("system:home:all")
     @GetMapping("/get7dayShipment")
     public Result<List<SevenRecordVO>> get7DayShipment() {
         return Result.success(homeService.get7DayShipment());
@@ -105,7 +98,6 @@ public class SysHomeController {
      * 近七日进厂
      * @return
      */
-    @SaCheckPermission("system:home:all")
     @GetMapping("/get7dayEntry")
     public Result<List<SevenRecordVO>> get7DayEntry() {
         return Result.success(homeService.get7DayEntry());
@@ -115,7 +107,6 @@ public class SysHomeController {
      * 近七日过磅
      * @return
      */
-    @SaCheckPermission("system:home:all")
     @GetMapping("/get7dayWeighting")
     public Result<List<SevenRecordVO>> get7dayWeighting() {
         return Result.success(homeService.get7dayWeighting());
@@ -125,7 +116,6 @@ public class SysHomeController {
      * 近七日加油
      * @return
      */
-    @SaCheckPermission("system:home:all")
     @GetMapping("/get7dayRefuel")
     public Result<List<SevenRecordVO>> get7dayRefuel() {
         return Result.success(homeService.get7dayRefuel());

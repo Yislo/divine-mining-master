@@ -52,7 +52,7 @@ public class ItemCategoryController extends BaseController {
      * 查询物料类型列表
      */
     @GetMapping("/listNoPage")
-    @SaCheckPermission("wms:item:list")
+//    @SaCheckPermission("wms:item:list")
     public Result<List<ItemCategoryVo>> listNoPage(ItemCategoryDto dto) {
         return Result.success(itemCategoryService.queryList(dto));
     }
@@ -61,7 +61,7 @@ public class ItemCategoryController extends BaseController {
      * 获取物料类型下拉树列表
      */
     @GetMapping("/treeselect")
-    @SaCheckPermission("wms:item:list")
+//    @SaCheckPermission("wms:item:list")
     public Result<List<ItemTypeTreeSelectVo>> treeselect(ItemCategoryDto query) {
         List<ItemCategoryVo> itemTypes = itemCategoryService.queryList(query);
         return Result.success(itemCategoryService.buildItemTypeTreeSelect(itemTypes));

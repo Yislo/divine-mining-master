@@ -68,7 +68,6 @@ public class SysUserController extends BaseController {
      * @param basePage
      * @return
      */
-    @SaCheckPermission("system:user:list")
     @GetMapping("/list")
     public PageInfoRes<SysUserVo> list(SysUserDto user, BasePage basePage) {
         return userService.selectPageUserList(user, basePage);
@@ -80,7 +79,6 @@ public class SysUserController extends BaseController {
      * @param response
      */
     @Log(title = "用户管理", businessType = BusinessType.EXPORT)
-    @SaCheckPermission("system:user:export")
     @PostMapping("/export")
     public void export(SysUserDto user, HttpServletResponse response) {
         List<SysUserExportVo> list = userService.selectUserExportList(user);
@@ -94,7 +92,6 @@ public class SysUserController extends BaseController {
      * @param updateSupport 是否更新已存在数据
      */
     @Log(title = "用户管理", businessType = BusinessType.IMPORT)
-    @SaCheckPermission("system:user:import")
     @PostMapping(value = "/importData", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Result<String> importData(@RequestPart("file") MultipartFile file, boolean updateSupport) throws Exception {
         ExcelResult<SysUserImportVo> result = ExcelUtil.importExcel(file.getInputStream(), SysUserImportVo.class, new SysUserImportListener(updateSupport));
@@ -115,7 +112,6 @@ public class SysUserController extends BaseController {
      *
      * @param userId 用户ID
      */
-    @SaCheckPermission("system:user:query")
     @GetMapping(value = {"/", "/{userId}"})
     public Result<Map<String, Object>> getInfo(@PathVariable(value = "userId", required = false) Long userId) {
         userService.checkUserDataScope(userId);
@@ -261,7 +257,6 @@ public class SysUserController extends BaseController {
      * @param dept
      * @return
      */
-    @SaCheckPermission("system:user:list")
     @GetMapping("/deptTree")
     public Result<List<Tree<Long>>> deptTree(SysDeptDto dept) {
         return Result.success(deptService.selectDeptTreeList(dept));

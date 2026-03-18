@@ -39,7 +39,6 @@ public class SysNoticeRuleController extends BaseController {
     /**
      * 查询消息推送规则列表
      */
-    @SaCheckPermission("wms:noticeRule:list")
     @GetMapping("/list")
     public PageInfoRes<SysNoticeRuleVo> list(SysNoticeRuleDto dto, BasePage basePage) {
         return sysNoticeRuleService.queryPageList(dto, basePage);

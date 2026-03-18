@@ -35,7 +35,6 @@ public class SysConfigController extends BaseController {
      * @param basePage
      * @return
      */
-    @SaCheckPermission("system:config:list")
     @GetMapping("/list")
     public PageInfoRes<SysConfigVo> list(SysConfigDto config, BasePage basePage) {
         return configService.selectPageConfigList(config, basePage);
@@ -47,7 +46,6 @@ public class SysConfigController extends BaseController {
      * @param response
      */
     @Log(title = "参数管理", businessType = BusinessType.EXPORT)
-    @SaCheckPermission("system:config:export")
     @PostMapping("/export")
     public void export(SysConfigDto config, HttpServletResponse response) {
         List<SysConfigVo> list = configService.selectConfigList(config);
@@ -59,7 +57,6 @@ public class SysConfigController extends BaseController {
      * @param configId
      * @return
      */
-    @SaCheckPermission("system:config:query")
     @GetMapping(value = "/{configId}")
     public Result<SysConfigVo> getInfo(@PathVariable Long configId) {
         return Result.success(configService.selectConfigById(configId));
@@ -137,7 +134,6 @@ public class SysConfigController extends BaseController {
      * 刷新参数缓存
      * @return
      */
-    @SaCheckPermission("system:config:remove")
     @Log(title = "参数管理", businessType = BusinessType.CLEAN)
     @DeleteMapping("/refreshCache")
     public Result<Void> refreshCache() {
