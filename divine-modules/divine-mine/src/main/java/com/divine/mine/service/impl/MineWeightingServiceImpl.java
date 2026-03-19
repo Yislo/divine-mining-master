@@ -136,8 +136,7 @@ public class MineWeightingServiceImpl implements MineWeightingService {
             .orderByDesc(MineWeighting::getCreateTime);
         if (ObjUtil.isNotNull(isQuality) && isQuality == 1) {
             // 只查询已过磅和未生成质量单的数据
-            qw.isNull(MineWeighting::getQualityId)
-                .eq(MineWeighting::getWeighingStatus, 1);
+            qw.isNull(MineWeighting::getQualityId);
         }
         Page<MineWeightingVo> result = mineWeightingMapper.selectVoPage(dto.build(), qw);
         // set送货单位名称

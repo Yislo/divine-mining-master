@@ -5,6 +5,7 @@ import com.divine.mine.domain.dto.MineQualityDto;
 import com.divine.mine.domain.dto.QualityPageDTO;
 import com.divine.mine.domain.vo.MineQualityInfoVo;
 import com.divine.mine.domain.vo.MineQualityVo;
+import com.divine.mine.domain.vo.QualityExcelVo;
 
 import java.util.Collection;
 import java.util.List;
@@ -35,7 +36,7 @@ public interface MineQualityService {
     /**
      * 查询送货质量列表
      */
-    List<MineQualityVo> queryList(MineQualityDto dto);
+    List<QualityExcelVo> queryList(QualityPageDTO dto);
     /**
      * 修改送货质量
      */

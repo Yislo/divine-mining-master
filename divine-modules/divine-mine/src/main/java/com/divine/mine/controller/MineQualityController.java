@@ -11,6 +11,7 @@ import com.divine.mine.domain.dto.MineQualityDto;
 import com.divine.mine.domain.dto.QualityPageDTO;
 import com.divine.mine.domain.vo.MineQualityInfoVo;
 import com.divine.mine.domain.vo.MineQualityVo;
+import com.divine.mine.domain.vo.QualityExcelVo;
 import com.divine.mine.service.MineQualityService;
 import lombok.RequiredArgsConstructor;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,7 +41,7 @@ public class MineQualityController extends BaseController {
     /**
      * 新增质量单
      */
-//    @SaCheckPermission("quality:add")
+    @SaCheckPermission("quality:add")
     @Log(title = "送货质量", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -53,7 +54,7 @@ public class MineQualityController extends BaseController {
     /**
      * 暂存质量单
      */
-//    @SaCheckPermission("quality:add")
+    @SaCheckPermission("quality:add")
     @Log(title = "送货质量", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping("/ts")
@@ -66,7 +67,6 @@ public class MineQualityController extends BaseController {
     /**
      * 查询质量单列表
      */
-//    @SaCheckPermission("quality:list")
     @PostMapping("/list")
     public PageInfoRes<MineQualityVo> list(@RequestBody QualityPageDTO dto) {
         return mineQualityService.queryPageList(dto);
@@ -78,9 +78,9 @@ public class MineQualityController extends BaseController {
 //    @SaCheckPermission("quality:export")
     @Log(title = "送货质量", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(MineQualityDto dto, HttpServletResponse response) {
-        List<MineQualityVo> list = mineQualityService.queryList(dto);
-        ExcelUtil.exportExcel(list, "送货质量", MineQualityVo.class, response);
+    public void export(QualityPageDTO dto, HttpServletResponse response) {
+        List<QualityExcelVo> list = mineQualityService.queryList(dto);
+        ExcelUtil.exportExcel(list, "送货质量", QualityExcelVo.class, response);
     }
 
     /**
@@ -99,7 +99,7 @@ public class MineQualityController extends BaseController {
     /**
      * 修改质量单
      */
-//    @SaCheckPermission("quality:edit")
+    @SaCheckPermission("quality:edit")
     @Log(title = "送货质量", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()

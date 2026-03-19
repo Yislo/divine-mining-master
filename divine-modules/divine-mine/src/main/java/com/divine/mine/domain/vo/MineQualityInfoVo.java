@@ -37,9 +37,9 @@ public class MineQualityInfoVo implements Serializable {
     private String qualityNo;
 
     /**
-     * 过磅编号
+     * 质量单状态
      */
-    private String weightingNo;
+    private Integer qualityStatus;
 
     /**
      * 水份

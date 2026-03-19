@@ -3,6 +3,8 @@ package com.divine.mine.domain.vo;
 import java.math.BigDecimal;
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import com.divine.common.excel.annotation.ExcelDictFormat;
 import com.divine.mine.domain.entity.MineQuality;
 import lombok.Data;
 import io.github.linpeilie.annotations.AutoMapper;
@@ -28,20 +30,21 @@ public class MineQualityVo implements Serializable {
     /**
      * 主键id
      */
-    @ExcelProperty(value = "主键id")
     private Long id;
 
     /**
      * 质量编号
      */
-    @ExcelProperty(value = "质量编号")
+    @ColumnWidth(20)
+    @ExcelProperty(value = "质量单编号")
     private String qualityNo;
 
     /**
-     * 过磅编号
+     * 质量单状态
      */
-    @ExcelProperty(value = "过磅编号")
-    private String weightingNo;
+    @ExcelProperty(value = "质量单状态")
+    @ExcelDictFormat(dictType = "quality_status")
+    private Integer qualityStatus;
 
     /**
      * 送货单位id
@@ -51,25 +54,28 @@ public class MineQualityVo implements Serializable {
     /**
      * 送货单位
      */
+    @ColumnWidth(20)
     @ExcelProperty(value = "送货单位")
     private String shipMerchantName;
 
     /**
      * 水份
      */
-    @ExcelProperty(value = "水份")
+    @ColumnWidth(20)
+    @ExcelProperty(value = "水份(%)")
     private BigDecimal moisture;
 
     /**
      * 氧化铜品位
      */
-    @ExcelProperty(value = "氧化铜品位")
+    @ColumnWidth(20)
+    @ExcelProperty(value = "氧化铜品位(%)")
     private BigDecimal cuoRatio;
 
     /**
      * 酸耗
      */
-    @ExcelProperty(value = "酸耗")
+    @ExcelProperty(value = "酸耗(吨)")
     private BigDecimal acidDemand;
 
     /**
