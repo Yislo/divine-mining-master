@@ -34,10 +34,10 @@ public class SysNoticeRule implements Serializable {
     /**
      * 1用户 2岗位
      */
-    private Integer targetType;
+    private Long targetType;
     /**
      * 用户ID/岗位ID
      */
-    private Integer targetId;
+    private Long targetId;
 
 }

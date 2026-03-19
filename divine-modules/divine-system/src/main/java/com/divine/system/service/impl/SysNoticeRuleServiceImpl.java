@@ -1,8 +1,10 @@
 package com.divine.system.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.divine.common.core.exception.base.BusinessException;
 import com.divine.common.core.utils.MapstructUtils;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.mybatis.core.page.BasePage;
@@ -20,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * 消息推送规则Service业务层处理
@@ -69,6 +72,13 @@ public class SysNoticeRuleServiceImpl implements SysNoticeRuleService {
      */
     @Override
     public void insertByBo(SysNoticeRuleDto dto) {
+        List<SysNoticeRule> sysNoticeRules = noticeRuleMapper.selectList(new LambdaQueryWrapper<>(SysNoticeRule.class)
+            .eq(SysNoticeRule::getTargetId, dto.getTargetId())
+            .eq(SysNoticeRule::getTargetType, dto.getTargetType())
+            .eq(SysNoticeRule::getEventType, dto.getEventType()));
+        if (CollUtil.isNotEmpty(sysNoticeRules)){
+            throw new BusinessException("该类型已经添加，请选择其他用户或岗位");
+        }
         SysNoticeRule add = MapstructUtils.convert(dto, SysNoticeRule.class);
         noticeRuleMapper.insert(add);
     }
