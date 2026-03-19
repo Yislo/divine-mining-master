@@ -33,6 +33,10 @@ public class MineCarRefuel extends BaseEntity {
      */
     private String refuelNo;
     /**
+     * 加油单状态
+     */
+    private Integer refuelStatus;
+    /**
      * 车辆id
      */
     private Long carId;

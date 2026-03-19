@@ -26,6 +26,11 @@ public class MineCarRefuelDto {
     private Long id;
 
     /**
+     * 加油状态
+     */
+    private Integer refuelStatus;
+
+    /**
      * 车辆id
      */
     private Long carId;

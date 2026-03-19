@@ -8,6 +8,7 @@ import com.divine.common.idempotent.annotation.RepeatSubmit;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.mine.domain.dto.MineCarRefuelDto;
+import com.divine.mine.domain.vo.CarRefuelExcelVo;
 import com.divine.mine.domain.vo.MineCarRefuelVo;
 import com.divine.mine.service.MineCarRefuelService;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,6 @@ public class MineCarRefuelController extends BaseController {
     /**
      * 查询车辆加油记录列表
      */
-//    @SaCheckPermission("carRefuel:list")
     @GetMapping("/list")
     public PageInfoRes<MineCarRefuelVo> list(MineCarRefuelDto dto, BasePage basePage) {
         return mineCarRefuelService.queryPageList(dto, basePage);
@@ -48,12 +48,11 @@ public class MineCarRefuelController extends BaseController {
     /**
      * 导出车辆加油记录列表
      */
-//    @SaCheckPermission("carRefuel:export")
     @Log(title = "车辆加油记录", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(MineCarRefuelDto dto, HttpServletResponse response) {
-        List<MineCarRefuelVo> list = mineCarRefuelService.queryList(dto);
-        ExcelUtil.exportExcel(list, "车辆加油记录", MineCarRefuelVo.class, response);
+        List<CarRefuelExcelVo> list = mineCarRefuelService.queryList(dto);
+        ExcelUtil.exportExcel(list, "车辆加油记录", CarRefuelExcelVo.class, response);
     }
 
     /**
@@ -61,7 +60,6 @@ public class MineCarRefuelController extends BaseController {
      *
      * @param id 主键
      */
-//    @SaCheckPermission("carRefuel:query")
     @GetMapping("/{id}")
     public Result<MineCarRefuelVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
@@ -71,11 +69,12 @@ public class MineCarRefuelController extends BaseController {
     /**
      * 新增车辆加油记录
      */
-//    @SaCheckPermission("carRefuel:add")
+    @SaCheckPermission("carRefuel:add")
     @Log(title = "车辆加油记录", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
     public Result<Void> add(@Validated(AddGroup.class) @RequestBody MineCarRefuelDto dto) {
+        dto.setRefuelStatus(1);
         mineCarRefuelService.insertByBo(dto);
         return Result.success();
     }
@@ -83,7 +82,7 @@ public class MineCarRefuelController extends BaseController {
     /**
      * 修改车辆加油记录
      */
-//    @SaCheckPermission("carRefuel:edit")
+    @SaCheckPermission("carRefuel:edit")
     @Log(title = "车辆加油记录", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -93,16 +92,15 @@ public class MineCarRefuelController extends BaseController {
     }
 
     /**
-     * 删除车辆加油记录
+     * 作废
      *
-     * @param ids 主键串
+     * @param id 主键串
      */
-//    @SaCheckPermission("carRefuel:remove")
+    @SaCheckPermission("carRefuel:remove")
     @Log(title = "车辆加油记录", businessType = BusinessType.DELETE)
-    @DeleteMapping("/{ids}")
-    public Result<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] ids) {
-        mineCarRefuelService.deleteByIds(List.of(ids));
+    @PutMapping("/{id}")
+    public Result<Void> ts(@NotNull(message = "主键不能为空") @PathVariable Long id) {
+        mineCarRefuelService.ts(id);
         return Result.success();
     }
 }

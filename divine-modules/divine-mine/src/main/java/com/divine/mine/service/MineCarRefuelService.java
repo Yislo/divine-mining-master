@@ -3,6 +3,7 @@ package com.divine.mine.service;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.mine.domain.dto.MineCarRefuelDto;
+import com.divine.mine.domain.vo.CarRefuelExcelVo;
 import com.divine.mine.domain.vo.MineCarRefuelVo;
 
 import java.util.Collection;
@@ -30,7 +31,7 @@ public interface MineCarRefuelService {
     /**
      * 查询车辆加油记录列表
      */
-    List<MineCarRefuelVo> queryList(MineCarRefuelDto dto);
+    List<CarRefuelExcelVo> queryList(MineCarRefuelDto dto);
 
     /**
      * 新增车辆加油记录
@@ -43,7 +44,8 @@ public interface MineCarRefuelService {
     void updateByBo(MineCarRefuelDto dto);
 
     /**
-     * 批量删除车辆加油记录
+     * 作废
+     * @param id
      */
-    void deleteByIds(Collection<Long> ids);
+    void ts(Long id);
 }

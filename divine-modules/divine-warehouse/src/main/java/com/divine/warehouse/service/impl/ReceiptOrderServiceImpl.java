@@ -129,6 +129,8 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         lqw.eq(dto.getMerchantId() != null, ReceiptOrder::getMerchantId, dto.getMerchantId());
         lqw.eq(dto.getReceiptStatus() != null, ReceiptOrder::getReceiptStatus, dto.getReceiptStatus());
         lqw.like(dto.getBizOrderNo() != null, ReceiptOrder::getBizOrderNo, dto.getBizOrderNo());
+        lqw.ge(StringUtils.isNotBlank(dto.getStartTime()), ReceiptOrder::getCreateTime, dto.getStartTime());
+        lqw.le(StringUtils.isNotBlank(dto.getEndTime()), ReceiptOrder::getCreateTime, dto.getEndTime());
         lqw.orderByDesc(BaseEntity::getCreateTime);
         return lqw;
     }

@@ -89,11 +89,11 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         }
         // 推送指定用户消息 todo 如果用户量过大，该业务需要优化
         List<SysNoticeRead> readList = sendUserId.stream().map(userId -> {
-//            String redisKey = RedisKeyConstants.UNREAD_MESSAGE + userId;
-//            // 更新redis未读消息数量
-//            Integer num = RedisUtils.get(redisKey);
-//            num = ObjUtil.isNull(num) ? 0 : num;
-//            RedisUtils.set(redisKey, num + 1);
+            String redisKey = RedisKeyConstants.UNREAD_MESSAGE + userId;
+            // 更新redis未读消息数量
+            Integer num = RedisUtils.get(redisKey);
+            num = ObjUtil.isNull(num) ? 0 : num;
+            RedisUtils.set(redisKey, num + 1);
 
             SysNoticeRead sysNoticeRead = new SysNoticeRead();
             sysNoticeRead.setNoticeId(sysNotice.getNoticeId());

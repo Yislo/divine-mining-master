@@ -2,6 +2,7 @@ package com.divine.warehouse.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.ObjUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -192,8 +193,10 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
 
             details.forEach(detail -> {
                 ItemSkuMapVo vo = itemSkuMap.get(detail.getSkuId());
-                detail.setItemSku(vo.getItemSku());
-                detail.setItem(vo.getItem());
+                if (ObjUtil.isNotNull(vo)){
+                    detail.setItemSku(vo.getItemSku());
+                    detail.setItem(vo.getItem());
+                }
             });
         }
     }
