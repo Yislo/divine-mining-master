@@ -338,10 +338,10 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
      */
     @Async
     public void sendNotice(Long warehouseId,
-                            Long skuId,
-                            Long safeStock,
-                            Long afterQuantity,
-                            String storageShelf) {
+                           Long skuId,
+                           Long safeStock,
+                           Long afterQuantity,
+                           String storageShelf) {
         SysNoticeDto sysNotice = new SysNoticeDto();
         sysNotice.setNoticeType(1);
         sysNotice.setEventType(1);
@@ -362,6 +362,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         ItemVo item = itemService.queryById(sku.getItemId());
         Warehouse warehouse = warehouseMapper.selectById(warehouseId);
         String currentTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        storageShelf = StringUtils.isBlank(storageShelf) ? "" : storageShelf;
         return NoticeTemplate.buildStockWarning(
             item.getItemName() + "(" + sku.getSkuName() + ")",                // 商品名称
             sku.getSkuNo(),                                             // SKU编码

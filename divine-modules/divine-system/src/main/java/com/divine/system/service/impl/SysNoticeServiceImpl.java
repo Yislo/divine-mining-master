@@ -132,12 +132,12 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         // 1. 提取并加入直接指定的用户 ID
         ruleList.stream()
             .filter(r -> r.getTargetType() == 1)
-            .map(r -> Long.valueOf(r.getTargetId()))
+            .map(SysNoticeRule::getTargetId)
             .forEach(finalUserIds::add);
         // 2. 提取岗位 ID 集合
         List<Long> postIds = ruleList.stream()
             .filter(r -> r.getTargetType() == 2)
-            .map(r -> Long.valueOf(r.getTargetId()))
+            .map(SysNoticeRule::getTargetId)
             .distinct()
             .toList();
         // 3. 根据岗位获取用户并加入 Set

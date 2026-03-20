@@ -107,7 +107,7 @@ public class ReceiptImportListener extends AnalysisEventListener<ReceiptImportVO
             public String getAnalysis() {
                 if (failureNum > 0) {
                     failureMsg.insert(0, "很抱歉，导入失败！共 " + failureNum + " 条数据格式不正确:");
-                    throw new BusinessException(failureMsg.toString());
+                    throw new BusinessException("很抱歉，导入失败！共 " + failureNum + " 条数据格式不正确,请仔细检查物品名称和数量!");
                 } else {
                     successMsg.insert(0, "导入完成！已成功导入 " + successNum + " 条数据");
                 }

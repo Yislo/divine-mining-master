@@ -74,7 +74,15 @@
         SET quantity = quantity - #{quantity}
         WHERE warehouse_id = #{warehouseId}
           AND sku_id = #{skuId}
-          AND storage_shelf = #{storageShelf}
-          AND quantity >= #{quantity}
+          AND quantity >= #{quantity}<choose>
+        <!-- 如果传入参数为空，匹配数据库中的 NULL 或 空字符串 -->
+        <when test="storageShelf == null or storageShelf == ''">
+            AND (storage_shelf IS NULL OR storage_shelf = '')
+        </when>
+        <!-- 如果传入了具体货架，正常匹配 -->
+        <otherwise>
+            AND storage_shelf = #{storageShelf}
+        </otherwise>
+    </choose>
     </update>
 </mapper>

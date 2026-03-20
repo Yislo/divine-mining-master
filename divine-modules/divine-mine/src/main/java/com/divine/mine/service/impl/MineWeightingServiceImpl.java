@@ -3,12 +3,10 @@ package com.divine.mine.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.divine.common.core.exception.base.BusinessException;
 import com.divine.common.core.utils.GenerateNoUtil;
 import com.divine.common.core.utils.MapstructUtils;
 import com.divine.common.mybatis.core.page.PageInfoRes;
-import com.divine.common.mybatis.core.page.BasePage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -137,6 +135,7 @@ public class MineWeightingServiceImpl implements MineWeightingService {
         if (ObjUtil.isNotNull(isQuality) && isQuality == 1) {
             // 只查询已过磅和未生成质量单的数据
             qw.isNull(MineWeighting::getQualityId);
+            qw.ne(MineWeighting::getWeighingStatus, -1);
         }
         Page<MineWeightingVo> result = mineWeightingMapper.selectVoPage(dto.build(), qw);
         // set送货单位名称
