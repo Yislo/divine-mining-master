@@ -9,7 +9,7 @@ import lombok.Data;
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -59,7 +59,7 @@ public class MineQualityInfoVo implements Serializable {
     /**
      * 取样时间
      */
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 取样时间

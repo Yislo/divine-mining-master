@@ -5,7 +5,7 @@ import com.divine.common.mybatis.core.domain.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import java.io.Serial;
 
@@ -47,7 +47,7 @@ public class MineWeighting extends BaseEntity {
     /**
      * 发货日期
      */
-    private Date shipTime;
+    private LocalDateTime shipTime;
     /**
      * 发货地址
      */
@@ -59,7 +59,7 @@ public class MineWeighting extends BaseEntity {
     /**
      * 收货日期
      */
-    private Date deliveryTime;
+    private LocalDateTime deliveryTime;
     /**
      * 过磅状态
      */

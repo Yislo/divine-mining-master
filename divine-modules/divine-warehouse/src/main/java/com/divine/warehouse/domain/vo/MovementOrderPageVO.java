@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @ExcelIgnoreUnannotated
@@ -36,11 +36,11 @@ public class MovementOrderPageVO implements Serializable {
     /**
      * 创建时间
      */
-    private Date createTime;
+    private LocalDateTime createTime;
     /**
      * 修改时间
      */
-    private Date updateTime;
+    private  LocalDateTime updateTime;
     /**
      * 操作人
      */

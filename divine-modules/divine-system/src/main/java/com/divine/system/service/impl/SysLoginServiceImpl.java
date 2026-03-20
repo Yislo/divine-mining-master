@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -305,7 +305,7 @@ public class SysLoginServiceImpl implements SysLoginService {
         SysUser sysUser = new SysUser();
         sysUser.setUserId(userId);
         sysUser.setLoginIp(ServletUtils.getClientIP());
-        sysUser.setLoginDate(DateUtils.getNowDate());
+        sysUser.setLoginDate(LocalDateTime.now());
         sysUser.setUpdateBy(username);
         userMapper.updateById(sysUser);
     }

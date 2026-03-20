@@ -5,14 +5,12 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.divine.common.excel.annotation.ExcelDictFormat;
 import com.divine.common.excel.convert.ExcelDictConvert;
-import com.divine.mine.domain.entity.MineQuality;
-import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 送货质量视图对象 mine_quality
@@ -80,7 +78,7 @@ public class QualityExcelVo implements Serializable {
 
     @ColumnWidth(20)
     @ExcelProperty(value = "取样时间")
-    private Date createTime;
+    private LocalDateTime createTime;
 
 
 }

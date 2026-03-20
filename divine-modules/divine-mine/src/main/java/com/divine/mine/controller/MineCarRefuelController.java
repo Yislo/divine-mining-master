@@ -69,7 +69,7 @@ public class MineCarRefuelController extends BaseController {
     /**
      * 新增车辆加油记录
      */
-    @SaCheckPermission("carRefuel:add")
+    @SaCheckPermission("fuel:fuelRecord:add")
     @Log(title = "车辆加油记录", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -82,7 +82,7 @@ public class MineCarRefuelController extends BaseController {
     /**
      * 修改车辆加油记录
      */
-    @SaCheckPermission("carRefuel:edit")
+    @SaCheckPermission("fuel:fuelRecord:edit")
     @Log(title = "车辆加油记录", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -96,7 +96,7 @@ public class MineCarRefuelController extends BaseController {
      *
      * @param id 主键串
      */
-    @SaCheckPermission("carRefuel:remove")
+    @SaCheckPermission("fuel:fuelRecord:remove")
     @Log(title = "车辆加油记录", businessType = BusinessType.DELETE)
     @PutMapping("/{id}")
     public Result<Void> ts(@NotNull(message = "主键不能为空") @PathVariable Long id) {

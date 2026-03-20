@@ -54,7 +54,6 @@ public class MineQualityController extends BaseController {
     /**
      * 暂存质量单
      */
-    @SaCheckPermission("quality:add")
     @Log(title = "送货质量", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping("/ts")

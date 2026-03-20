@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import java.io.Serial;
 
@@ -47,6 +47,6 @@ public class SysNoticeRead implements Serializable {
     /**
      * 已读时间
      */
-    private Date readTime;
+    private LocalDateTime readTime;
 
 }

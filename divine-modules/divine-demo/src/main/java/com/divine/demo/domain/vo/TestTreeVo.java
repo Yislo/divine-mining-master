@@ -6,7 +6,7 @@ import com.divine.demo.domain.entity.TestTree;
 import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 
 /**
@@ -55,7 +55,7 @@ public class TestTreeVo {
      * 创建时间
      */
     @ExcelProperty(value = "创建时间")
-    private Date createTime;
+    private LocalDateTime createTime;
 
 
 }

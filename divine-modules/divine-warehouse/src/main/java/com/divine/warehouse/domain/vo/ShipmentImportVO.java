@@ -8,7 +8,7 @@ import com.divine.common.excel.convert.ExcelDictConvert;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 出库单业务对象 wms_shipment_order
@@ -45,7 +45,7 @@ public class ShipmentImportVO {
 
     @ColumnWidth(20)
     @ExcelProperty(value = "出库时间")
-    private Date shipmentTime;
+    private LocalDateTime shipmentTime;
 
     @ColumnWidth(18)
     @ExcelProperty(value = "所属仓库")

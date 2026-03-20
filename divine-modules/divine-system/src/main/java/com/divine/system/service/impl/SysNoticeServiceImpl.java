@@ -33,11 +33,11 @@ import com.divine.system.mapper.SysUserMapper;
 import com.divine.system.service.SysNoticeService;
 import com.divine.system.service.SysPostService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.async.DeferredResult;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -202,7 +202,7 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         // 组装数据新增
         readList.forEach(read -> {
             read.setIsRead(1);
-            read.setReadTime(new Date());
+            read.setReadTime(LocalDateTime.now());
         });
         // 批量已读
         noticeReadMapper.updateBatchById(readList);

@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
 import io.github.linpeilie.annotations.AutoMapper;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 车辆出入厂记录业务对象 mine_access_record
@@ -37,12 +37,12 @@ public class MineAccessRecordDto extends BaseEntity {
     /**
      * 进厂时间
      */
-    private Date enterTime;
+    private LocalDateTime enterTime;
 
     /**
      * 出厂时间
      */
-    private Date exitTime;
+    private LocalDateTime exitTime;
 
     /**
      * 所属单位

@@ -3,7 +3,7 @@ package com.divine.warehouse.domain.vo;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 库存记录
@@ -52,7 +52,7 @@ public class InventoryHistoryPageVo{
     /**
      * 操作时间
      */
-    private Date createTime;
+    private LocalDateTime createTime;
     /**
      * 物品比那好
      */

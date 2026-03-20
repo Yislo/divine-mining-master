@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 import jakarta.validation.constraints.*;
 import io.github.linpeilie.annotations.AutoMapper;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 消息已读业务对象 sys_notice_read
@@ -53,7 +53,7 @@ public class SysNoticeReadDto extends BaseEntity {
      *
      */
     @NotNull(message = "不能为空", groups = { AddGroup.class, EditGroup.class })
-    private Date readTime;
+    private LocalDateTime readTime;
 
 
 }

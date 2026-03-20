@@ -1,14 +1,13 @@
 package com.divine.mine.domain.vo;
 
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
-import com.alibaba.excel.annotation.ExcelProperty;
 import com.divine.mine.domain.entity.MineCarRefuel;
 import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.io.Serial;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 车辆加油记录视图对象 mine_car_refuel
@@ -87,7 +86,7 @@ public class MineCarRefuelVo implements Serializable {
     /**
      * 加油时间
      */
-    private Date createTime;
+    private LocalDateTime createTime;
 
 
 }

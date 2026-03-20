@@ -1,6 +1,6 @@
 package com.divine.system.domain.vo;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
@@ -53,7 +53,7 @@ public class SysNoticeReadVo implements Serializable {
      *
      */
     @ExcelProperty(value = "")
-    private Date readTime;
+    private LocalDateTime readTime;
 
 
 }

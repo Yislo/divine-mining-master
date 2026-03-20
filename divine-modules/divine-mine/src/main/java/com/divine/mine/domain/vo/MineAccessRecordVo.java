@@ -1,6 +1,6 @@
 package com.divine.mine.domain.vo;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
@@ -41,13 +41,13 @@ public class MineAccessRecordVo implements Serializable {
      * 进厂时间
      */
     @ExcelProperty(value = "进厂时间")
-    private Date enterTime;
+    private LocalDateTime enterTime;
 
     /**
      * 出厂时间
      */
     @ExcelProperty(value = "出厂时间")
-    private Date exitTime;
+    private LocalDateTime exitTime;
 
     /**
      * 所属单位

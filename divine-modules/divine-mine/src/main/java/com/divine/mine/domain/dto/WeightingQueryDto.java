@@ -1,15 +1,11 @@
 package com.divine.mine.domain.dto;
 
-import com.divine.common.core.validate.EditGroup;
-import com.divine.common.mybatis.core.domain.BaseEntity;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.mine.domain.entity.MineWeighting;
 import io.github.linpeilie.annotations.AutoMapper;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
 
 /**
  * 过磅记录业务对象 mine_weighting
@@ -56,12 +52,12 @@ public class WeightingQueryDto extends BasePage {
     /**
      * 开始时间
      */
-    private Date startTime;
+    private String startTime;
 
     /**
      * 结束时间
      */
-    private Date endTime;
+    private String endTime;
 
 
 

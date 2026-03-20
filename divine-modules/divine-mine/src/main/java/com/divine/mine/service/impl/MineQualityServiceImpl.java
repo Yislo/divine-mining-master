@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 import com.divine.mine.mapper.MineQualityMapper;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Collection;
 import java.util.Map;
@@ -136,18 +135,20 @@ public class MineQualityServiceImpl implements MineQualityService {
 
     /**
      * 组装查询条件
+     *
      * @param dto
      * @return
      */
     private LambdaQueryWrapper<MineQuality> getQw(QualityPageDTO dto) {
         String qualityNo = dto.getQualityNo();
         Long shipMerchantId = dto.getShipMerchantId();
-        Date startTime = dto.getStartTime();
-        Date endTime = dto.getEndTime();
+        String startTime = dto.getStartTime();
+        String endTime = dto.getEndTime();
         return new LambdaQueryWrapper<>(MineQuality.class)
             .like(StringUtils.isNotBlank(qualityNo), MineQuality::getQualityNo, qualityNo)
             .like(ObjUtil.isNotNull(shipMerchantId), MineQuality::getShipMerchantId, shipMerchantId)
-            .between(ObjUtil.isNotNull(startTime) || ObjUtil.isNotNull(endTime), MineQuality::getCreateTime, startTime, endTime)
+            .ge(StringUtils.isNotBlank(startTime), MineQuality::getCreateTime, startTime)
+            .le(StringUtils.isNotBlank(endTime), MineQuality::getCreateTime, endTime)
             .orderByDesc(MineQuality::getCreateTime);
 
     }

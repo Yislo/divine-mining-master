@@ -3,7 +3,7 @@ package com.divine.mine.export;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 public class ExportContext {
@@ -40,23 +40,23 @@ public class ExportContext {
     /**
      * 组货结算日期
      */
-    private Date settleTime;
+    private LocalDateTime settleTime;
     /**
      * 开票日期
      */
-    private Date ticketTime;
+    private LocalDateTime ticketTime;
     /**
      * 授权日期
      */
-    private Date accreditTime;
+    private  LocalDateTime accreditTime;
     /**
      * 发车时间
      */
-    private Date departureTime;
+    private  LocalDateTime departureTime;
     /**
      * 过磅时间
      */
-    private Date weighingTime;
+    private  LocalDateTime weighingTime;
     /**
      * 工厂名称
      */

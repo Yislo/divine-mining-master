@@ -5,7 +5,7 @@ import com.divine.common.mybatis.core.domain.BaseEntity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import java.io.Serial;
 
@@ -34,11 +34,11 @@ public class MineAccessRecord extends BaseEntity {
     /**
      * 进厂时间
      */
-    private Date enterTime;
+    private LocalDateTime enterTime;
     /**
      * 出厂时间
      */
-    private Date exitTime;
+    private LocalDateTime exitTime;
     /**
      * 所属单位
      */

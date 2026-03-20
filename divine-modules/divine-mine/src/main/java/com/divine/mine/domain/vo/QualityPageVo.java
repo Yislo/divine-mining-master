@@ -3,7 +3,7 @@ package com.divine.mine.domain.vo;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @Author: Yisl
@@ -56,7 +56,7 @@ public class QualityPageVo {
     /**
      * 取样时间
      */
-    private Date createTime;
+    private LocalDateTime createTime;
 
     /**
      * 备注

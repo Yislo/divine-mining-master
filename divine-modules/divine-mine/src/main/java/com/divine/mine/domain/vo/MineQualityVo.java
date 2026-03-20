@@ -11,7 +11,7 @@ import io.github.linpeilie.annotations.AutoMapper;
 
 import java.io.Serializable;
 import java.io.Serial;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 送货质量视图对象 mine_quality
@@ -88,7 +88,7 @@ public class MineQualityVo implements Serializable {
      * 取样时间
      */
     @ExcelProperty(value = "取样时间")
-    private Date createTime;
+    private LocalDateTime createTime;
 
 
 }

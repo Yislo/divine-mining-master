@@ -122,15 +122,16 @@ public class MineWeightingServiceImpl implements MineWeightingService {
         Integer goodsType = dto.getGoodsType();
         Long shipMerchantId = dto.getShipMerchantId();
         Integer isQuality = dto.getIsQuality();
-        Date startTime = dto.getStartTime();
-        Date endTime = dto.getEndTime();
+        String startTime = dto.getStartTime();
+        String endTime = dto.getEndTime();
         LambdaQueryWrapper<MineWeighting> qw = new LambdaQueryWrapper<>(MineWeighting.class);
         qw.like(StringUtils.isNotBlank(weighingNo), MineWeighting::getWeighingNo, weighingNo)
             .like(StringUtils.isNotBlank(carNumber), MineWeighting::getCarNumber, carNumber)
             .eq(ObjUtil.isNotNull(weighingStatus), MineWeighting::getWeighingStatus, weighingStatus)
             .eq(ObjUtil.isNotNull(goodsType), MineWeighting::getGoodsType, goodsType)
             .eq(ObjUtil.isNotNull(shipMerchantId), MineWeighting::getShipMerchantId, shipMerchantId)
-            .between(ObjUtil.isNotNull(startTime) && ObjUtil.isNotNull(endTime), MineWeighting::getCreateTime, startTime, endTime)
+            .ge(StringUtils.isNotBlank(startTime), MineWeighting::getCreateTime, startTime)
+            .le(StringUtils.isNotBlank(endTime), MineWeighting::getCreateTime, endTime)
             .orderByDesc(MineWeighting::getCreateTime);
         if (ObjUtil.isNotNull(isQuality) && isQuality == 1) {
             // 只查询已过磅和未生成质量单的数据

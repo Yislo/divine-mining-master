@@ -4,7 +4,6 @@ import com.divine.common.mybatis.core.page.BasePage;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.Date;
 
 /**
  * @Author: Yisl
@@ -33,12 +32,12 @@ public class QualityPageDTO extends BasePage {
     /**
      * 开始时间
      */
-    private Date startTime;
+    private String startTime;
 
     /**
      * 结束时间
      */
-    private Date endTime;
+    private String endTime;
 
 
 }

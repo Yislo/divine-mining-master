@@ -1,6 +1,6 @@
 package com.divine.mine.domain.vo;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
@@ -65,7 +65,7 @@ public class MineWeightingVo implements Serializable {
      * 发货日期
      */
     @ExcelProperty(value = "发货日期")
-    private Date shipTime;
+    private LocalDateTime shipTime;
 
     /**
      * 发货地址
@@ -83,7 +83,7 @@ public class MineWeightingVo implements Serializable {
      * 收货日期
      */
     @ExcelProperty(value = "收货日期")
-    private Date deliveryTime;
+    private LocalDateTime deliveryTime;
 
     /**
      * 过磅状态
@@ -124,7 +124,7 @@ public class MineWeightingVo implements Serializable {
      * 过磅时间
      */
     @ExcelProperty(value = "过磅时间")
-    private Date createTime;
+    private LocalDateTime createTime;
 
 
 }

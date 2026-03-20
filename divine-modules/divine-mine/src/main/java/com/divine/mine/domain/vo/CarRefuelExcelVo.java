@@ -5,13 +5,11 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import com.divine.common.excel.annotation.ExcelDictFormat;
 import com.divine.common.excel.convert.ExcelDictConvert;
-import com.divine.mine.domain.entity.MineCarRefuel;
-import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 车辆加油记录视图对象 mine_car_refuel
@@ -67,7 +65,7 @@ public class CarRefuelExcelVo implements Serializable {
 
     @ColumnWidth(20)
     @ExcelProperty(value = "加油时间")
-    private Date createTime;
+    private LocalDateTime createTime;
 
     @ColumnWidth(12)
     @ExcelProperty(value = "负责人")

@@ -2,7 +2,7 @@ package com.divine.system.domain.vo.home;
 
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @Author: Yisl
@@ -20,6 +20,6 @@ public class SevenRecordVO {
     /**
      * 时间
      */
-    private Date time;
+    private LocalDateTime time;
 
 }

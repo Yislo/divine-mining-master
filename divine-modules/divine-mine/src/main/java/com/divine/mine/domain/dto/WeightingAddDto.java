@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * 过磅记录业务对象 mine_weighting
@@ -40,7 +40,7 @@ public class WeightingAddDto {
     /**
      * 发货日期
      */
-    private Date shipTime;
+    private LocalDateTime shipTime;
 
     /**
      * 发货地址
@@ -55,7 +55,7 @@ public class WeightingAddDto {
     /**
      * 收货日期
      */
-    private Date deliveryTime;
+    private LocalDateTime deliveryTime;
 
     /**
      * 总重
