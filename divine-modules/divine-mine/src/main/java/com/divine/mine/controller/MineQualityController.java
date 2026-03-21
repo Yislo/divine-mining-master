@@ -2,7 +2,6 @@ package com.divine.mine.controller;
 
 import java.util.List;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.divine.common.core.domain.Result;
 import com.divine.common.excel.utils.ExcelUtil;
 import com.divine.common.idempotent.annotation.RepeatSubmit;
@@ -41,7 +40,6 @@ public class MineQualityController extends BaseController {
     /**
      * 新增质量单
      */
-    @SaCheckPermission("quality:add")
     @Log(title = "送货质量", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
@@ -74,7 +72,6 @@ public class MineQualityController extends BaseController {
     /**
      * 导出质量单
      */
-//    @SaCheckPermission("quality:export")
     @Log(title = "送货质量", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(QualityPageDTO dto, HttpServletResponse response) {
@@ -87,7 +84,6 @@ public class MineQualityController extends BaseController {
      *
      * @param id 主键
      */
-//    @SaCheckPermission("quality:query")
     @GetMapping("/{id}")
     public Result<MineQualityInfoVo> getInfo(@NotNull(message = "主键不能为空")
                                      @PathVariable Long id) {
@@ -98,7 +94,6 @@ public class MineQualityController extends BaseController {
     /**
      * 修改质量单
      */
-    @SaCheckPermission("quality:edit")
     @Log(title = "送货质量", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping()
@@ -111,7 +106,6 @@ public class MineQualityController extends BaseController {
     /**
      * 作废质量单
      */
-    @SaCheckPermission("quality:edit")
     @Log(title = "送货质量", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
     @PutMapping("/invalid/{id}")
@@ -125,7 +119,6 @@ public class MineQualityController extends BaseController {
      *
      * @param ids 主键串
      */
-    @SaCheckPermission("quality:remove")
     @Log(title = "送货质量", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public Result<Void> remove(@NotEmpty(message = "主键不能为空")

@@ -80,15 +80,13 @@ public class MineWeighting extends BaseEntity {
      * 备注
      */
     private String remark;
-
+    /**
+     * 回磅时间
+     */
+    private LocalDateTime returnTime;
     /**
      * 质量id(取样之后生成)
      */
     private Long qualityId;
-
-    /**
-     * 是否删除(0:未删除,1:已删除)
-     */
-    private Integer isDel;
 
 }

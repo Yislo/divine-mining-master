@@ -126,5 +126,11 @@ public class MineWeightingVo implements Serializable {
     @ExcelProperty(value = "过磅时间")
     private LocalDateTime createTime;
 
+    /**
+     * 回磅时间
+     */
+    @ExcelProperty(value = "回磅时间")
+    private LocalDateTime returnTime;
+
 
 }

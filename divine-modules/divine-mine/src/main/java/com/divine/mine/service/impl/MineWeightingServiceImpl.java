@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import com.divine.mine.mapper.MineWeightingMapper;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Collection;
 import java.util.Map;
@@ -73,6 +73,7 @@ public class MineWeightingServiceImpl implements MineWeightingService {
     public void returnWeighting(WeightingReturnDto dto) {
         MineWeighting weighting = BeanUtil.copyProperties(dto, MineWeighting.class);
         weighting.setWeighingStatus(1);
+        weighting.setReturnTime(LocalDateTime.now());
         mineWeightingMapper.updateById(weighting);
     }
 
