@@ -36,7 +36,7 @@ public class PlusWebInvokeTimeInterceptor implements HandlerInterceptor {
         if (!prodProfile.equals(SpringUtils.getActiveProfile())) {
             String url = request.getMethod() + " " + request.getRequestURI();
             // 关闭轮训接口日志打印
-            if (StringUtils.equals(url,"/system/notice/getUnreadCont")){
+            if (StringUtils.contains(url, "/system/notice/getUnreadCont")) {
                 return true;
             }
             // 打印请求参数
@@ -71,14 +71,15 @@ public class PlusWebInvokeTimeInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        String uri = request.getRequestURI();
+        // 关闭轮训接口日志打印
+        if (StringUtils.contains(uri, "/system/notice/getUnreadCont")) {
+            return;
+        }
         if (!prodProfile.equals(SpringUtils.getActiveProfile())) {
-            String uri = request.getRequestURI();
             StopWatch stopWatch = KEY_CACHE.get();
             stopWatch.stop();
-            // 关闭轮训接口日志打印
-            if (!StringUtils.equals(uri,"/system/notice/getUnreadCont")){
-                log.info("[PLUS]结束请求 => URL[{}],耗时:[{}]毫秒", request.getMethod() + " " + uri, stopWatch.getTime());
-            }
+            log.info("[PLUS]结束请求 => URL[{}],耗时:[{}]毫秒", request.getMethod() + " " + uri, stopWatch.getTime());
             KEY_CACHE.remove();
         }
     }
