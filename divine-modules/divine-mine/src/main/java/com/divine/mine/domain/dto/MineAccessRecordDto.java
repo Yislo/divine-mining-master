@@ -26,7 +26,7 @@ public class MineAccessRecordDto extends BaseEntity {
     /**
      * 主键id
      */
-    @NotNull(message = "主键id不能为空", groups = { AddGroup.class, EditGroup.class })
+    @NotNull(message = "主键id不能为空", groups = {EditGroup.class })
     private Long id;
 
     /**
