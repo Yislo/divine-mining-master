@@ -117,7 +117,7 @@ public class MineAccessRecordServiceImpl implements MineAccessRecordService {
             throw new BusinessException("数据异常,请联系系统管理员");
         }
         accessRecord.setStatus(2);
-        accessRecord.setEnterTime(LocalDateTime.now());
+        accessRecord.setExitTime(LocalDateTime.now());
         mineAccessRecordMapper.updateById(accessRecord);
 
     }

@@ -121,6 +121,12 @@ public class MineWeightingVo implements Serializable {
     private String remark;
 
     /**
+     * 过磅员
+     */
+    @ExcelProperty(value = "过磅员")
+    private String createBy;
+
+    /**
      * 过磅时间
      */
     @ExcelProperty(value = "过磅时间")
