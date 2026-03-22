@@ -79,14 +79,15 @@ public class MineAccessRecordController extends BaseController {
     }
 
     /**
-     * 修改车辆出入厂记录
+     * 出厂
      */
 //    @SaCheckPermission("access:accessRecord:edit")
     @Log(title = "车辆出入厂记录", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping()
-    public Result<Void> edit(@Validated(EditGroup.class) @RequestBody MineAccessRecordDto dto) {
-        mineAccessRecordServiceImpl.updateByBo(dto);
+    @PutMapping("/{id}")
+    public Result<Void> edit(@NotNull(message = "主键不能为空")
+                                 @PathVariable Long id) {
+        mineAccessRecordServiceImpl.out(id);
         return Result.success();
     }
 

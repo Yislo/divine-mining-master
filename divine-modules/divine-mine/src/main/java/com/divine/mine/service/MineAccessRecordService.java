@@ -43,6 +43,11 @@ public interface MineAccessRecordService {
     void updateByBo(MineAccessRecordDto dto);
 
     /**
+     * 出厂
+     */
+    void out(Long id);
+
+    /**
      * 批量删除车辆出入厂记录
      */
     void deleteByIds(Collection<Long> ids);

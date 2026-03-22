@@ -56,6 +56,12 @@ public class MineAccessRecordVo implements Serializable {
     private Long merchantId;
 
     /**
+     * 所属单位
+     */
+    @ExcelProperty(value = "所属单位")
+    private String merchantName;
+
+    /**
      * 进厂类型(0:其他,1:送货,2:外来,3:空车)
      */
     @ExcelProperty(value = "进厂类型(0:其他,1:送货,2:外来,3:空车)")

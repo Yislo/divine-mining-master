@@ -46,11 +46,11 @@ public class MineAccessRecord extends BaseEntity {
     /**
      * 进厂类型(0:其他,1:送货,2:外来,3:空车)
      */
-    private Long entryType;
+    private Integer entryType;
     /**
      * 状态
      */
-    private Long status;
+    private Integer status;
     /**
      * 备注
      */

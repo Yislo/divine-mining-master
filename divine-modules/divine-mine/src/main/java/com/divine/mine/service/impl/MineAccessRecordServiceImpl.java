@@ -1,7 +1,9 @@
 package com.divine.mine.service.impl;
 
+import cn.hutool.core.util.ObjUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.divine.common.core.exception.base.BusinessException;
 import com.divine.common.core.utils.MapstructUtils;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.mybatis.core.page.BasePage;
@@ -10,14 +12,20 @@ import com.divine.mine.domain.dto.MineAccessRecordDto;
 import com.divine.mine.domain.entity.MineAccessRecord;
 import com.divine.mine.domain.vo.MineAccessRecordVo;
 import com.divine.mine.service.MineAccessRecordService;
+import com.divine.warehouse.domain.entity.ReceiptOrder;
+import com.divine.warehouse.domain.vo.MerchantVo;
+import com.divine.warehouse.service.MerchantService;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.divine.mine.mapper.MineAccessRecordMapper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 
 /**
  * 车辆出入厂记录Service业务层处理
@@ -30,12 +38,13 @@ import java.util.Collection;
 public class MineAccessRecordServiceImpl implements MineAccessRecordService {
 
     private final MineAccessRecordMapper mineAccessRecordMapper;
+    private final MerchantService merchantService;
 
     /**
      * 查询车辆出入厂记录
      */
     @Override
-    public MineAccessRecordVo queryById(Long id){
+    public MineAccessRecordVo queryById(Long id) {
         return mineAccessRecordMapper.selectVoById(id);
     }
 
@@ -46,6 +55,12 @@ public class MineAccessRecordServiceImpl implements MineAccessRecordService {
     public PageInfoRes<MineAccessRecordVo> queryPageList(MineAccessRecordDto dto, BasePage basePage) {
         LambdaQueryWrapper<MineAccessRecord> lqw = buildQueryWrapper(dto);
         Page<MineAccessRecordVo> result = mineAccessRecordMapper.selectVoPage(basePage.build(), lqw);
+        // 填充单位名称
+        // 获取单位名称
+        List<Long> list = result.getRecords().stream().map(MineAccessRecordVo::getMerchantId).toList();
+        List<MerchantVo> merchantVos = merchantService.queryByIds(list);
+        Map<Long, String> merchantMap = merchantVos.stream().collect(Collectors.toMap(MerchantVo::getId, MerchantVo::getMerchantName));
+        result.getRecords().forEach(r -> r.setMerchantName(StringUtils.isBlank(merchantMap.get(r.getMerchantId())) ? "-" : merchantMap.get(r.getMerchantId())));
         return PageInfoRes.build(result);
     }
 
@@ -66,6 +81,8 @@ public class MineAccessRecordServiceImpl implements MineAccessRecordService {
         lqw.eq(dto.getMerchantId() != null, MineAccessRecord::getMerchantId, dto.getMerchantId());
         lqw.eq(dto.getEntryType() != null, MineAccessRecord::getEntryType, dto.getEntryType());
         lqw.eq(dto.getStatus() != null, MineAccessRecord::getStatus, dto.getStatus());
+        lqw.ge(StringUtils.isNotBlank(dto.getStartTime()), MineAccessRecord::getCreateTime, dto.getStartTime());
+        lqw.le(StringUtils.isNotBlank(dto.getEndTime()), MineAccessRecord::getCreateTime, dto.getEndTime());
         return lqw;
     }
 
@@ -75,6 +92,7 @@ public class MineAccessRecordServiceImpl implements MineAccessRecordService {
     @Override
     public void insertByBo(MineAccessRecordDto dto) {
         MineAccessRecord add = MapstructUtils.convert(dto, MineAccessRecord.class);
+        add.setStatus(1);
         mineAccessRecordMapper.insert(add);
     }
 
@@ -85,6 +103,23 @@ public class MineAccessRecordServiceImpl implements MineAccessRecordService {
     public void updateByBo(MineAccessRecordDto dto) {
         MineAccessRecord update = MapstructUtils.convert(dto, MineAccessRecord.class);
         mineAccessRecordMapper.updateById(update);
+    }
+
+    /**
+     * 出厂
+     *
+     * @param id
+     */
+    @Override
+    public void out(Long id) {
+        MineAccessRecord accessRecord = mineAccessRecordMapper.selectById(id);
+        if (ObjUtil.isNull(accessRecord)) {
+            throw new BusinessException("数据异常,请联系系统管理员");
+        }
+        accessRecord.setStatus(2);
+        accessRecord.setEnterTime(LocalDateTime.now());
+        mineAccessRecordMapper.updateById(accessRecord);
+
     }
 
     /**
