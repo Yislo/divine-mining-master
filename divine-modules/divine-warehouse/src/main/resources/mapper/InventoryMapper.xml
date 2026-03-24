@@ -11,6 +11,8 @@
         sku.sku_no,
         sku.sku_name,
         sku.unit_price,
+        (IFNULL(sku.unit_price, 0) * IFNULL(inv.quantity, 0)) AS total_price,
+        item.unit,
         item.id AS item_id,
         item.item_name,
         item.item_no,

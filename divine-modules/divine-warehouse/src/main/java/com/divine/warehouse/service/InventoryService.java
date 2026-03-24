@@ -8,6 +8,7 @@ import com.divine.warehouse.domain.vo.BoardListVO;
 import com.divine.warehouse.domain.vo.InventoryVo;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,11 +30,11 @@ public interface InventoryService {
     InventoryVo queryById(Long id);
 
     /**
-     * 查询库存列表
+     * 导出库存
      * @param dto
      * @return
      */
-    List<InventoryVo> queryList(InventoryDto dto);
+    void exportInventoryList(InventoryDto dto, HttpServletResponse response);
 
     /**
      * 新增库存

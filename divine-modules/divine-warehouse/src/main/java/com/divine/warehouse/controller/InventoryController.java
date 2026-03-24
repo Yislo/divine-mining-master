@@ -16,6 +16,7 @@ import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.web.core.BaseController;
 import com.divine.warehouse.domain.dto.InventoryUpdateDto;
 import com.divine.warehouse.domain.vo.BoardListVO;
+import com.divine.warehouse.domain.vo.InventoryExcelVo;
 import com.divine.warehouse.domain.vo.InventoryVo;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import jakarta.servlet.http.HttpServletResponse;
@@ -68,16 +69,16 @@ public class InventoryController extends BaseController {
         return inventoryService.queryWarehouseBoardList(dto, basePage);
     }
 
-    /**
-     * 查询库存列表物品维度
-     * @param dto
-     * @return
-     */
-    @SaCheckPermission("wms:inventory:all")
-    @GetMapping(value = {"/listNoPage"})
-    public Result<List<InventoryVo>> listNoPage(InventoryDto dto) {
-        return Result.success(inventoryService.queryList(dto));
-    }
+//    /**
+//     * 查询库存列表物品维度
+//     * @param dto
+//     * @return
+//     */
+//    @SaCheckPermission("wms:inventory:all")
+//    @GetMapping(value = {"/listNoPage"})
+//    public Result<List<InventoryVo>> listNoPage(InventoryDto dto) {
+//        return Result.success(inventoryService.queryList(dto));
+//    }
 
     /**
      * 导出库存列表
@@ -88,8 +89,7 @@ public class InventoryController extends BaseController {
     @Log(title = "库存", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(InventoryDto dto, HttpServletResponse response) {
-        List<InventoryVo> list = inventoryService.queryList(dto);
-        ExcelUtil.exportExcel(list, "库存", InventoryVo.class, response);
+        inventoryService.exportInventoryList(dto,response);
     }
 
     /**

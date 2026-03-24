@@ -100,8 +100,8 @@ public class SysNoticeServiceImpl implements SysNoticeService {
             sysNoticeRead.setUserId(userId);
             return sysNoticeRead;
         }).toList();
-        // 推送消息
-        sendNewMessage(sendUserId);
+//        // 推送消息
+//        sendNewMessage(sendUserId);
         // 调用查询消息数量方法，根据userIds
         noticeReadMapper.insertBatch(readList);
     }

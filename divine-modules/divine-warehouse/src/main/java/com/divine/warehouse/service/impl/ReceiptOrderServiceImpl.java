@@ -316,18 +316,26 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         // 新增物品信息
         saveItemInfo(dtoList);
         // 创建入库单明细
-        List<ReceiptOrderDetailDto> list = dtoList.stream().map(dto -> {
-            ReceiptOrderDetailDto receiptOrderDetail = new ReceiptOrderDetailDto();
-            receiptOrderDetail.setReceiptId(receiptId);
-            receiptOrderDetail.setSkuId(dto.getSkuId());
-            receiptOrderDetail.setQuantity(dto.getQuantity());
-            receiptOrderDetail.setUnitPrice(dto.getUnitPrice());
-            receiptOrderDetail.setWarehouseId(dto.getWarehouseId());
-            receiptOrderDetail.setStorageShelf(dto.getStorageShelf());
-            receiptOrderDetail.setRemark(dto.getRemark());
-            return receiptOrderDetail;
-        }).toList();
-        // 创建入库单明细
+        Map<String, ReceiptOrderDetailDto> map = dtoList.stream().collect(Collectors.toMap(
+            dto -> dto.getSkuId() + "_" + dto.getWarehouseId() + "_" + dto.getStorageShelf() + "_",
+            dto -> {
+                ReceiptOrderDetailDto detail = new ReceiptOrderDetailDto();
+                detail.setReceiptId(receiptId);
+                detail.setSkuId(dto.getSkuId());
+                detail.setQuantity(dto.getQuantity());
+                detail.setUnitPrice(dto.getUnitPrice());
+                detail.setWarehouseId(dto.getWarehouseId());
+                detail.setStorageShelf(dto.getStorageShelf());
+                detail.setRemark(dto.getRemark());
+                return detail;
+            },
+            (oldVal, newVal) -> {
+                // 合并逻辑：数量累加
+                oldVal.setQuantity(oldVal.getQuantity() + newVal.getQuantity());
+                return oldVal;
+            }
+        ));
+        List<ReceiptOrderDetailDto> list = new ArrayList<>(map.values());        // 创建入库单明细
         receiptOrderDetailService.saveDetails(list);
         // 3.增加库存
         inventoryService.add(list);

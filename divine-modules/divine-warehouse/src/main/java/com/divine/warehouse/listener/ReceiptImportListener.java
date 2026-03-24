@@ -71,7 +71,7 @@ public class ReceiptImportListener extends AnalysisEventListener<ReceiptImportVO
         } catch (Exception e) {
             failureNum++;
             String s = StringUtils.isBlank(receiptImportVO.getItemName()) ? "" : receiptImportVO.getItemName();
-            String msg = failureNum + "、物品 【" + s + "】" + "导入失败，";
+            String msg = "<br/>" +failureNum + "、物品 【" + s + "】【" +receiptImportVO.getSkuName()+ "】导入失败，";
             failureMsg.append(msg).append(e.getMessage());
             log.error(msg, e);
         }
@@ -107,7 +107,7 @@ public class ReceiptImportListener extends AnalysisEventListener<ReceiptImportVO
             public String getAnalysis() {
                 if (failureNum > 0) {
                     failureMsg.insert(0, "很抱歉，导入失败！共 " + failureNum + " 条数据格式不正确:");
-                    throw new BusinessException("很抱歉，导入失败！共 " + failureNum + " 条数据格式不正确,请仔细检查物品名称和数量!");
+                    throw new BusinessException(failureMsg.toString());
                 } else {
                     successMsg.insert(0, "导入完成！已成功导入 " + successNum + " 条数据");
                 }

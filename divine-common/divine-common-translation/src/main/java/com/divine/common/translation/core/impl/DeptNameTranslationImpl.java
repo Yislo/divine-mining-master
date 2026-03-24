@@ -6,6 +6,7 @@ import com.divine.common.translation.core.TranslationInterface;
 import com.divine.common.translation.constant.TransConstant;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * 部门翻译实现

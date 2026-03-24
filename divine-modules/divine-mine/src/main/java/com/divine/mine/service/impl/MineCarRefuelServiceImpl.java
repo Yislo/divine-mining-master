@@ -78,6 +78,7 @@ public class MineCarRefuelServiceImpl implements MineCarRefuelService {
         lqw.eq(ObjUtil.isNotNull(dto.getRefuelStatus()), MineCarRefuel::getRefuelStatus, dto.getRefuelStatus());
         lqw.ge(StringUtils.isNotBlank(dto.getStartTime()), MineCarRefuel::getCreateTime, dto.getStartTime());
         lqw.le(StringUtils.isNotBlank(dto.getEndTime()), MineCarRefuel::getCreateTime, dto.getEndTime());
+        lqw.orderByDesc(MineCarRefuel::getCreateTime);
         return lqw;
     }
 

@@ -12,6 +12,7 @@ import com.divine.common.core.constant.NoticeTemplate;
 import com.divine.common.core.constant.RedisKeyConstants;
 import com.divine.common.core.exception.base.BusinessException;
 import com.divine.common.core.utils.StringUtils;
+import com.divine.common.excel.utils.ExcelUtil;
 import com.divine.common.redis.utils.RedisDistributedLock;
 import com.divine.common.redis.utils.RedisUtils;
 import com.divine.system.domain.dto.SysNoticeDto;
@@ -33,17 +34,18 @@ import com.divine.warehouse.service.ItemSkuService;
 import com.divine.common.core.utils.MapstructUtils;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 库存Service业务层处理
@@ -51,6 +53,7 @@ import java.util.stream.Collectors;
  * @author yisl
  * @date 2024-07-19
  */
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory> implements InventoryService {
@@ -83,21 +86,13 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
      * 查询库存列表
      */
     @Override
-    public List<InventoryVo> queryList(InventoryDto dto) {
-        LambdaQueryWrapper<Inventory> lqw = buildQueryWrapper(dto);
-        List<InventoryVo> vos = inventoryMapper.selectVoList(lqw);
-        if (CollUtil.isNotEmpty(vos)) {
-            Set<Long> skuIds = vos.stream().map(InventoryVo::getSkuId).collect(Collectors.toSet());
-            Map<Long, ItemSkuMapVo> itemSkuMap = itemSkuService.queryItemSkuMapVosByIds(skuIds);
-            vos.forEach(it -> {
-                String storageShelf = it.getStorageShelf();
-                it.setStorageShelf(storageShelf);
-                ItemSkuMapVo itemSkuMapVo = itemSkuMap.get(it.getSkuId());
-                it.setItemSku(itemSkuMapVo.getItemSku());
-                it.setItem(itemSkuMapVo.getItem());
-            });
-        }
-        return vos;
+    public void exportInventoryList(InventoryDto dto, HttpServletResponse response) {
+        int pageSize = 100;
+        ExcelUtil.exportExcelByBatch("仓库库存", BoardListVO.class, pageSize, response, (pageNum, size) -> {
+            // 这里 pageNum 是工具类在 while 循环里自增传出来的
+            Page<BoardListVO> result = inventoryMapper.queryWarehouseBoardList(new Page<>(pageNum, pageSize), dto);
+            return result.getRecords();
+        });
     }
 
     private LambdaQueryWrapper<Inventory> buildQueryWrapper(InventoryDto dto) {

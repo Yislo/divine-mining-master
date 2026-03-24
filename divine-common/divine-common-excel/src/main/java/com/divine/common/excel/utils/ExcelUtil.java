@@ -8,9 +8,7 @@ import com.alibaba.excel.write.builder.ExcelWriterSheetBuilder;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillConfig;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
-import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.divine.common.core.exception.base.BusinessException;
-import com.divine.common.core.utils.DateUtils;
 import com.divine.common.excel.convert.ExcelBigNumberConvert;
 import com.divine.common.excel.core.*;
 import jakarta.servlet.ServletOutputStream;
@@ -19,14 +17,18 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import com.divine.common.core.utils.StringUtils;
 import com.divine.common.core.utils.file.FileUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Excel相关处理
@@ -34,6 +36,7 @@ import java.util.Map;
  * @author Lion Li
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
 public class ExcelUtil {
 
     /**
@@ -84,7 +87,7 @@ public class ExcelUtil {
      */
     public static <T> void exportExcel(List<T> list, String sheetName, Class<T> clazz, HttpServletResponse response) {
         try {
-            resetResponse(sheetName, response);
+            setResponseHeader(sheetName, response);
             ServletOutputStream os = response.getOutputStream();
             exportExcel(list, sheetName, clazz, false, os, null);
         } catch (IOException e) {
@@ -103,7 +106,7 @@ public class ExcelUtil {
      */
     public static <T> void exportExcel(List<T> list, String sheetName, Class<T> clazz, HttpServletResponse response, List<DropDownOptions> options) {
         try {
-            resetResponse(sheetName, response);
+            setResponseHeader(sheetName, response);
             ServletOutputStream os = response.getOutputStream();
             exportExcel(list, sheetName, clazz, false, os, options);
         } catch (IOException e) {
@@ -122,7 +125,7 @@ public class ExcelUtil {
      */
     public static <T> void exportExcel(List<T> list, String sheetName, Class<T> clazz, boolean merge, HttpServletResponse response) {
         try {
-            resetResponse(sheetName, response);
+            setResponseHeader(sheetName, response);
             ServletOutputStream os = response.getOutputStream();
             exportExcel(list, sheetName, clazz, merge, os, null);
         } catch (IOException e) {
@@ -142,7 +145,7 @@ public class ExcelUtil {
      */
     public static <T> void exportExcel(List<T> list, String sheetName, Class<T> clazz, boolean merge, HttpServletResponse response, List<DropDownOptions> options) {
         try {
-            resetResponse(sheetName, response);
+            setResponseHeader(sheetName, response);
             ServletOutputStream os = response.getOutputStream();
             exportExcel(list, sheetName, clazz, merge, os, options);
         } catch (IOException e) {
@@ -203,6 +206,83 @@ public class ExcelUtil {
     }
 
     /**
+     * 分批次异步导入 (适用于大数据量)
+     *
+     * @param is        输入流
+     * @param clazz     对象类型
+     * @param batchSize 每批次处理的数据量
+     * @param consumer  每批次数据的处理逻辑 (比如调用 mapper.insertBatch)
+     */
+    public static <T> void importExcelByBatch(InputStream is, Class<T> clazz, int batchSize, java.util.function.Consumer<List<T>> consumer) {
+        EasyExcel.read(is, clazz, new com.alibaba.excel.event.AnalysisEventListener<T>() {
+            // 临时存储批次数据的列表
+            private final List<T> cachedDataList = new ArrayList<>(batchSize);
+
+            @Override
+            public void invoke(T data, com.alibaba.excel.context.AnalysisContext context) {
+                cachedDataList.add(data);
+                // 达到批次阈值，执行处理逻辑
+                if (cachedDataList.size() >= batchSize) {
+                    consumer.accept(cachedDataList);
+                    // 处理完后务必清空内存
+                    cachedDataList.clear();
+                }
+            }
+
+            @Override
+            public void doAfterAllAnalysed(com.alibaba.excel.context.AnalysisContext context) {
+                // 处理最后一批剩余的数据（不足 batchSize 的部分）
+                if (cn.hutool.core.collection.CollUtil.isNotEmpty(cachedDataList)) {
+                    consumer.accept(cachedDataList);
+                    cachedDataList.clear();
+                }
+            }
+        }).sheet().doRead();
+    }
+
+    /**
+     * 分批次导出 (大数据量分批写入，防止内存溢出)
+     *
+     * @param sheetName  工作表名称
+     * @param clazz      实体类
+     * @param response   响应体
+     * @param pageSize   每批导出数量
+     * @param dataLoader 数据加载回调函数 (参数为当前页码，从 1 开始)
+     */
+    public static <T> void exportExcelByBatch(String sheetName, Class<T> clazz, int pageSize,
+                                              HttpServletResponse response, BiFunction<Integer, Integer, List<T>> dataLoader) {
+
+        if (pageSize <= 0 || pageSize > 5000) {
+            throw new IllegalArgumentException("pageSize不合法");
+        }
+        try {
+            setResponseHeader(sheetName, response);
+            try (ServletOutputStream os = response.getOutputStream()) {
+                ExcelWriter excelWriter = EasyExcel.write(os, clazz)
+                    .autoCloseStream(true)
+                    .registerConverter(new ExcelBigNumberConvert())
+                    .build();
+                WriteSheet writeSheet = EasyExcel.writerSheet(sheetName).build();
+                int pageNum = 1;
+                while (true) {
+                    List<T> data = dataLoader.apply(pageNum, pageSize);
+                    if (CollUtil.isEmpty(data)) {
+                        break;
+                    }
+                    excelWriter.write(data, writeSheet);
+                    if (data.size() < pageSize) {
+                        break;
+                    }
+                    pageNum++;
+                }
+                excelWriter.finish();
+            }
+        } catch (Exception e) {
+            throw new BusinessException("导出Excel异常", e);
+        }
+    }
+
+    /**
      * 单表多数据模板导出 模板格式为 {.属性}
      *
      * @param filename     文件名
@@ -212,9 +292,10 @@ public class ExcelUtil {
      * @param data         模板需要的数据
      * @param response     响应体
      */
-    public static void exportTemplate(List<Object> data, String filename, String templatePath, HttpServletResponse response) {
+    public static void exportTemplate(List<Object> data, String filename, String
+        templatePath, HttpServletResponse response) {
         try {
-            resetResponse(filename, response);
+            setResponseHeader(filename, response);
             ServletOutputStream os = response.getOutputStream();
             exportTemplate(data, templatePath, os);
         } catch (IOException e) {
@@ -260,9 +341,10 @@ public class ExcelUtil {
      * @param data         模板需要的数据
      * @param response     响应体
      */
-    public static void exportTemplateMultiList(Map<String, Object> data, String filename, String templatePath, HttpServletResponse response) {
+    public static void exportTemplateMultiList(Map<String, Object> data, String filename, String
+        templatePath, HttpServletResponse response) {
         try {
-            resetResponse(filename, response);
+            setResponseHeader(filename, response);
             ServletOutputStream os = response.getOutputStream();
             exportTemplateMultiList(data, templatePath, os);
         } catch (IOException e) {
@@ -280,9 +362,10 @@ public class ExcelUtil {
      * @param data         模板需要的数据
      * @param response     响应体
      */
-    public static void exportTemplateMultiSheet(List<Map<String, Object>> data, String filename, String templatePath, HttpServletResponse response) {
+    public static void exportTemplateMultiSheet(List<Map<String, Object>> data, String filename, String
+        templatePath, HttpServletResponse response) {
         try {
-            resetResponse(filename, response);
+            setResponseHeader(filename, response);
             ServletOutputStream os = response.getOutputStream();
             exportTemplateMultiSheet(data, templatePath, os);
         } catch (IOException e) {
@@ -333,7 +416,8 @@ public class ExcelUtil {
      * @param data         模板需要的数据
      * @param os           输出流
      */
-    public static void exportTemplateMultiSheet(List<Map<String, Object>> data, String templatePath, OutputStream os) {
+    public static void exportTemplateMultiSheet(List<Map<String, Object>> data, String
+        templatePath, OutputStream os) {
         ClassPathResource templateResource = new ClassPathResource(templatePath);
         ExcelWriter excelWriter = EasyExcel.write(os)
             .withTemplate(templateResource.getStream())
@@ -363,7 +447,8 @@ public class ExcelUtil {
     /**
      * 重置响应体
      */
-    private static void resetResponse(String sheetName, HttpServletResponse response) throws UnsupportedEncodingException {
+    public static void setResponseHeader(String sheetName, HttpServletResponse response) throws
+        UnsupportedEncodingException {
         String filename = encodingFilename(sheetName);
         FileUtils.setAttachmentResponseHeader(response, filename);
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8");
