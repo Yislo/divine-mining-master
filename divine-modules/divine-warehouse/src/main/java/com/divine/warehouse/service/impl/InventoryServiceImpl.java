@@ -87,7 +87,7 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
      */
     @Override
     public void exportInventoryList(InventoryDto dto, HttpServletResponse response) {
-        int pageSize = 100;
+        int pageSize = 2000;
         ExcelUtil.exportExcelByBatch("仓库库存", BoardListVO.class, pageSize, response, (pageNum, size) -> {
             // 这里 pageNum 是工具类在 while 循环里自增传出来的
             Page<BoardListVO> result = inventoryMapper.queryWarehouseBoardList(new Page<>(pageNum, pageSize), dto);
