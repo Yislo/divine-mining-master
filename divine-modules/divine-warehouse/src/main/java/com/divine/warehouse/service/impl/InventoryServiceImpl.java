@@ -241,7 +241,11 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
             if (StringUtils.isNotBlank(orderDetailsBo.getStorageShelf())) {
                 wrapper.eq(Inventory::getStorageShelf, orderDetailsBo.getStorageShelf());
             } else {
-                wrapper.isNull(Inventory::getStorageShelf).or().eq(Inventory::getStorageShelf, "");
+                wrapper.and(w ->
+                    w.isNull(Inventory::getStorageShelf)
+                        .or()
+                        .eq(Inventory::getStorageShelf, "")
+                );
             }
             Inventory result = inventoryMapper.selectOne(wrapper);
             if (result != null) {
@@ -286,7 +290,11 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
                     .eq(Inventory::getWarehouseId, d.getWarehouseId())
                     .eq(Inventory::getSkuId, d.getSkuId());
                 if (StringUtils.isBlank(d.getStorageShelf())) {
-                    qw.isNull(Inventory::getStorageShelf).or().eq(Inventory::getStorageShelf, "");
+                    qw.and(w ->
+                        w.isNull(Inventory::getStorageShelf)
+                            .or()
+                            .eq(Inventory::getStorageShelf, "")
+                    );
                 } else {
                     qw.eq(Inventory::getStorageShelf, d.getStorageShelf());
                 }
@@ -405,7 +413,11 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         if (StringUtils.isNotBlank(storageShelf)) {
             wq.eq(Inventory::getStorageShelf, wq);
         } else {
-            wq.isNull(Inventory::getStorageShelf).or().eq(Inventory::getStorageShelf, "");
+            wq.and(w ->
+                w.isNull(Inventory::getStorageShelf)
+                    .or()
+                    .eq(Inventory::getStorageShelf, "")
+            );
         }
         Inventory inventory = inventoryMapper.selectOne(wq);
         if (ObjUtil.isNull(inventory)) {
