@@ -45,6 +45,10 @@ public class MineCarRefuel extends BaseEntity {
      */
     private String carNumber;
     /**
+     * 车辆类型
+     */
+    private Integer carType;
+    /**
      * 车辆编号
      */
     private String carNo;

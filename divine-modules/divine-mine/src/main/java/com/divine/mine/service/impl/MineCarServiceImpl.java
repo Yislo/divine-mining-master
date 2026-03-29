@@ -64,7 +64,6 @@ public class MineCarServiceImpl implements MineCarService {
         lqw.eq(StringUtils.isNotBlank(dto.getDriverPhone()), MineCar::getDriverPhone, dto.getDriverPhone());
         lqw.eq(StringUtils.isNotBlank(dto.getDriver()), MineCar::getDriver, dto.getDriver());
         lqw.eq(dto.getCarType() != null, MineCar::getCarType, dto.getCarType());
-        lqw.eq(dto.getIsDel() != null, MineCar::getIsDel, dto.getIsDel());
         return lqw;
     }
 

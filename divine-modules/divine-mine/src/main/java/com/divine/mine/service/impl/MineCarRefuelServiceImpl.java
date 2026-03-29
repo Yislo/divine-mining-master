@@ -22,8 +22,6 @@ import org.springframework.stereotype.Service;
 import com.divine.mine.mapper.MineCarRefuelMapper;
 
 import java.util.List;
-import java.util.Collection;
-import java.util.Objects;
 
 /**
  * 车辆加油记录Service业务层处理
@@ -72,6 +70,7 @@ public class MineCarRefuelServiceImpl implements MineCarRefuelService {
         lqw.eq(StringUtils.isNotBlank(dto.getCarNumber()), MineCarRefuel::getCarNumber, dto.getCarNumber());
         lqw.eq(StringUtils.isNotBlank(dto.getCarNo()), MineCarRefuel::getCarNo, dto.getCarNo());
         lqw.eq(dto.getIsExternal() != null, MineCarRefuel::getIsExternal, dto.getIsExternal());
+        lqw.eq(dto.getCarType() != null, MineCarRefuel::getCarType, dto.getCarType());
         lqw.eq(dto.getOdometer() != null, MineCarRefuel::getOdometer, dto.getOdometer());
         lqw.eq(dto.getLitre() != null, MineCarRefuel::getLitre, dto.getLitre());
         lqw.eq(StringUtils.isNotBlank(dto.getRefuelType()), MineCarRefuel::getRefuelType, dto.getRefuelType());

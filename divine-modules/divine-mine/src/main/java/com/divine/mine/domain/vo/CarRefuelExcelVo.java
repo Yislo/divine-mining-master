@@ -37,6 +37,11 @@ public class CarRefuelExcelVo implements Serializable {
     private String carNo;
 
     @ColumnWidth(12)
+    @ExcelProperty(value = "车辆类型", converter = ExcelDictConvert.class)
+    @ExcelDictFormat(dictType = "car_type")
+    private Integer carType;
+
+    @ColumnWidth(12)
     @ExcelProperty(value = "外来车辆", converter = ExcelDictConvert.class)
     @ExcelDictFormat(dictType = "is_external")
     private Long isExternal;
