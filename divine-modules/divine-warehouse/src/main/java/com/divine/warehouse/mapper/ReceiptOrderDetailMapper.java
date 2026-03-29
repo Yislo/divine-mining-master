@@ -1,9 +1,9 @@
 package com.divine.warehouse.mapper;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.divine.warehouse.domain.dto.ReceiptOrderDetailDto;
+import com.divine.warehouse.domain.dto.ReceiptInfoDto;
 import com.divine.warehouse.domain.entity.ReceiptOrderDetail;
-import com.divine.warehouse.domain.vo.ReceiptDetailVO;
+import com.divine.warehouse.domain.vo.ReceiptInfoVO;
 import com.divine.warehouse.domain.vo.ReceiptOrderDetailVO;
 import com.divine.common.mybatis.core.mapper.BaseMapperPlus;
 import org.apache.ibatis.annotations.Mapper;
@@ -21,10 +21,10 @@ public interface ReceiptOrderDetailMapper extends BaseMapperPlus<ReceiptOrderDet
      * 查询入库单详情列表
      *
      * @param page
-     * @param receiptId 入库单id
+     * @param dto
      * @return
      */
-    IPage<ReceiptDetailVO> getReceiptDetailList(IPage<ReceiptDetailVO> page, Long receiptId);
+    IPage<ReceiptInfoVO> getReceiptDetailList(IPage<ReceiptInfoVO> page, ReceiptInfoDto dto);
 
 
 }

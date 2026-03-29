@@ -11,10 +11,12 @@ import com.divine.common.log.enums.BusinessType;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.web.core.BaseController;
+import com.divine.warehouse.domain.dto.ShipmentInfoDto;
 import com.divine.warehouse.domain.dto.ShipmentOrderDetailDto;
 import com.divine.warehouse.domain.vo.ShipmentDetailVO;
 import com.divine.warehouse.domain.vo.ShipmentOrderDetailVO;
 import com.divine.warehouse.service.ShipmentOrderDetailService;
+import com.dtflys.forest.annotation.Post;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -42,9 +44,9 @@ public class ShipmentOrderDetailController extends BaseController {
      * 查询出库单详情列表
      */
     @SaCheckPermission("wms:shipment:all")
-    @GetMapping("/list")
-    public PageInfoRes<ShipmentDetailVO> list(Long shipmentId, BasePage basePage) {
-        return shipmentOrderDetailService.queryPageList(shipmentId, basePage);
+    @PostMapping("/list")
+    public PageInfoRes<ShipmentDetailVO> list(@RequestBody ShipmentInfoDto dto) {
+        return shipmentOrderDetailService.queryPageList(dto);
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.divine.warehouse.service;
 
 import com.divine.warehouse.domain.dto.ItemDto;
+import com.divine.warehouse.domain.vo.ItemInfoVo;
 import com.divine.warehouse.domain.vo.ItemVo;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
@@ -25,7 +26,7 @@ public interface ItemService {
     /**
      * 查询物料列表
      */
-    PageInfoRes<ItemVo> queryPageList(ItemDto dto, BasePage basePage) ;
+    PageInfoRes<ItemVo> queryPageList(ItemDto dto, BasePage basePage);
 
     /**
      * 查询物料列表
@@ -33,21 +34,29 @@ public interface ItemService {
     List<ItemVo> queryList(ItemDto dto);
 
     /**
+     * 查询物品详情
+     *
+     * @param dto
+     * @return
+     */
+    List<ItemInfoVo>  queryItemInfo(ItemDto dto);
+
+    /**
      * 新增物料
      *
      * @param dto
      */
-    void insertByForm(ItemDto dto) ;
+    void insertByForm(ItemDto dto);
 
     /**
      * 修改物料
      *
      * @param dto
      */
-    void updateByForm(ItemDto dto) ;
+    void updateByForm(ItemDto dto);
 
     /**
-     * 批量删除物料
+     * 查询物品信息
      */
     void deleteById(Long id);
 

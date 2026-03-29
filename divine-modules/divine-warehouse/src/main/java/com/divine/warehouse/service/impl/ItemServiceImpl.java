@@ -1,5 +1,6 @@
 package com.divine.warehouse.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
@@ -14,6 +15,7 @@ import com.divine.warehouse.domain.dto.ItemSkuDto;
 import com.divine.warehouse.domain.entity.Item;
 import com.divine.warehouse.domain.entity.ItemCategory;
 import com.divine.warehouse.domain.vo.ItemCategoryVo;
+import com.divine.warehouse.domain.vo.ItemInfoVo;
 import com.divine.warehouse.domain.vo.ItemSkuVo;
 import com.divine.warehouse.domain.vo.ItemVo;
 import com.divine.warehouse.mapper.ItemCategoryMapper;
@@ -25,11 +27,11 @@ import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -92,12 +94,58 @@ public class ItemServiceImpl implements ItemService {
         return itemMapper.selectVoList(lqw);
     }
 
+    /**
+     * 查询物品详情
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public List<ItemInfoVo> queryItemInfo(ItemDto dto) {
+        // 1. 参数校验：如果没有任何查询条件，直接返回空，避免全表扫描
+        if (StringUtils.isAllBlank(dto.getItemNo(), dto.getItemName(), dto.getSkuNoOrName())) {
+            return Collections.emptyList();
+        }
+        // 2. 查询 Item 基础信息
+        List<ItemVo> itemVos = queryList(dto);
+        if (CollUtil.isEmpty(itemVos)) {
+            return Collections.emptyList();
+        }
+        // 3. 转换 VO 并提取 ID 列表
+        List<ItemInfoVo> itemInfoVos = BeanUtil.copyToList(itemVos, ItemInfoVo.class);
+        List<Long> itemIdList = itemInfoVos.stream()
+            .map(ItemInfoVo::getId)
+            .filter(Objects::nonNull)
+            .toList();
+        // 4. 批量查询 SKU 信息 (In查询性能更佳)
+        Map<Long, List<ItemSkuVo>> skuMap = Collections.emptyMap();
+        if (CollUtil.isNotEmpty(itemIdList)) {
+            ItemSkuDto itemSkuDto = new ItemSkuDto();
+            itemSkuDto.setItemIdList(itemIdList);
+            itemSkuDto.setSkuName(dto.getSkuNoOrName());
+            List<ItemSkuVo> itemSkuVos = itemSkuService.queryList(itemSkuDto);
+            // 分组处理
+            skuMap = itemSkuVos.stream()
+                .collect(Collectors.groupingBy(ItemSkuVo::getItemId));
+        }
+
+        // 5. 聚合数据
+        for (ItemInfoVo item : itemInfoVos) {
+            item.setSkuList(skuMap.getOrDefault(item.getId(), Collections.emptyList()));
+        }
+
+        return itemInfoVos;
+    }
+
     private LambdaQueryWrapper<Item> buildQueryWrapper(ItemDto dto) {
         LambdaQueryWrapper<Item> lqw = Wrappers.lambdaQuery();
         lqw.eq(StrUtil.isNotBlank(dto.getItemNo()), Item::getItemNo, dto.getItemNo());
+        lqw.and(StrUtil.isNotBlank(dto.getItemName()),w ->
+            w.eq(StrUtil.isNotBlank(dto.getItemName()), Item::getItemNo, dto.getItemName())
+                .or()
+                .like(StrUtil.isNotBlank(dto.getItemName()), Item::getItemName, dto.getItemName()));
         // 主键集合
         lqw.in(!CollUtil.isEmpty(dto.getIds()), Item::getId, dto.getIds());
-        lqw.like(StrUtil.isNotBlank(dto.getItemName()), Item::getItemName, dto.getItemName());
         if (!StrUtil.isBlank(dto.getItemCategory())) {
             Long parentId = Long.valueOf(dto.getItemCategory());
             List<Long> subIdList = this.buildSubItemCategoryIdList(parentId);
@@ -156,7 +204,7 @@ public class ItemServiceImpl implements ItemService {
         LambdaQueryWrapper<Item> queryWrapper = Wrappers.lambdaQuery();
         queryWrapper.eq(Item::getItemName, item.getItemName());
         queryWrapper.ne(item.getId() != null, Item::getId, item.getId());
-        if (itemMapper.selectCount(queryWrapper) > 0){
+        if (itemMapper.selectCount(queryWrapper) > 0) {
             throw new BusinessException("物品名称重复");
         }
     }

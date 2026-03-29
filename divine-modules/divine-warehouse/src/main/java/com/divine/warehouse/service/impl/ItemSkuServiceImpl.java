@@ -79,9 +79,12 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
     }
 
     private LambdaQueryWrapper<ItemSku> buildQueryWrapper(ItemSkuDto dto) {
-        Map<String, Object> params = dto.getParams();
         LambdaQueryWrapper<ItemSku> lqw = Wrappers.lambdaQuery();
+//        lqw.and(w -> w.like(StrUtil.isNotBlank(dto.getSkuName()), ItemSku::getSkuName, dto.getSkuName())
+//            .or()
+//            .like(StrUtil.isNotBlank(dto.getSkuName()), ItemSku::getSkuNo, dto.getSkuName()));
         lqw.like(StrUtil.isNotBlank(dto.getSkuName()), ItemSku::getSkuName, dto.getSkuName());
+        lqw.in(CollUtil.isNotEmpty(dto.getItemIdList()), ItemSku::getItemId, dto.getItemIdList());
         lqw.eq(dto.getItemId() != null, ItemSku::getItemId, dto.getItemId());
         lqw.orderByDesc(ItemSku::getItemId);
         return lqw;
@@ -151,14 +154,14 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
     @Transactional
     public void saveOrUpdateBatchByBo(List<ItemSkuDto> sku) {
         List<ItemSku> itemSkuList = MapstructUtils.convert(sku, ItemSku.class);
-        itemSkuList.forEach(s-> s.setSkuNo(generateNoUtil.getBizNo(NoTypeEnum.SKU_NO.getCode())));
+        itemSkuList.forEach(s -> s.setSkuNo(generateNoUtil.getBizNo(NoTypeEnum.SKU_NO.getCode())));
         saveOrUpdateBatch(itemSkuList);
     }
 
     public void setItemId(List<ItemSkuDto> itemSkuList, Long itemId) {
         for (ItemSkuDto itemSkuDto : itemSkuList) {
 //            if (StrUtil.isBlank(itemSkuDto.getBarcode())) {
-                itemSkuDto.setItemId(itemId);
+            itemSkuDto.setItemId(itemId);
 //            }
         }
     }
@@ -193,7 +196,7 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
 
             details.forEach(detail -> {
                 ItemSkuMapVo vo = itemSkuMap.get(detail.getSkuId());
-                if (ObjUtil.isNotNull(vo)){
+                if (ObjUtil.isNotNull(vo)) {
                     detail.setItemSku(vo.getItemSku());
                     detail.setItem(vo.getItem());
                 }
@@ -203,15 +206,16 @@ public class ItemSkuServiceImpl extends ServiceImpl<ItemSkuMapper, ItemSku> impl
 
     /**
      * 获取sku货架信息
+     *
      * @param skuId
      * @return
      */
     @Override
     public List<String> getStorage(Long skuId) {
         List<InventoryVo> bySkuIds = inventoryService.getBySkuIds(Collections.singletonList(skuId));
-        if (CollUtil.isEmpty(bySkuIds)){
+        if (CollUtil.isEmpty(bySkuIds)) {
             return Collections.emptyList();
         }
-        return  bySkuIds.stream().map(InventoryVo::getStorageShelf).toList();
+        return bySkuIds.stream().map(InventoryVo::getStorageShelf).toList();
     }
 }

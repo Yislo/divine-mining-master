@@ -15,7 +15,6 @@ import java.math.BigDecimal;
  */
 @Data
 @ExcelIgnoreUnannotated
-@AutoMapper(target = ReceiptOrderDetail.class)
 public class ShipmentDetailVO {
 
     /**
@@ -29,6 +28,11 @@ public class ShipmentDetailVO {
     private String itemName;
 
     /**
+     * 物品编号
+     */
+    private String itemNo;
+
+    /**
      * skuId
      */
     private Long skuId;
@@ -39,19 +43,34 @@ public class ShipmentDetailVO {
     private String skuName;
 
     /**
+     * 规格编号
+     */
+    private String skuNo;
+
+    /**
      * 数量
      */
     private Long quantity;
 
     /**
-     * 货架
+     * 单位
      */
-    private String storageShelf;
+    private String unit;
 
     /**
      * 单价($)
      */
     private BigDecimal unitPrice;
+
+    /**
+     * 总价($)
+     */
+    private BigDecimal totalPrice;
+
+    /**
+     * 货架
+     */
+    private String storageShelf;
 
 
 

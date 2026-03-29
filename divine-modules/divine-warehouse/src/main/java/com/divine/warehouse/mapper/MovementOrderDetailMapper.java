@@ -5,8 +5,6 @@ import com.divine.warehouse.domain.entity.MovementOrderDetail;
 import com.divine.warehouse.domain.vo.MoveDetailVO;
 import com.divine.warehouse.domain.vo.MovementOrderDetailVO;
 import com.divine.common.mybatis.core.mapper.BaseMapperPlus;
-import com.divine.warehouse.domain.vo.ReceiptDetailVO;
-import com.divine.warehouse.domain.vo.ShipmentDetailVO;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

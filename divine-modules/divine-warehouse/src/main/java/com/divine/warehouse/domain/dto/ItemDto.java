@@ -34,6 +34,11 @@ public class ItemDto extends BaseEntity {
     private String itemNo;
 
     /**
+     * 规格编号或规格名称
+     */
+    private String skuNoOrName;
+
+    /**
      * 名称
      */
     @NotBlank(message = "名称不能为空", groups = { AddGroup.class, EditGroup.class })

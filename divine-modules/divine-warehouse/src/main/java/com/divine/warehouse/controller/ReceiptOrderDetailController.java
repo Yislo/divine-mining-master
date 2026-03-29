@@ -1,21 +1,19 @@
 package com.divine.warehouse.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.divine.warehouse.domain.dto.ReceiptInfoDto;
 import com.divine.warehouse.domain.dto.ReceiptOrderDetailDto;
 import com.divine.common.core.domain.Result;
 import com.divine.common.core.validate.AddGroup;
 import com.divine.common.core.validate.EditGroup;
-import com.divine.common.excel.utils.ExcelUtil;
 import com.divine.common.idempotent.annotation.RepeatSubmit;
 import com.divine.common.log.annotation.Log;
 import com.divine.common.log.enums.BusinessType;
-import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.web.core.BaseController;
-import com.divine.warehouse.domain.vo.ReceiptDetailVO;
+import com.divine.warehouse.domain.vo.ReceiptInfoVO;
 import com.divine.warehouse.domain.vo.ReceiptOrderDetailVO;
 import com.divine.warehouse.service.ReceiptOrderDetailService;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -42,9 +40,9 @@ public class ReceiptOrderDetailController extends BaseController {
      * 查询入库单详情列表
      */
     @SaCheckPermission("wms:receipt:all")
-    @GetMapping("/list")
-    public PageInfoRes<ReceiptDetailVO> list(Long receiptId, BasePage basePage) {
-        return receiptOrderDetailService.queryPageList(receiptId, basePage);
+    @PostMapping("/list")
+    public PageInfoRes<ReceiptInfoVO> list(@RequestBody ReceiptInfoDto dto) {
+        return receiptOrderDetailService.queryPageList(dto);
     }
 
     /**
@@ -55,7 +53,7 @@ public class ReceiptOrderDetailController extends BaseController {
     @SaCheckPermission("wms:receipt:all")
     @GetMapping("/{id}")
     public Result<ReceiptOrderDetailVO> getInfo(@NotNull(message = "主键不能为空")
-                                     @PathVariable Long id) {
+                                                @PathVariable Long id) {
         return Result.success(receiptOrderDetailService.queryById(id));
     }
 
@@ -92,7 +90,7 @@ public class ReceiptOrderDetailController extends BaseController {
     @Log(title = "入库单详情", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public Result<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] ids) {
+                               @PathVariable Long[] ids) {
         receiptOrderDetailService.deleteByIds(List.of(ids));
         return Result.success();
     }

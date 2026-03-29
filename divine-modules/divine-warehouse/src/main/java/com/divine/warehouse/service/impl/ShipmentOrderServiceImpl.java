@@ -16,16 +16,12 @@ import com.divine.common.core.utils.DateUtils;
 import com.divine.common.core.utils.GenerateNoUtil;
 import com.divine.common.excel.utils.ExcelUtil;
 import com.divine.system.service.CommonService;
+import com.divine.warehouse.domain.dto.ItemDto;
 import com.divine.warehouse.domain.dto.ShipmentOrderDetailDto;
 import com.divine.warehouse.domain.dto.ShipmentOrderDto;
-import com.divine.warehouse.domain.entity.BaseOrderDetail;
-import com.divine.warehouse.domain.entity.ShipmentOrder;
-import com.divine.warehouse.domain.entity.ShipmentOrderDetail;
-import com.divine.warehouse.domain.entity.Warehouse;
-import com.divine.warehouse.domain.vo.BaseOrderDetailVO;
-import com.divine.warehouse.domain.vo.ShipmentImportVO;
-import com.divine.warehouse.domain.vo.ShipmentOrderDetailVO;
-import com.divine.warehouse.domain.vo.ShipmentOrderVo;
+import com.divine.warehouse.domain.entity.*;
+import com.divine.warehouse.domain.vo.*;
+import com.divine.warehouse.mapper.ItemSkuMapper;
 import com.divine.warehouse.mapper.ShipmentOrderMapper;
 import com.divine.warehouse.mapper.WarehouseMapper;
 import com.divine.warehouse.service.*;
@@ -34,6 +30,7 @@ import com.divine.common.mybatis.core.domain.BaseEntity;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import jakarta.servlet.http.HttpServletResponse;
+import kotlin.collections.EmptyList;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -59,6 +56,8 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
     private final InventoryHistoryService inventoryHistoryService;
     private final GenerateNoUtil generateNoUtil;
     private final WarehouseMapper warehouseMapper;
+    private final ItemService itemService;
+    private final ItemSkuMapper skuMapper;
 
     /**
      * 查询出库单
@@ -81,6 +80,14 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
      */
     @Override
     public PageInfoRes<ShipmentOrderVo> queryPageList(ShipmentOrderDto dto, BasePage basePage) {
+        // 查询物品信息
+        String item = dto.getItem();
+        String sku = dto.getSku();
+        if (StringUtils.isNotBlank(item) || StringUtils.isNotBlank(sku)) {
+            List<Long> shipmentIds = buildItemWrapper(item, sku);
+            if (CollUtil.isEmpty(shipmentIds)) return PageInfoRes.build();
+            dto.setShipmentIdList(shipmentIds);
+        }
         LambdaQueryWrapper<ShipmentOrder> lqw = buildQueryWrapper(dto);
         Page<ShipmentOrderVo> result = shipmentOrderMapper.selectVoPage(basePage.build(), lqw);
         // 获取仓库信息
@@ -95,6 +102,43 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
         return PageInfoRes.build(result);
     }
 
+
+    /**
+     * 构建物品信息查询条件
+     *
+     * @param item
+     * @param sku
+     */
+    private List<Long> buildItemWrapper(String item, String sku) {
+        List<Long> skuIds = new ArrayList<>();
+        if (StringUtils.isNotBlank(item)) {
+            ItemDto itemDto = new ItemDto();
+            itemDto.setItemName(item);
+            itemDto.setSkuNoOrName(sku);
+            List<ItemInfoVo> itemInfoVos = itemService.queryItemInfo(itemDto);
+            // 查询规格信息
+            skuIds = itemInfoVos.stream()
+                .map(ItemInfoVo::getSkuList)
+                .filter(CollUtil::isNotEmpty)
+                .flatMap(List::stream)
+                .map(ItemSkuVo::getId)
+                .toList();
+
+        } else {
+            List<ItemSku> itemSkus = skuMapper.selectList(new LambdaQueryWrapper<>(ItemSku.class)
+                .and(w -> w.like(ItemSku::getSkuNo, sku).or().like(ItemSku::getSkuName, sku)));
+            skuIds = itemSkus.stream().map(ItemSku::getId).toList();
+        }
+        if (CollUtil.isEmpty(skuIds)) {
+            return List.of();
+        }
+        ShipmentOrderDetailDto detailDto = new ShipmentOrderDetailDto();
+        detailDto.setSkuIdList(skuIds);
+        List<ShipmentOrderDetailVO> shipmentDetails = shipmentOrderDetailService.queryList(detailDto);
+        return shipmentDetails.stream().map(ShipmentOrderDetailVO::getShipmentId).distinct().toList();
+    }
+
+
     /**
      * 查询出库单列表
      */
@@ -104,18 +148,18 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
 //        LambdaQueryWrapper<ShipmentOrder> lqw = buildQueryWrapper(dto);
         List<ShipmentImportVO> list = shipmentOrderMapper.selectShipmentList(dto);
         // 计算总价
-        list.forEach(s-> s.setTotalPrice(s.getUnitPrice().multiply(new BigDecimal(s.getQuantity()))));
+        list.forEach(s -> s.setTotalPrice(s.getUnitPrice().multiply(new BigDecimal(s.getQuantity()))));
 
         String startTime = dto.getStartTime();
         String endTime = dto.getEndTime();
         String fileName = "出库记录";
         if (ObjUtil.isNotNull(startTime) && ObjUtil.isNotNull(endTime)) {
-            int sMonth = DateUtil.month(DateUtils.parseDate(startTime))+1;
-            int eMonth = DateUtil.month(DateUtils.parseDate(endTime))+1;
+            int sMonth = DateUtil.month(DateUtils.parseDate(startTime)) + 1;
+            int eMonth = DateUtil.month(DateUtils.parseDate(endTime)) + 1;
             int sYear = DateUtil.year(DateUtils.parseDate(startTime));
             if (eMonth != sMonth) {
                 fileName = "出库记录" + sYear + "年" + sMonth + "月" + eMonth + "月";
-            }else {
+            } else {
                 fileName = "出库记录" + sYear + "年" + sMonth + "月";
             }
 
@@ -126,13 +170,14 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
     private LambdaQueryWrapper<ShipmentOrder> buildQueryWrapper(ShipmentOrderDto dto) {
         LambdaQueryWrapper<ShipmentOrder> lqw = Wrappers.lambdaQuery();
         lqw.like(StringUtils.isNotBlank(dto.getShipmentNo()), ShipmentOrder::getShipmentNo, dto.getShipmentNo());
+        lqw.in(CollUtil.isNotEmpty(dto.getShipmentIdList()), ShipmentOrder::getId, dto.getShipmentIdList());
         lqw.eq(dto.getOptType() != null, ShipmentOrder::getOptType, dto.getOptType());
         lqw.like(dto.getRecipient() != null, ShipmentOrder::getRecipient, dto.getRecipient());
         lqw.eq(dto.getTotalPrice() != null, ShipmentOrder::getTotalPrice, dto.getTotalPrice());
         lqw.eq(dto.getShipmentStatus() != null, ShipmentOrder::getShipmentStatus, dto.getShipmentStatus());
         lqw.eq(dto.getTotalQuantity() != null, ShipmentOrder::getTotalQuantity, dto.getTotalQuantity());
-        lqw.ge(StringUtils.isNotBlank(dto.getStartTime()) , ShipmentOrder::getCreateTime, dto.getStartTime());
-        lqw.le(StringUtils.isNotBlank(dto.getEndTime()) , ShipmentOrder::getCreateTime, dto.getEndTime());
+        lqw.ge(StringUtils.isNotBlank(dto.getStartTime()), ShipmentOrder::getCreateTime, dto.getStartTime());
+        lqw.le(StringUtils.isNotBlank(dto.getEndTime()), ShipmentOrder::getCreateTime, dto.getEndTime());
         lqw.orderByDesc(BaseEntity::getCreateTime);
         return lqw;
     }

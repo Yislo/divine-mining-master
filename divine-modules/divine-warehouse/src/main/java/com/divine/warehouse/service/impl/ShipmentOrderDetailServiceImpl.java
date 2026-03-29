@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.divine.warehouse.domain.dto.ShipmentInfoDto;
 import com.divine.warehouse.domain.dto.ShipmentOrderDetailDto;
 import com.divine.warehouse.domain.entity.ShipmentOrderDetail;
 import com.divine.warehouse.domain.vo.ShipmentDetailVO;
@@ -49,8 +50,8 @@ public class ShipmentOrderDetailServiceImpl extends ServiceImpl<ShipmentOrderDet
      * 查询出库单详情列表
      */
     @Override
-    public PageInfoRes<ShipmentDetailVO> queryPageList(Long shipmentId, BasePage basePage) {
-        IPage<ShipmentDetailVO> result = shipmentOrderDetailMapper.getShipmentDetailList(basePage.build(), shipmentId);
+    public PageInfoRes<ShipmentDetailVO> queryPageList(ShipmentInfoDto dto) {
+        IPage<ShipmentDetailVO> result = shipmentOrderDetailMapper.getShipmentDetailList(dto.build(), dto);
         return PageInfoRes.build(result);
     }
 
@@ -68,6 +69,7 @@ public class ShipmentOrderDetailServiceImpl extends ServiceImpl<ShipmentOrderDet
         LambdaQueryWrapper<ShipmentOrderDetail> lqw = Wrappers.lambdaQuery();
         lqw.eq(dto.getShipmentId() != null, ShipmentOrderDetail::getShipmentId, dto.getShipmentId());
         lqw.eq(dto.getSkuId() != null, ShipmentOrderDetail::getSkuId, dto.getSkuId());
+        lqw.in(CollUtil.isNotEmpty(dto.getSkuIdList()), ShipmentOrderDetail::getSkuId, dto.getSkuIdList());
 //        lqw.eq(dto.getQuantity() != null, ShipmentOrderDetail::getQuantity, dto.getQuantity());
 //        lqw.eq(dto.getAmount() != null, ShipmentOrderDetail::getAmount, dto.getAmount());
         lqw.eq(dto.getWarehouseId() != null, ShipmentOrderDetail::getWarehouseId, dto.getWarehouseId());

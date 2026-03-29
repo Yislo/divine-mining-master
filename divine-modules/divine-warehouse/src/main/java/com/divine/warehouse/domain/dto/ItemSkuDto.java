@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -30,10 +31,15 @@ public class ItemSkuDto extends BaseEntity {
     private String skuName;
 
     /**
-     * id
+     * 物品id
      */
     @NotNull(message = "物品id不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long itemId;
+
+    /**
+     * 物品id
+     */
+    private List<Long> itemIdList;
 
 //    /**
 //     * sku条码

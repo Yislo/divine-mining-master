@@ -4,19 +4,36 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.divine.warehouse.mapper.ReceiptOrderDetailMapper">
 
-    <select id="getReceiptDetailList" resultType="com.divine.warehouse.domain.vo.ReceiptDetailVO">
+    <select id="getReceiptDetailList" resultType="com.divine.warehouse.domain.vo.ReceiptInfoVO">
         SELECT
-            rod.receipt_id,
-            item.item_name,
-            sku.id skuId,
-            sku.sku_name,
-            rod.quantity,
-            rod.storage_shelf,
-            rod.unit_price
+        rod.id,
+        rod.receipt_id,
+        item.item_name,
+        item.item_no,
+        sku.id AS skuId,
+        sku.sku_name,
+        sku.sku_no,
+        rod.quantity,
+        item.unit,
+        IF(rod.storage_shelf IS NULL OR rod.storage_shelf = '', '-', rod.storage_shelf) AS storage_shelf,
+        rod.unit_price,
+        (rod.quantity * rod.unit_price) AS totalPrice
         FROM
-            wms_receipt_order_detail rod
-                LEFT JOIN wms_item_sku sku ON sku.id = rod.sku_id
-                LEFT JOIN wms_item item ON item.id = sku.item_id
-        WHERE rod.receipt_id = #{receiptId}
+        wms_receipt_order_detail rod
+        INNER JOIN wms_item_sku sku ON sku.id = rod.sku_id
+        INNER JOIN wms_item item ON item.id = sku.item_id
+        WHERE rod.receipt_id = #{dto.receiptId}
+        <if test="dto.item != null and dto.item != ''">
+            AND (
+            item.item_name LIKE CONCAT('%', #{dto.item}, '%')
+            OR item.item_no LIKE CONCAT('%', #{dto.item}, '%')
+            )
+        </if>
+        <if test="dto.sku != null and dto.sku != ''">
+            AND (
+            sku.sku_name LIKE CONCAT('%', #{dto.sku}, '%')
+            OR sku.sku_no LIKE CONCAT('%', #{dto.sku}, '%')
+            )
+        </if>
     </select>
 </mapper>

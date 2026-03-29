@@ -1,26 +1,23 @@
 package com.divine.warehouse.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.divine.common.core.enums.FileBizTypeEnum;
 import com.divine.system.domain.vo.SysFileVo;
 import com.divine.system.service.SysFileService;
+import com.divine.warehouse.domain.dto.ReceiptInfoDto;
 import com.divine.warehouse.domain.dto.ReceiptOrderDetailDto;
 import com.divine.warehouse.domain.entity.ReceiptOrderDetail;
-import com.divine.warehouse.domain.vo.ReceiptDetailVO;
+import com.divine.warehouse.domain.vo.ReceiptInfoVO;
 import com.divine.warehouse.domain.vo.ReceiptOrderDetailVO;
 import com.divine.warehouse.mapper.ReceiptOrderDetailMapper;
 import com.divine.warehouse.service.ItemSkuService;
 import com.divine.warehouse.service.ReceiptOrderDetailService;
 import com.divine.common.core.utils.MapstructUtils;
-import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,8 +51,24 @@ public class ReceiptOrderDetailServiceImpl extends ServiceImpl<ReceiptOrderDetai
      * 查询入库单详情列表
      */
     @Override
-    public PageInfoRes<ReceiptDetailVO> queryPageList(Long receiptId, BasePage basePage) {
-        IPage<ReceiptDetailVO> result = receiptOrderDetailMapper.getReceiptDetailList(basePage.build(), receiptId);
+    public PageInfoRes<ReceiptInfoVO> queryPageList(ReceiptInfoDto dto) {
+        IPage<ReceiptInfoVO> result = receiptOrderDetailMapper.getReceiptDetailList(dto.build(), dto);
+        List<ReceiptInfoVO> records = result.getRecords();
+        if (CollUtil.isEmpty(records)) {
+            return PageInfoRes.build(result);
+        }
+        // 封装文件信息
+        List<Long> detailIds = records.stream().map(ReceiptInfoVO::getId).toList();
+        List<SysFileVo> sysFileVos = sysFileService.selectFileByBiz(FileBizTypeEnum.RECEIPT_DETAIL.getCode(), detailIds);
+        Map<Long, List<String>> urlMap = sysFileVos.stream()
+            .collect(Collectors.groupingBy(
+                SysFileVo::getBizId,  // 按bizId分组
+                Collectors.mapping(
+                    SysFileVo::getFileUrl,  // 提取fileUrl
+                    Collectors.toList()      // 收集到List
+                )
+            ));
+        records.forEach(d -> d.setFileList(urlMap.get(d.getId())));
         return PageInfoRes.build(result);
     }
 

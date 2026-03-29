@@ -38,12 +38,6 @@ public class ItemSkuVo implements Serializable {
     @ExcelProperty(value = "规格名称")
     private String skuName;
 
-//    /**
-//     * sku条码
-//     */
-//    @ExcelProperty(value = "sku条码")
-//    private String barcode;
-
     /**
      * sku编码
      */

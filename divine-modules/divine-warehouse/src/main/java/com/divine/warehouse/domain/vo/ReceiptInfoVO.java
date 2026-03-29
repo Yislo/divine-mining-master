@@ -6,6 +6,7 @@ import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 入库单详情视图对象 wms_receipt_order_detail
@@ -16,7 +17,12 @@ import java.math.BigDecimal;
 @Data
 @ExcelIgnoreUnannotated
 @AutoMapper(target = ReceiptOrderDetail.class)
-public class    ReceiptDetailVO {
+public class ReceiptInfoVO {
+
+    /**
+     * 明细id
+     */
+    private Long id;
 
     /**
      * 入库单id
@@ -29,6 +35,11 @@ public class    ReceiptDetailVO {
     private String itemName;
 
     /**
+     * 物品编号
+     */
+    private String itemNo;
+
+    /**
      * skuId
      */
     private Long skuId;
@@ -39,9 +50,19 @@ public class    ReceiptDetailVO {
     private String skuName;
 
     /**
+     * 规格编号
+     */
+    private String skuNo;
+
+    /**
      * 数量
      */
     private Long quantity;
+
+    /**
+     * 单位
+     */
+    private String unit;
 
     /**
      * 货架
@@ -52,6 +73,17 @@ public class    ReceiptDetailVO {
      * 单价($)
      */
     private BigDecimal unitPrice;
+
+    /**
+     * 总价($)
+     */
+    private BigDecimal totalPrice;
+
+
+    /**
+     * 总价($)
+     */
+    private List<String> fileList;
 
 
 

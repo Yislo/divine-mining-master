@@ -6,18 +6,34 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="getShipmentDetailList" resultType="com.divine.warehouse.domain.vo.ShipmentDetailVO">
         SELECT
-            sod.shipment_id,
-            item.item_name,
-            sku.id skuId,
-            sku.sku_name,
-            sod.quantity,
-            sod.storage_shelf,
-            sod.unit_price
+        sod.shipment_id,
+        item.item_name,
+        item.item_no,
+        sku.id AS skuId,
+        sku.sku_name,
+        sku.sku_no,
+        sod.quantity,
+        item.unit,
+        IF(sod.storage_shelf IS NULL OR sod.storage_shelf = '', '-', sod.storage_shelf) AS storage_shelf,
+        sod.unit_price,
+        (sod.quantity * sod.unit_price) AS totalPrice
         FROM
-            wms_shipment_order_detail sod
-                LEFT JOIN wms_item_sku sku ON sku.id = sod.sku_id
-                LEFT JOIN wms_item item ON item.id = sku.item_id
-        WHERE sod.shipment_id = #{shipmentId}
+        wms_shipment_order_detail sod
+        INNER JOIN wms_item_sku sku ON sku.id = sod.sku_id
+        INNER JOIN wms_item item ON item.id = sku.item_id
+        WHERE sod.shipment_id = #{dto.shipmentId}
+        <if test="dto.item != null and dto.item != ''">
+            AND (
+            item.item_name LIKE CONCAT('%', #{dto.item}, '%')
+            OR item.item_no LIKE CONCAT('%', #{dto.item}, '%')
+            )
+        </if>
+        <if test="dto.sku != null and dto.sku != ''">
+            AND (
+            sku.sku_name LIKE CONCAT('%', #{dto.sku}, '%')
+            OR sku.sku_no LIKE CONCAT('%', #{dto.sku}, '%')
+            )
+        </if>
     </select>
 
 </mapper>

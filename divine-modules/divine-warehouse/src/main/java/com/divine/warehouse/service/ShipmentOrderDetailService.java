@@ -1,5 +1,6 @@
 package com.divine.warehouse.service;
 
+import com.divine.warehouse.domain.dto.ShipmentInfoDto;
 import com.divine.warehouse.domain.dto.ShipmentOrderDetailDto;
 import com.divine.warehouse.domain.entity.ShipmentOrderDetail;
 import com.divine.warehouse.domain.vo.ShipmentDetailVO;
@@ -27,7 +28,7 @@ public interface ShipmentOrderDetailService{
     /**
      * 查询出库单详情列表
      */
-    PageInfoRes<ShipmentDetailVO> queryPageList(Long shipmentId, BasePage basePage);
+    PageInfoRes<ShipmentDetailVO> queryPageList(ShipmentInfoDto dto);
 
     /**
      * 查询出库单详情列表
