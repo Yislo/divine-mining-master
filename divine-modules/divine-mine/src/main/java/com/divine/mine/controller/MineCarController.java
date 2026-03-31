@@ -101,8 +101,18 @@ public class MineCarController extends BaseController {
     @Log(title = "车辆信息", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public Result<Void> remove(@NotEmpty(message = "主键不能为空")
-                          @PathVariable Long[] ids) {
+                               @PathVariable Long[] ids) {
         mineCarService.deleteByIds(List.of(ids));
         return Result.success();
+    }
+
+    /**
+     * 获取所有车辆列表
+     *
+     */
+//    @SaCheckPermission("car:remove")
+    @GetMapping("/listNoPage")
+    public Result<List<MineCarVo>> listNoPage() {
+        return Result.success(mineCarService.queryList(new MineCarDto()));
     }
 }

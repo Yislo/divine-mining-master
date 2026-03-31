@@ -39,15 +39,15 @@ public class ShipmentOrderDto extends BaseOrderDto<ShipmentOrderDetailDto> {
      */
     private String recipient;
 
-    /**
-     * 物品(物品名称和物品编号通用搜索字段)
-     */
-    private String item;
-
-    /**
-     * 规格(规格名称和规格编号通用搜索字段)
-     */
-    private String sku;
+//    /**
+//     * 物品(物品名称和物品编号通用搜索字段)
+//     */
+//    private String item;
+//
+//    /**
+//     * 规格(规格名称和规格编号通用搜索字段)
+//     */
+//    private String sku;
 
     /**
      * 出库单id

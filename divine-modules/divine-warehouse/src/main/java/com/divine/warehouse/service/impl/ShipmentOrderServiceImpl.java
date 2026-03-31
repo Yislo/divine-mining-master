@@ -30,7 +30,6 @@ import com.divine.common.mybatis.core.domain.BaseEntity;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import jakarta.servlet.http.HttpServletResponse;
-import kotlin.collections.EmptyList;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -81,13 +80,13 @@ public class ShipmentOrderServiceImpl implements ShipmentOrderService {
     @Override
     public PageInfoRes<ShipmentOrderVo> queryPageList(ShipmentOrderDto dto, BasePage basePage) {
         // 查询物品信息
-        String item = dto.getItem();
-        String sku = dto.getSku();
-        if (StringUtils.isNotBlank(item) || StringUtils.isNotBlank(sku)) {
-            List<Long> shipmentIds = buildItemWrapper(item, sku);
-            if (CollUtil.isEmpty(shipmentIds)) return PageInfoRes.build();
-            dto.setShipmentIdList(shipmentIds);
-        }
+//        String item = dto.getItem();
+//        String sku = dto.getSku();
+//        if (StringUtils.isNotBlank(item) || StringUtils.isNotBlank(sku)) {
+//            List<Long> shipmentIds = buildItemWrapper(item, sku);
+//            if (CollUtil.isEmpty(shipmentIds)) return PageInfoRes.build();
+//            dto.setShipmentIdList(shipmentIds);
+//        }
         LambdaQueryWrapper<ShipmentOrder> lqw = buildQueryWrapper(dto);
         Page<ShipmentOrderVo> result = shipmentOrderMapper.selectVoPage(basePage.build(), lqw);
         // 获取仓库信息

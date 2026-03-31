@@ -117,6 +117,7 @@ public class SysFileServiceImpl implements SysFileService, OssService {
         lqw.between(params.get("beginCreateTime") != null && params.get("endCreateTime") != null,
             SysFile::getCreateTime, params.get("beginCreateTime"), params.get("endCreateTime"));
         lqw.eq(StringUtils.isNotBlank(dto.getCreateBy()), SysFile::getCreateBy, dto.getCreateBy());
+        lqw.orderByDesc( SysFile::getCreateTime);
         return lqw;
     }
 
