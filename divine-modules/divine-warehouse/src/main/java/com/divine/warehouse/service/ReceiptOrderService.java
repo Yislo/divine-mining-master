@@ -5,6 +5,7 @@ import com.divine.warehouse.domain.dto.ReceiptOrderDto;
 import com.divine.warehouse.domain.vo.ReceiptOrderVo;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.*;
 
@@ -32,7 +33,7 @@ public interface ReceiptOrderService {
     /**
      * 查询入库单列表
      */
-    List<ReceiptOrderVo> queryList(ReceiptOrderDto dto) ;
+    void export(ReceiptOrderDto dto, HttpServletResponse response) ;
 
     /**
      * 暂存入库单

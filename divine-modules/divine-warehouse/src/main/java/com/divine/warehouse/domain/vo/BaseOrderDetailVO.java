@@ -23,12 +23,6 @@ public class BaseOrderDetailVO implements Serializable {
     private Long id;
 
     /**
-     * 出库单id
-     */
-    @ExcelProperty(value = "出库单id")
-    private Long shipmentId;
-
-    /**
      * 规格id
      */
     @ExcelProperty(value = "规格id")

@@ -10,6 +10,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * 入库单详情业务对象 wms_receipt_order_detail
  *
@@ -30,5 +32,11 @@ public class ReceiptOrderDetailDto extends BaseOrderDetailDto {
      */
     @NotNull(message = "入库单id", groups = { AddGroup.class, EditGroup.class })
     private Long receiptId;
+
+
+    /**
+     * 入库单id
+     */
+    private List<Long> receiptIdList;
 
 }

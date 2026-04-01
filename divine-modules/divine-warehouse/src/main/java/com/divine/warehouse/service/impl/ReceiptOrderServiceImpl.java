@@ -14,6 +14,7 @@ import com.divine.common.core.enums.InventoryTypeEnum;
 import com.divine.common.core.enums.NoTypeEnum;
 import com.divine.common.core.exception.base.BusinessException;
 import com.divine.common.core.utils.GenerateNoUtil;
+import com.divine.common.excel.utils.ExcelUtil;
 import com.divine.system.domain.dto.SysFileDTO;
 import com.divine.system.service.SysFileService;
 import com.divine.warehouse.domain.dto.BaseOrderDetailDto;
@@ -21,10 +22,7 @@ import com.divine.warehouse.domain.dto.ReceiptImportDTO;
 import com.divine.warehouse.domain.dto.ReceiptOrderDetailDto;
 import com.divine.warehouse.domain.dto.ReceiptOrderDto;
 import com.divine.warehouse.domain.entity.*;
-import com.divine.warehouse.domain.vo.BaseOrderDetailVO;
-import com.divine.warehouse.domain.vo.MerchantVo;
-import com.divine.warehouse.domain.vo.ReceiptOrderDetailVO;
-import com.divine.warehouse.domain.vo.ReceiptOrderVo;
+import com.divine.warehouse.domain.vo.*;
 import com.divine.warehouse.mapper.ItemMapper;
 import com.divine.warehouse.mapper.ItemSkuMapper;
 import com.divine.warehouse.mapper.ReceiptOrderMapper;
@@ -35,6 +33,7 @@ import com.divine.common.mybatis.core.domain.BaseEntity;
 import com.divine.common.mybatis.core.page.BasePage;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.google.api.client.util.Lists;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.weaver.ast.Var;
@@ -45,6 +44,8 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static kotlin.reflect.jvm.internal.impl.builtins.StandardNames.FqNames.list;
 
 /**
  * 入库单Service业务层处理
@@ -114,12 +115,73 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
     }
 
     /**
-     * 查询入库单列表
+     * 导出入库单
      */
     @Override
-    public List<ReceiptOrderVo> queryList(ReceiptOrderDto dto) {
+    public void export(ReceiptOrderDto dto, HttpServletResponse response) {
         LambdaQueryWrapper<ReceiptOrder> lqw = buildQueryWrapper(dto);
-        return receiptOrderMapper.selectVoList(lqw);
+        List<ReceiptOrderVo> receipts = receiptOrderMapper.selectVoList(lqw);
+        if (receipts.isEmpty()) {
+            exportEmpty(response);
+            return;
+        }
+        Map<Long, ReceiptOrderVo> receiptMap = receipts.stream().collect(Collectors.toMap(ReceiptOrderVo::getId, Function.identity()));
+        // 查询仓库信息
+        List<Long> warehouseIds = receipts.stream().map(ReceiptOrderVo::getWarehouseId).distinct().toList();
+        List<Warehouse> warehouses = warehouseMapper.selectList(new LambdaQueryWrapper<>(Warehouse.class).in(Warehouse::getId, warehouseIds));
+        Map<Long, String> warehouseMap = warehouses.stream().collect(Collectors.toMap(Warehouse::getId, Warehouse::getWarehouseName));
+        // 查询入库单明细信息
+        List<Long> receiptIds = receipts.stream().map(ReceiptOrderVo::getId).toList();
+        ReceiptOrderDetailDto detailDto = new ReceiptOrderDetailDto();
+        detailDto.setReceiptIdList(receiptIds);
+        List<ReceiptOrderDetailVO> receiptDetails = receiptOrderDetailService.queryList(detailDto);
+        if (receiptDetails.isEmpty()) {
+            exportEmpty(response);
+            return;
+        }
+        // 查询sku信息
+        List<Long> skuIds = receiptDetails.stream().map(ReceiptOrderDetailVO::getSkuId).distinct().toList();
+        List<ItemSku> skus = itemSkuMapper.selectList(new LambdaQueryWrapper<>(ItemSku.class).in(ItemSku::getId, skuIds));
+        if (receiptDetails.isEmpty()) {
+            exportEmpty(response);
+            return;
+        }
+        Map<Long, ItemSku> skuMap = skus.stream().collect(Collectors.toMap(ItemSku::getId, Function.identity()));
+        // 查询item信息
+        List<Long> itemIds = skus.stream().map(ItemSku::getItemId).toList();
+        List<Item> items = itemMapper.selectList(new LambdaQueryWrapper<>(Item.class).in(Item::getId, itemIds));
+        if (receiptDetails.isEmpty()) {
+            exportEmpty(response);
+            return;
+        }
+        Map<Long, Item> itemMap = items.stream().collect(Collectors.toMap(Item::getId, Function.identity()));
+        // 组装数据导出
+        List<ReceiptExcelVo> excelList = receiptDetails.stream().map(rd -> {
+            ReceiptOrderVo receipt = receiptMap.get(rd.getReceiptId());
+            Long skuId = rd.getSkuId();
+            ItemSku sku = skuMap.get(skuId);
+            Item item = itemMap.get(sku.getItemId());
+            BigDecimal unitPrice = rd.getUnitPrice() == null ? BigDecimal.ZERO : rd.getUnitPrice();
+            ReceiptExcelVo res = new ReceiptExcelVo();
+            res.setReceiptNo(receipt.getReceiptNo());
+            res.setWarehouseName(warehouseMap.get(receipt.getWarehouseId()));
+            res.setItemName(item.getItemName());
+            res.setSkuName(sku.getSkuName());
+            res.setUnitPrice(unitPrice);
+            res.setTotalPrice(unitPrice.multiply(new BigDecimal(rd.getQuantity() == null ? 0 : rd.getQuantity())));
+            res.setStorageShelf(rd.getStorageShelf());
+            res.setQuantity(rd.getQuantity());
+            res.setUnit(item.getUnit());
+            res.setReceiptStatus(receipt.getReceiptStatus());
+            res.setOptType(receipt.getOptType());
+            res.setCreateTime(receipt.getCreateTime());
+            return res;
+        }).toList();
+        ExcelUtil.exportExcel(excelList, "入库单", ReceiptExcelVo.class, response);
+    }
+
+    private void exportEmpty(HttpServletResponse response) {
+        ExcelUtil.exportExcel(Collections.emptyList(), "入库单", ReceiptExcelVo.class, response);
     }
 
     private LambdaQueryWrapper<ReceiptOrder> buildQueryWrapper(ReceiptOrderDto dto) {

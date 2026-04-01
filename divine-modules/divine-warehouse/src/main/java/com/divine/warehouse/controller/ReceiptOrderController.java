@@ -66,8 +66,7 @@ public class ReceiptOrderController extends BaseController {
     @Log(title = "入库单", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(ReceiptOrderDto dto, HttpServletResponse response) {
-        List<ReceiptOrderVo> list = receiptOrderService.queryList(dto);
-        ExcelUtil.exportExcel(list, "入库单", ReceiptOrderVo.class, response);
+        receiptOrderService.export(dto, response);
     }
 
     /**

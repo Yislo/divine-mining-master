@@ -1,6 +1,7 @@
 package com.divine.warehouse.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -85,10 +86,12 @@ public class ReceiptOrderDetailServiceImpl extends ServiceImpl<ReceiptOrderDetai
         Map<String, Object> params = dto.getParams();
         LambdaQueryWrapper<ReceiptOrderDetail> lqw = Wrappers.lambdaQuery();
         lqw.eq(dto.getReceiptId() != null, ReceiptOrderDetail::getReceiptId, dto.getReceiptId());
+        lqw.in(CollectionUtil.isNotEmpty(dto.getReceiptIdList()) , ReceiptOrderDetail::getReceiptId, dto.getReceiptIdList());
         lqw.eq(dto.getSkuId() != null, ReceiptOrderDetail::getSkuId, dto.getSkuId());
         lqw.eq(dto.getQuantity() != null, ReceiptOrderDetail::getQuantity, dto.getQuantity());
         lqw.eq(dto.getUnitPrice() != null, ReceiptOrderDetail::getUnitPrice, dto.getUnitPrice());
         lqw.eq(dto.getWarehouseId() != null, ReceiptOrderDetail::getWarehouseId, dto.getWarehouseId());
+        lqw.orderByDesc(ReceiptOrderDetail::getCreateTime);
         return lqw;
     }
 

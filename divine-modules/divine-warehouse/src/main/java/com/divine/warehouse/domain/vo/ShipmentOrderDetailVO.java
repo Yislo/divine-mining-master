@@ -1,6 +1,7 @@
 package com.divine.warehouse.domain.vo;
 
 import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.divine.warehouse.domain.entity.ShipmentOrderDetail;
 import io.github.linpeilie.annotations.AutoMapper;
 import lombok.Data;
@@ -17,6 +18,10 @@ import lombok.EqualsAndHashCode;
 @ExcelIgnoreUnannotated
 @AutoMapper(target = ShipmentOrderDetail.class)
 public class ShipmentOrderDetailVO extends BaseOrderDetailVO {
-
+    /**
+     * 出库单id
+     */
+    @ExcelProperty(value = "出库单id")
+    private Long shipmentId;
 
 }

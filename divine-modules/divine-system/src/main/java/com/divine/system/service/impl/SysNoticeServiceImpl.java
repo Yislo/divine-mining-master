@@ -289,7 +289,7 @@ public class SysNoticeServiceImpl implements SysNoticeService {
         lqw.like(StringUtils.isNotBlank(dto.getNoticeTitle()), SysNotice::getNoticeTitle, dto.getNoticeTitle());
         lqw.eq(ObjUtil.isNotNull(dto.getNoticeType()), SysNotice::getNoticeType, dto.getNoticeType());
         lqw.eq(StringUtils.isNotBlank(dto.getCreateBy()), SysNotice::getCreateBy, dto.getCreateBy());
-        lqw.orderByAsc(SysNotice::getCreateTime);
+        lqw.orderByDesc(SysNotice::getCreateTime);
         return lqw;
     }
 

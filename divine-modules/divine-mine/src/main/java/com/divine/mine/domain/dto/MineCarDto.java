@@ -31,6 +31,7 @@ public class MineCarDto extends BaseEntity {
     /**
      * 车牌号
      */
+    @NotBlank(message = "车牌号不能为空")
     private String carNumber;
 
     /**

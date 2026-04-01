@@ -28,7 +28,6 @@ import com.divine.common.log.enums.BusinessType;
  * @author yisl
  * @date 2026-02-28
  */
-@Validated
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/car")
@@ -75,7 +74,7 @@ public class MineCarController extends BaseController {
     @Log(title = "车辆信息", businessType = BusinessType.INSERT)
     @RepeatSubmit()
     @PostMapping()
-    public Result<Void> add(@Validated(AddGroup.class) @RequestBody MineCarDto dto) {
+    public Result<Void> add(@Validated @RequestBody MineCarDto dto) {
         mineCarService.insertByBo(dto);
         return Result.success();
     }

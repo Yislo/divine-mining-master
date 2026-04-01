@@ -1,7 +1,9 @@
 package com.divine.mine.service.impl;
 
+import cn.hutool.core.util.ObjUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.divine.common.core.exception.base.BusinessException;
 import com.divine.common.core.utils.MapstructUtils;
 import com.divine.common.mybatis.core.page.PageInfoRes;
 import com.divine.common.mybatis.core.page.BasePage;
@@ -34,7 +36,7 @@ public class MineCarServiceImpl implements MineCarService {
      * 查询车辆信息
      */
     @Override
-    public MineCarVo queryById(Long id){
+    public MineCarVo queryById(Long id) {
         return mineCarMapper.selectVoById(id);
     }
 
@@ -64,6 +66,7 @@ public class MineCarServiceImpl implements MineCarService {
         lqw.eq(StringUtils.isNotBlank(dto.getDriverPhone()), MineCar::getDriverPhone, dto.getDriverPhone());
         lqw.eq(StringUtils.isNotBlank(dto.getDriver()), MineCar::getDriver, dto.getDriver());
         lqw.eq(dto.getCarType() != null, MineCar::getCarType, dto.getCarType());
+        lqw.orderByDesc(MineCar::getCreateTime);
         return lqw;
     }
 
@@ -73,6 +76,12 @@ public class MineCarServiceImpl implements MineCarService {
     @Override
     public void insertByBo(MineCarDto dto) {
         MineCar add = MapstructUtils.convert(dto, MineCar.class);
+        // 查询车辆信息
+        MineCar mineCar = mineCarMapper.selectOne(new LambdaQueryWrapper<>(MineCar.class)
+            .eq(MineCar::getCarNumber, dto.getCarNumber()));
+        if (ObjUtil.isNotNull(mineCar)) {
+            throw new BusinessException("车牌号已存在");
+        }
         mineCarMapper.insert(add);
     }
 
@@ -82,6 +91,12 @@ public class MineCarServiceImpl implements MineCarService {
     @Override
     public void updateByBo(MineCarDto dto) {
         MineCar update = MapstructUtils.convert(dto, MineCar.class);
+        // 查询车辆信息
+        MineCar mineCar = mineCarMapper.selectOne(new LambdaQueryWrapper<>(MineCar.class)
+            .eq(MineCar::getCarNumber, dto.getCarNumber()));
+        if (ObjUtil.isNotNull(mineCar) && !ObjUtil.equals(dto.getId(), mineCar.getId())) {
+            throw new BusinessException("车牌号已存在");
+        }
         mineCarMapper.updateById(update);
     }
 
