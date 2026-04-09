@@ -117,7 +117,31 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
      */
     @Override
     public void updateByBo(InventoryUpdateDto dto) {
+        Inventory inventory = inventoryMapper.selectById(dto.getId());
         Inventory update = BeanUtil.copyProperties(dto, Inventory.class);
+        // 查询 如果已经存在相同的货架与库存 则合并
+        LambdaQueryWrapper<Inventory> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(Inventory::getWarehouseId, inventory.getWarehouseId());
+        wrapper.eq(Inventory::getSkuId, inventory.getSkuId());
+        wrapper.ne(Inventory::getId, dto.getId());
+        if (StringUtils.isNotBlank(dto.getStorageShelf())) {
+            wrapper.eq(Inventory::getStorageShelf, dto.getStorageShelf());
+        } else {
+            wrapper.and(w ->
+                w.isNull(Inventory::getStorageShelf)
+                    .or()
+                    .eq(Inventory::getStorageShelf, "")
+            );
+        }
+        List<Inventory> list = inventoryMapper.selectList(wrapper);
+        if (!list.isEmpty()) {
+            Long quantity = list.stream()
+                .map(Inventory::getQuantity)
+                .filter(Objects::nonNull)
+                .reduce(0L, Long::sum);
+            update.setQuantity(inventory.getQuantity() + quantity);
+            inventoryMapper.deleteBatchIds(list);
+        }
         inventoryMapper.updateById(update);
     }
 

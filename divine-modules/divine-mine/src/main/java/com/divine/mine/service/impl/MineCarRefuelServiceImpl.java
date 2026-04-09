@@ -88,6 +88,7 @@ public class MineCarRefuelServiceImpl implements MineCarRefuelService {
     public void insertByBo(MineCarRefuelDto dto) {
         MineCarRefuel add = MapstructUtils.convert(dto, MineCarRefuel.class);
         add.setRefuelNo(generateNoUtil.getBizNo(NoTypeEnum.REFUEL_NO.getCode()));
+        // 新增车辆
         mineCarRefuelMapper.insert(add);
     }
 

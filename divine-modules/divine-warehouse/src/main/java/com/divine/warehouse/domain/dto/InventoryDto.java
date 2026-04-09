@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 库存业务对象 wms_inventory
@@ -34,6 +34,11 @@ public class InventoryDto extends BaseEntity {
      */
     @NotNull(message = "规格ID不能为空", groups = { AddGroup.class, EditGroup.class })
     private Long skuId;
+
+    /**
+     * skuId
+     */
+    private List<Long> skuIdList;
 
     /**
      * 所属仓库
