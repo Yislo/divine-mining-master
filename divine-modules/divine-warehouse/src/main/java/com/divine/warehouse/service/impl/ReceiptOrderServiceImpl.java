@@ -201,7 +201,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
      * 暂存入库单
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Long insertByBo(ReceiptOrderDto dto) {
         dto.setReceiptStatus(0);
         return insertReceipt(dto);
@@ -233,7 +233,8 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
         detailDtoList.forEach(d -> {
             // 更新sku价格
             ItemSku oldSku = itemSkuMapper.selectById(d.getSkuId());
-            if (oldSku.getUnitPrice() == null || oldSku.getUnitPrice().compareTo(d.getUnitPrice()) == 0) {
+            if (oldSku.getUnitPrice() == null
+                || oldSku.getUnitPrice().compareTo(d.getUnitPrice()) != 0) {
                 ItemSku itemSku = new ItemSku();
                 itemSku.setId(d.getSkuId());
                 itemSku.setUnitPrice(d.getUnitPrice());
@@ -258,7 +259,9 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
             sysFileService.batchSaveFile(allFiles);
         }
         // 更新sku价格
-        itemSkuMapper.updateBatchById(sku);
+        if (CollectionUtil.isNotEmpty(sku)){
+            itemSkuMapper.updateBatchById(sku);
+        }
         return receiptOrder.getId();
     }
 
@@ -272,7 +275,7 @@ public class ReceiptOrderServiceImpl implements ReceiptOrderService {
      * 5.保存库存记录
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void warehousing(ReceiptOrderDto dto) {
         // 2. 保存入库单和入库单明细
         dto.setReceiptStatus(1);

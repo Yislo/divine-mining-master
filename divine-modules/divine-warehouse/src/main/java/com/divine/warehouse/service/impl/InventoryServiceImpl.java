@@ -46,6 +46,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 库存Service业务层处理
@@ -419,8 +421,19 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
         if (CollectionUtil.isEmpty(skuIds)) {
             return List.of();
         }
-        return inventoryMapper.selectVoList(new LambdaQueryWrapper<>(Inventory.class)
+        List<InventoryVo> inventoryVos = inventoryMapper.selectVoList(new LambdaQueryWrapper<>(Inventory.class)
             .in(Inventory::getSkuId, skuIds));
+        // 2. 🔥 关键：根据 skuId + storageShelf 联合去重
+        inventoryVos = new ArrayList<>(inventoryVos.stream()
+            .filter(Objects::nonNull)
+            // 用 map 把两个字段拼成唯一key
+            .collect(Collectors.toMap(
+                vo -> vo.getSkuId() + "_" + vo.getStorageShelf(),
+                Function.identity(),
+                (existing, replacement) -> existing // 重复只保留第一个
+            ))
+            .values());
+        return inventoryVos;
     }
 
     /**
