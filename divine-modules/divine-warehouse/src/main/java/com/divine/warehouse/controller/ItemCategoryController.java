@@ -94,7 +94,7 @@ public class ItemCategoryController extends BaseController {
      * 新增物料类型
      */
     @Log(title = "物料类型", businessType = BusinessType.INSERT)
-//    @RepeatSubmit()
+    @RepeatSubmit()
     @PostMapping()
     @SaCheckPermission("wms:item:edit")
     public Result<Void> add(@Validated(AddGroup.class) @RequestBody ItemCategoryDto dto) {
@@ -106,7 +106,7 @@ public class ItemCategoryController extends BaseController {
      * 修改物料类型
      */
     @Log(title = "物料类型", businessType = BusinessType.UPDATE)
-//    @RepeatSubmit()
+    @RepeatSubmit()
     @PutMapping()
     @SaCheckPermission("wms:item:edit")
     public Result<Void> edit(@Validated(EditGroup.class) @RequestBody ItemCategoryDto dto) {
