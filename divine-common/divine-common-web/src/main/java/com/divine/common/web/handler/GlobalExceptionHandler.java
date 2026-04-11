@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import com.divine.common.core.utils.StreamUtils;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.transaction.TransactionTimedOutException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -98,6 +99,17 @@ public class GlobalExceptionHandler {
     public Result<Void> handleException(Exception e, HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}',发生系统异常.", requestURI, e);
+        String msg = e.getMessage();
+        if (msg != null && (
+            msg.contains("timeout") ||
+                msg.contains("TimeOut") ||
+                msg.contains("wait timeout")
+        )) {
+            log.error("【全局超时】未知超时异常: {}", msg);
+            return Result.fail("请求超时，请稍后重试");
+        }
+
+
         return Result.fail(HttpStatusEnum.FAIL.getMsg());
     }
 
