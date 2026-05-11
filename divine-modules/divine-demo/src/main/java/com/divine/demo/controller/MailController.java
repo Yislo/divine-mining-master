@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
+import java.util.UUID;
 
 /**
  * 邮件发送案例
@@ -18,6 +19,10 @@ import java.io.File;
 @RestController
 @RequestMapping("/demo/mail")
 public class MailController {
+
+    public static void main(String[] args) {
+        System.out.println(UUID.randomUUID());
+    }
 
     /**
      * 发送邮件

@@ -30,6 +30,11 @@ public class WeightingQueryDto extends BasePage {
     private String carNumber;
 
     /**
+     * 过磅类型(0=发货,1=收货)
+     */
+    private Integer weighingType;
+
+    /**
      * 商品类型
      */
     private Integer goodsType;
@@ -58,8 +63,5 @@ public class WeightingQueryDto extends BasePage {
      * 结束时间
      */
     private String endTime;
-
-
-
 
 }

@@ -4,34 +4,25 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 /**
- * @Author: Yisl
- * @Description:
- * @Date: 2026/3/13 18:08
+ * 回磅 DTO
+ *
+ * @author yisl
+ * @date 2026-03-13
  */
 @Data
 public class WeightingReturnDto {
 
-    /**
-     * 主键id
-     */
+    /** 主键id */
     @NotNull(message = "主键id不为空")
     private Long id;
 
-    /**
-     * 总重
-     */
-    private Long totalWeight;
+    /** 总重 */
+    private Double totalWeight;
 
-    /**
-     * 皮重
-     */
-    private Long tareWeight;
+    /** 皮重 */
+    private Double tareWeight;
 
-    /**
-     * 净重
-     */
-    private Long netWeight;
-
-
+    /** 净重(总重-皮重) */
+    private Double netWeight;
 
 }

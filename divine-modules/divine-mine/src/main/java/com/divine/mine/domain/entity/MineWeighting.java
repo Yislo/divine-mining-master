@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
-
 import java.io.Serial;
 
 /**
@@ -21,72 +20,69 @@ import java.io.Serial;
 public class MineWeighting extends BaseEntity {
 
     @Serial
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
-    /**
-     * id
-     */
     @TableId(value = "id")
     private Long id;
-    /**
-     * 车牌号
-     */
+
+    /** 车牌号 */
     private String carNumber;
-    /**
-     * 过磅单编号
-     */
+
+    /** 过磅单编号 */
     private String weighingNo;
-    /**
-     * 商品类型
-     */
+
+    /** 商品类型 */
     private Integer goodsType;
-    /**
-     * 发货单位
-     */
+
+    /** 物资名称 */
+    private String goodsName;
+
+    /** 发货单位 */
     private Long shipMerchantId;
-    /**
-     * 发货日期
-     */
+
+    /** 收货单位 */
+    private Long receiptMerchantId;
+
+    /** 发货日期 */
     private LocalDateTime shipTime;
-    /**
-     * 发货地址
-     */
+
+    /** 发货地址 */
     private String shipAddress;
-    /**
-     * 收货单位
-     */
-    private String deliveryMerchant;
-    /**
-     * 收货日期
-     */
-    private LocalDateTime deliveryTime;
-    /**
-     * 过磅状态
-     */
-    private Integer weighingStatus;
-    /**
-     * 总重
-     */
-    private Long totalWeight;
-    /**
-     * 皮重
-     */
-    private Long tareWeight;
-    /**
-     * 净重
-     */
-    private Long netWeight;
-    /**
-     * 备注
-     */
-    private String remark;
-    /**
-     * 回磅时间
-     */
+
+    /** 总重 */
+    private Double totalWeight;
+
+    /** 皮重 */
+    private Double tareWeight;
+
+    /** 净重 */
+    private Double netWeight;
+
+    /** 过磅员 */
+    private String weighingOperator;
+
+    /** 过磅时间 */
+    private LocalDateTime weighingTime;
+
+    /** 回磅员 */
+    private String returnOperator;
+
+    /** 回磅时间 */
     private LocalDateTime returnTime;
-    /**
-     * 质量id(取样之后生成)
-     */
+
+    /** 收货日期 */
+    private LocalDateTime deliveryTime;
+
+    /** 过磅类型(0=发货,1=收货) */
+    private Integer weighingType;
+
+    /** 过磅状态(0:已过磅,1:已回磅,-1:作废) */
+    private Integer weighingStatus;
+
+    /** 质量单id */
     private Long qualityId;
+
+    /** 备注 */
+    private String remark;
 
 }

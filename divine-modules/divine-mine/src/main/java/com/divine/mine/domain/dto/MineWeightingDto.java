@@ -11,87 +11,47 @@ import io.github.linpeilie.annotations.AutoMapper;
 import java.time.LocalDateTime;
 
 /**
- * 过磅记录业务对象 mine_weighting
+ * 过磅编辑 DTO
  *
  * @author yisl
  * @date 2026-02-28
  */
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AutoMapper(target = MineWeighting.class, reverseConvertGenerate = false)
 public class MineWeightingDto extends BaseEntity {
 
-    /**
-     * id
-     */
     @NotNull(message = "id不能为空", groups = { EditGroup.class })
     private Long id;
 
-    /**
-     * 过磅单编号
-     */
     private String weighingNo;
 
-    /**
-     * 车牌号
-     */
     private String carNumber;
 
-    /**
-     * 商品名称
-     */
-    private String goodsType;
+    private Integer goodsType;
 
-    /**
-     * 过磅状态
-     */
+    private String goodsName;
+
+    private Integer weighingType;
+
     private Integer weighingStatus;
 
-    /**
-     * 发货单位
-     */
     private Long shipMerchantId;
 
-    /**
-     * 发货日期
-     */
+    private Long receiptMerchantId;
+
     private LocalDateTime shipTime;
 
-    /**
-     * 发货地址
-     */
     private String shipAddress;
 
-    /**
-     * 收货单位
-     */
-    private String deliveryMerchant;
-
-    /**
-     * 收货日期
-     */
     private LocalDateTime deliveryTime;
 
-    /**
-     * 总重
-     */
-    private Long totalWeight;
+    private Double totalWeight;
 
-    /**
-     * 皮重
-     */
-    private Long tareWeight;
+    private Double tareWeight;
 
-    /**
-     * 净重
-     */
-    private Long netWeight;
+    private Double netWeight;
 
-    /**
-     * 备注
-     */
     private String remark;
-
 
 }

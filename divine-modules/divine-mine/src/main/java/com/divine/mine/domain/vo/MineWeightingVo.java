@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.io.Serial;
 
 /**
- * 过磅记录视图对象 mine_weighting
+ * 过磅记录 VO
  *
  * @author yisl
  * @date 2026-02-28
@@ -25,118 +25,79 @@ public class MineWeightingVo implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    /**
-     * id
-     */
     @ExcelProperty(value = "id")
     private Long id;
 
-    /**
-     * 车牌号
-     */
     @ExcelProperty(value = "车牌号")
     private String carNumber;
 
-    /**
-     * 过磅单编号
-     */
     @ExcelProperty(value = "过磅单编号")
     private String weighingNo;
 
-    /**
-     * 商品类型
-     */
     @ExcelProperty(value = "商品类型")
     private Integer goodsType;
 
-    /**
-     * 发货单位
-     */
+    @ExcelProperty(value = "物资名称")
+    private String goodsName;
+
     @ExcelProperty(value = "发货单位")
     private Long shipMerchantId;
 
-    /**
-     * 发货单位
-     */
     @ExcelProperty(value = "发货单位")
     private String shipMerchantName;
 
-    /**
-     * 发货日期
-     */
+    @ExcelProperty(value = "收货单位")
+    private Long receiptMerchantId;
+
+    @ExcelProperty(value = "收货单位名称")
+    private String receiptMerchantName;
+
     @ExcelProperty(value = "发货日期")
     private LocalDateTime shipTime;
 
-    /**
-     * 发货地址
-     */
     @ExcelProperty(value = "发货地址")
     private String shipAddress;
 
-    /**
-     * 收货单位
-     */
-    @ExcelProperty(value = "收货单位")
-    private String deliveryMerchant;
-
-    /**
-     * 收货日期
-     */
     @ExcelProperty(value = "收货日期")
     private LocalDateTime deliveryTime;
 
-    /**
-     * 过磅状态
-     */
     @ExcelProperty(value = "过磅状态")
     private Integer weighingStatus;
 
-    /**
-     * 总重
-     */
-    @ExcelProperty(value = "总重")
-    private Long totalWeight;
+    @ExcelProperty(value = "过磅类型")
+    private Integer weighingType;
 
-    /**
-     * 皮重
-     */
-    @ExcelProperty(value = "皮重")
-    private Long tareWeight;
+    @ExcelProperty(value = "总重(kg)")
+    private Double totalWeight;
 
-    /**
-     * 净重
-     */
-    @ExcelProperty(value = "净重")
-    private Long netWeight;
+    @ExcelProperty(value = "皮重(kg)")
+    private Double tareWeight;
 
-    /**
-     * 质量id(取样之后生成)
-     */
+    @ExcelProperty(value = "净重(kg)")
+    private Double netWeight;
+
+    @ExcelProperty(value = "质量单id")
     private Long qualityId;
 
-    /**
-     * 备注
-     */
     @ExcelProperty(value = "备注")
     private String remark;
 
-    /**
-     * 过磅员
-     */
-    @ExcelProperty(value = "过磅员")
+    @ExcelProperty(value = "创建人")
     private String createBy;
 
-    /**
-     * 过磅时间
-     */
-    @ExcelProperty(value = "过磅时间")
+    @ExcelProperty(value = "过磅员")
+    private String weighingOperator;
+
+    @ExcelProperty(value = "创建时间")
     private LocalDateTime createTime;
 
-    /**
-     * 回磅时间
-     */
+    @ExcelProperty(value = "过磅时间")
+    private LocalDateTime weighingTime;
+
+    @ExcelProperty(value = "回磅员")
+    private String returnOperator;
+
     @ExcelProperty(value = "回磅时间")
     private LocalDateTime returnTime;
-
 
 }

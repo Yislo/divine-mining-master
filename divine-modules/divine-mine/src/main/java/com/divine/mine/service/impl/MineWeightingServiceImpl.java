@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 过磅记录Service业务层处理
+ * 过磅记录 Service
  *
  * @author yisl
  * @date 2026-02-28
@@ -45,145 +45,125 @@ public class MineWeightingServiceImpl implements MineWeightingService {
     private final MerchantService merchantService;
 
     /**
-     * 新增过磅记录
+     * 过磅：录入车牌号、物资名称、发货单位、收货单位、发货日期、总重
      */
     @Override
     public void insertByBo(WeightingAddDto dto) {
-        List<MineWeighting> mineWeightings = mineWeightingMapper.selectList(new LambdaQueryWrapper<>(MineWeighting.class)
-            .eq(MineWeighting::getCarNumber, dto.getCarNumber())
-            .eq(MineWeighting::getWeighingStatus, 0)
+        // 同一车牌号只能有一条未回磅记录
+        List<MineWeighting> existList = mineWeightingMapper.selectList(
+            new LambdaQueryWrapper<MineWeighting>()
+                .eq(MineWeighting::getCarNumber, dto.getCarNumber())
+                .eq(MineWeighting::getWeighingStatus, 0)
         );
-        if (mineWeightings.size() > 1) {
-            throw new BusinessException("还有未回磅记录，如果是无效数据，请作废后再试");
+        if (CollUtil.isNotEmpty(existList)) {
+            throw new BusinessException("该车牌号还有未回磅记录，请先回磅或作废后再试");
         }
         MineWeighting add = MapstructUtils.convert(dto, MineWeighting.class);
-        // 获取合作单位信息
-        MerchantVo merchantVo = merchantService.queryById(dto.getShipMerchantId());
-        add.setWeighingNo(generateNoUtil.getBizNo(merchantVo.getMerchantNo()));
+        // 生成过磅单编号
+        MerchantVo merchant = merchantService.queryById(dto.getShipMerchantId());
+        add.setWeighingNo(generateNoUtil.getBizNo(merchant.getMerchantNo()));
+        // 过磅状态：已过磅
         add.setWeighingStatus(0);
+        // 过磅员和过磅时间
+        add.setWeighingOperator(add.getCreateBy());
+        add.setWeighingTime(LocalDateTime.now());
         mineWeightingMapper.insert(add);
     }
 
     /**
-     * 回磅
-     *
-     * @param dto
+     * 回磅：输入皮重，自动计算净重 = 总重 - 皮重
      */
     @Override
     public void returnWeighting(WeightingReturnDto dto) {
-        MineWeighting weighting = BeanUtil.copyProperties(dto, MineWeighting.class);
+        MineWeighting weighting = mineWeightingMapper.selectById(dto.getId());
+        if (weighting == null) {
+            throw new BusinessException("过磅记录不存在");
+        }
+        if (weighting.getWeighingStatus() != 0) {
+            throw new BusinessException("该记录不是待回磅状态");
+        }
+        // 更新皮重、净重
+        weighting.setTareWeight(dto.getTareWeight());
+        weighting.setNetWeight(dto.getNetWeight());
+        // 回磅状态：已回磅
         weighting.setWeighingStatus(1);
+        // 回磅员和回磅时间
         weighting.setReturnTime(LocalDateTime.now());
         mineWeightingMapper.updateById(weighting);
     }
 
     /**
-     * 根据车牌号查询未回磅车辆
-     *
-     * @param carNumber
-     * @return
+     * 根据车牌号查询未回磅车辆（回磅前置查询）
      */
     @Override
     public MineWeightingVo getReturnWeighting(String carNumber) {
-        List<MineWeightingVo> mineWeightings = mineWeightingMapper.selectVoList(new LambdaQueryWrapper<>(MineWeighting.class)
-            .eq(MineWeighting::getCarNumber, carNumber)
-            .eq(MineWeighting::getWeighingStatus, 0)
+        List<MineWeightingVo> list = mineWeightingMapper.selectVoList(
+            new LambdaQueryWrapper<MineWeighting>()
+                .eq(MineWeighting::getCarNumber, carNumber)
+                .eq(MineWeighting::getWeighingStatus, 0)
         );
-        if (CollUtil.isEmpty(mineWeightings)) {
-            throw new BusinessException("未查到该车辆的过磅新增，请新增过磅信息");
+        if (CollUtil.isEmpty(list)) {
+            throw new BusinessException("未查到该车辆的过磅记录，请先过磅");
         }
-        if (mineWeightings.size() > 1) {
-            throw new BusinessException("该车辆有多条未回磅记录，如果是无效数据，请作废后再试");
+        if (list.size() > 1) {
+            throw new BusinessException("该车辆有多条未回磅记录，请作废无效数据后重试");
         }
-        return mineWeightings.get(0);
+        return list.get(0);
     }
 
     /**
-     * 查询过磅记录
+     * 查询详情
      */
     @Override
     public MineWeightingVo queryById(Long id) {
-        MineWeightingVo mineWeightingVo = mineWeightingMapper.selectVoById(id);
-        // 获取合作单位信息
-        MerchantVo merchantVo = merchantService.queryById(mineWeightingVo.getShipMerchantId());
-        if (ObjUtil.isNotNull(merchantVo)) {
-            mineWeightingVo.setShipMerchantName(merchantVo.getMerchantName());
-        }
-        return mineWeightingVo;
+        MineWeightingVo vo = mineWeightingMapper.selectVoById(id);
+        setMerchantNames(vo);
+        return vo;
     }
 
     /**
-     * 查询过磅记录列表
+     * 分页查询
      */
     @Override
     public PageInfoRes<MineWeightingVo> queryPageList(WeightingQueryDto dto) {
-        String weighingNo = dto.getWeighingNo();
-        String carNumber = dto.getCarNumber();
-        Integer weighingStatus = dto.getWeighingStatus();
-        Integer goodsType = dto.getGoodsType();
-        Long shipMerchantId = dto.getShipMerchantId();
-        Integer isQuality = dto.getIsQuality();
-        String startTime = dto.getStartTime();
-        String endTime = dto.getEndTime();
-        LambdaQueryWrapper<MineWeighting> qw = new LambdaQueryWrapper<>(MineWeighting.class);
-        qw.like(StringUtils.isNotBlank(weighingNo), MineWeighting::getWeighingNo, weighingNo)
-            .like(StringUtils.isNotBlank(carNumber), MineWeighting::getCarNumber, carNumber)
-            .eq(ObjUtil.isNotNull(weighingStatus), MineWeighting::getWeighingStatus, weighingStatus)
-            .eq(ObjUtil.isNotNull(goodsType), MineWeighting::getGoodsType, goodsType)
-            .eq(ObjUtil.isNotNull(shipMerchantId), MineWeighting::getShipMerchantId, shipMerchantId)
-            .ge(StringUtils.isNotBlank(startTime), MineWeighting::getCreateTime, startTime)
-            .le(StringUtils.isNotBlank(endTime), MineWeighting::getCreateTime, endTime)
+        LambdaQueryWrapper<MineWeighting> qw = new LambdaQueryWrapper<MineWeighting>()
+            .like(StringUtils.isNotBlank(dto.getWeighingNo()), MineWeighting::getWeighingNo, dto.getWeighingNo())
+            .like(StringUtils.isNotBlank(dto.getCarNumber()), MineWeighting::getCarNumber, dto.getCarNumber())
+            .eq(ObjUtil.isNotNull(dto.getWeighingType()), MineWeighting::getWeighingType, dto.getWeighingType())
+            .eq(ObjUtil.isNotNull(dto.getWeighingStatus()), MineWeighting::getWeighingStatus, dto.getWeighingStatus())
+            .eq(ObjUtil.isNotNull(dto.getGoodsType()), MineWeighting::getGoodsType, dto.getGoodsType())
+            .eq(ObjUtil.isNotNull(dto.getShipMerchantId()), MineWeighting::getShipMerchantId, dto.getShipMerchantId())
+            .ge(StringUtils.isNotBlank(dto.getStartTime()), MineWeighting::getCreateTime, dto.getStartTime())
+            .le(StringUtils.isNotBlank(dto.getEndTime()), MineWeighting::getCreateTime, dto.getEndTime())
             .orderByDesc(MineWeighting::getCreateTime);
-        if (ObjUtil.isNotNull(isQuality) && isQuality == 1) {
-            // 只查询已过磅和未生成质量单的数据
+
+        // 质量单查询：只查已回磅且未关联质量单的
+        if (ObjUtil.isNotNull(dto.getIsQuality()) && dto.getIsQuality() == 1) {
             qw.isNull(MineWeighting::getQualityId);
             qw.ne(MineWeighting::getWeighingStatus, -1);
         }
+
         Page<MineWeightingVo> result = mineWeightingMapper.selectVoPage(dto.build(), qw);
-        // set送货单位名称
         if (CollUtil.isNotEmpty(result.getRecords())) {
-            setMerchantName(result.getRecords());
+            setMerchantNames(result.getRecords());
         }
         return PageInfoRes.build(result);
     }
 
     /**
-     * 查询过磅记录列表
+     * 列表查询（导出用）
      */
     @Override
     public List<MineWeightingVo> queryList(MineWeightingDto dto) {
-        LambdaQueryWrapper<MineWeighting> lqw = buildQueryWrapper(dto);
-        List<MineWeightingVo> mineWeightingVos = mineWeightingMapper.selectVoList(lqw);
-        // set送货单位名称
-        setMerchantName(mineWeightingVos);
-        return mineWeightingVos;
-    }
-
-    /**
-     * set送货单位名称
-     *
-     * @param result
-     */
-    private void setMerchantName(List<MineWeightingVo> result) {
-        //获取合作单位信息
-        List<Long> merchantIds = result.stream().map(MineWeightingVo::getShipMerchantId).distinct().toList();
-        List<MerchantVo> merchantVos = merchantService.queryByIds(merchantIds);
-        Map<Long, String> merchantMap = merchantVos.stream().collect(Collectors.toMap(MerchantVo::getId, MerchantVo::getMerchantName));
-        result.forEach(r -> r.setShipMerchantName(merchantMap.get(r.getShipMerchantId())));
-    }
-
-    private LambdaQueryWrapper<MineWeighting> buildQueryWrapper(MineWeightingDto dto) {
         LambdaQueryWrapper<MineWeighting> lqw = Wrappers.lambdaQuery();
         lqw.eq(StringUtils.isNotBlank(dto.getCarNumber()), MineWeighting::getCarNumber, dto.getCarNumber());
         lqw.eq(StringUtils.isNotBlank(dto.getWeighingNo()), MineWeighting::getWeighingNo, dto.getWeighingNo());
-        lqw.like(dto.getGoodsType() != null, MineWeighting::getGoodsType, dto.getGoodsType());
+        lqw.eq(dto.getGoodsType() != null, MineWeighting::getGoodsType, dto.getGoodsType());
         lqw.eq(dto.getShipMerchantId() != null, MineWeighting::getShipMerchantId, dto.getShipMerchantId());
-        lqw.eq(dto.getShipTime() != null, MineWeighting::getShipTime, dto.getShipTime());
-        lqw.eq(StringUtils.isNotBlank(dto.getShipAddress()), MineWeighting::getShipAddress, dto.getShipAddress());
-        lqw.eq(StringUtils.isNotBlank(dto.getDeliveryMerchant()), MineWeighting::getDeliveryMerchant, dto.getDeliveryMerchant());
-        lqw.eq(dto.getDeliveryTime() != null, MineWeighting::getDeliveryTime, dto.getDeliveryTime());
         lqw.eq(dto.getWeighingStatus() != null, MineWeighting::getWeighingStatus, dto.getWeighingStatus());
-        return lqw;
+        List<MineWeightingVo> list = mineWeightingMapper.selectVoList(lqw);
+        setMerchantNames(list);
+        return list;
     }
 
     /**
@@ -196,37 +176,66 @@ public class MineWeightingServiceImpl implements MineWeightingService {
     }
 
     /**
-     * 查询所有未回磅车辆
+     * 查询未回磅的车牌号列表
      */
     @Override
     public List<String> getNotReturnCar() {
-        List<MineWeighting> mineWeightings = mineWeightingMapper.selectList(new LambdaQueryWrapper<>(MineWeighting.class)
-            .eq(MineWeighting::getWeighingStatus, 0));
-        return mineWeightings.stream().map(MineWeighting::getCarNumber).toList();
+        List<MineWeighting> list = mineWeightingMapper.selectList(
+            new LambdaQueryWrapper<MineWeighting>()
+                .eq(MineWeighting::getWeighingStatus, 0)
+        );
+        return list.stream().map(MineWeighting::getCarNumber).distinct().toList();
     }
 
     /**
      * 作废
-     *
-     * @param id
      */
     @Override
     public void invalid(Long id) {
-        MineWeighting mineWeighting = mineWeightingMapper.selectById(id);
-        if (ObjUtil.isNull(mineWeighting)) {
-            return;
-        }
-        mineWeighting.setWeighingStatus(-1);
-        mineWeightingMapper.updateById(mineWeighting);
-
+        MineWeighting record = mineWeightingMapper.selectById(id);
+        if (record == null) return;
+        record.setWeighingStatus(-1);
+        mineWeightingMapper.updateById(record);
     }
 
     /**
-     * 批量删除过磅记录
+     * 批量删除
      */
     @Override
     public void deleteByIds(Collection<Long> ids) {
         mineWeightingMapper.deleteBatchIds(ids);
     }
 
+    // ===== 辅助方法 =====
+
+    private void setMerchantNames(List<MineWeightingVo> list) {
+        List<Long> merchantIds = list.stream()
+            .flatMap(r -> {
+                java.util.Set<Long> ids = new java.util.HashSet<>();
+                if (r.getShipMerchantId() != null) ids.add(r.getShipMerchantId());
+                if (r.getReceiptMerchantId() != null) ids.add(r.getReceiptMerchantId());
+                return ids.stream();
+            })
+            .distinct()
+            .toList();
+        if (CollUtil.isEmpty(merchantIds)) return;
+        List<MerchantVo> merchants = merchantService.queryByIds(merchantIds);
+        Map<Long, String> nameMap = merchants.stream()
+            .collect(Collectors.toMap(MerchantVo::getId, MerchantVo::getMerchantName));
+        list.forEach(r -> {
+            if (r.getShipMerchantId() != null) r.setShipMerchantName(nameMap.get(r.getShipMerchantId()));
+            if (r.getReceiptMerchantId() != null) r.setReceiptMerchantName(nameMap.get(r.getReceiptMerchantId()));
+        });
+    }
+
+    private void setMerchantNames(MineWeightingVo vo) {
+        if (vo.getShipMerchantId() != null) {
+            MerchantVo m = merchantService.queryById(vo.getShipMerchantId());
+            if (m != null) vo.setShipMerchantName(m.getMerchantName());
+        }
+        if (vo.getReceiptMerchantId() != null) {
+            MerchantVo m = merchantService.queryById(vo.getReceiptMerchantId());
+            if (m != null) vo.setReceiptMerchantName(m.getMerchantName());
+        }
+    }
 }
