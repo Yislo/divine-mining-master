@@ -16,7 +16,15 @@ public class ItemSkuMapVo implements Serializable {
     private ItemVo item;
     private ItemSkuVo itemSku;
     /**
+     * 分类名称
+     */
+    private String categoryName;
+    /**
      * 货架信息
      */
     private List<String> storageShelf;
+    /**
+     * 库存数量
+     */
+    private Long quantity;
 }
