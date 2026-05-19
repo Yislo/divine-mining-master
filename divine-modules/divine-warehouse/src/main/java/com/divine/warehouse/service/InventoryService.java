@@ -102,6 +102,13 @@ public interface InventoryService {
     void subtract(List<? extends BaseOrderDetailDto> details);
 
     /**
+     * 查询库存列表（无分页）
+     * @param dto
+     * @return
+     */
+    List<InventoryVo> queryList(InventoryDto dto);
+
+    /**
      * 判断仓库是否有绑定业务
      * @param warehouseId
      * @return

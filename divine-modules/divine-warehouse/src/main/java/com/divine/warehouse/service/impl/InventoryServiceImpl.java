@@ -85,6 +85,33 @@ public class InventoryServiceImpl extends ServiceImpl<InventoryMapper, Inventory
     }
 
     /**
+     * 查询库存列表（无分页）
+     */
+    @Override
+    public List<InventoryVo> queryList(InventoryDto dto) {
+        List<InventoryVo> inventoryVos = inventoryMapper.selectVoList(buildQueryWrapper(dto));
+        if (CollUtil.isEmpty(inventoryVos)) {
+            return List.of();
+        }
+        Set<Long> skuIds = inventoryVos.stream().map(InventoryVo::getSkuId).collect(Collectors.toSet());
+        Map<Long, ItemSkuMapVo> skuMap = itemSkuService.queryItemSkuMapVosByIds(skuIds);
+        Set<Long> itemIds = skuMap.values().stream()
+            .map(ItemSkuMapVo::getItem)
+            .map(ItemVo::getId)
+            .collect(Collectors.toSet());
+        List<ItemVo> itemList = itemService.queryById(new ArrayList<>(itemIds));
+        Map<Long, ItemVo> itemMap = itemList.stream().collect(Collectors.toMap(ItemVo::getId, Function.identity()));
+        inventoryVos.forEach(vo -> {
+            ItemSkuMapVo skuMapVo = skuMap.get(vo.getSkuId());
+            if (skuMapVo != null) {
+                vo.setItemSku(skuMapVo.getItemSku());
+                vo.setItem(itemMap.get(skuMapVo.getItemSku().getItemId()));
+            }
+        });
+        return inventoryVos;
+    }
+
+    /**
      * 查询库存列表
      */
     @Override

@@ -411,6 +411,7 @@ INSERT INTO `sys_menu` VALUES (1818466281474822145, '入库', 0, 20, 'receiptOrd
 INSERT INTO `sys_menu` VALUES (1818854933803638785, '出库', 0, 30, 'shipmentOrder', 'wms/order/shipment/index', NULL, 0, 0, 'C', '1', '1', 'wms:shipment:all', 'fullscreen', 'admin', '2024-08-01 11:43:04', 'admin', '2024-08-30 08:58:35', '');
 INSERT INTO `sys_menu` VALUES (1818855673632727042, '编辑出库单', 0, 1000, 'shipmentOrderEdit', 'wms/order/shipment/edit', NULL, 0, 0, 'C', '0', '1', 'wms:shipment:edit', '#', 'admin', '2024-08-01 11:46:00', 'admin', '2024-08-27 16:43:37', '');
 INSERT INTO `sys_menu` VALUES (1820729144067321858, '库存统计', 0, 0, 'inventory', 'wms/inventory/statistic', NULL, 0, 0, 'C', '1', '1', 'wms:inventory:all', 'chart', 'admin', '2024-08-06 15:50:30', 'admin', '2024-08-30 08:57:48', '');
+INSERT INTO `sys_menu` VALUES (1843920324157591556, '物品分类', 1820729144067321858, 1, 'inventoryCategory', 'wms/inventory/category', NULL, 0, 0, 'C', '1', '1', 'wms:inventory:all', 'tree', 'admin', '2024-08-06 15:50:30', 'admin', '2024-08-30 08:57:48', '');
 INSERT INTO `sys_menu` VALUES (1821075355068559361, '库存记录', 0, 3, 'inventoryHistory', 'wms/inventory/history', NULL, 0, 0, 'C', '1', '1', 'wms:inventoryHistory:all', 'list', 'admin', '2024-08-07 14:46:13', 'admin', '2024-08-30 08:58:13', '');
 INSERT INTO `sys_menu` VALUES (1822820194307051521, '移库', 0, 40, 'movementOrder', 'wms/order/movement/index', NULL, 0, 0, 'C', '1', '1', 'wms:movement:all', 'drag', 'admin', '2024-08-12 10:19:35', 'admin', '2024-08-30 08:58:44', '');
 INSERT INTO `sys_menu` VALUES (1822862323595145218, '编辑移库单', 0, 1000, 'movementOrderEdit', 'wms/order/movement/edit', NULL, 0, 0, 'C', '0', '1', 'wms:movement:edit', '#', 'admin', '2024-08-12 13:07:00', 'admin', '2024-08-27 16:43:50', '');
@@ -631,6 +632,7 @@ INSERT INTO `sys_role_menu` VALUES (1829105952432427010, 1818466281474822145);
 INSERT INTO `sys_role_menu` VALUES (1829105952432427010, 1818854933803638785);
 INSERT INTO `sys_role_menu` VALUES (1829105952432427010, 1818855673632727042);
 INSERT INTO `sys_role_menu` VALUES (1829105952432427010, 1820729144067321858);
+INSERT INTO `sys_role_menu` VALUES (1829105952432427010, 1843920324157591556);
 INSERT INTO `sys_role_menu` VALUES (1829105952432427010, 1821075355068559361);
 INSERT INTO `sys_role_menu` VALUES (1829105952432427010, 1822820194307051521);
 INSERT INTO `sys_role_menu` VALUES (1829105952432427010, 1822862323595145218);

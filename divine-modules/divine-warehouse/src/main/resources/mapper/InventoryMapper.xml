@@ -43,6 +43,10 @@
                 AND inv.warehouse_id = #{dto.warehouseId}
             </if>
 
+            <if test="dto.itemCategory != null">
+                AND item.item_category = #{dto.itemCategory}
+            </if>
+
             <if test="dto.itemName != null and dto.itemName != ''">
                 AND item.item_name LIKE CONCAT('%', #{dto.itemName}, '%')
             </if>

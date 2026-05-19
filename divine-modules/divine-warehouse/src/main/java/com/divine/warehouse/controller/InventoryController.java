@@ -69,16 +69,16 @@ public class InventoryController extends BaseController {
         return inventoryService.queryWarehouseBoardList(dto, basePage);
     }
 
-//    /**
-//     * 查询库存列表物品维度
-//     * @param dto
-//     * @return
-//     */
-//    @SaCheckPermission("wms:inventory:all")
-//    @GetMapping(value = {"/listNoPage"})
-//    public Result<List<InventoryVo>> listNoPage(InventoryDto dto) {
-//        return Result.success(inventoryService.queryList(dto));
-//    }
+    /**
+     * 查询库存列表物品维度
+     * @param dto
+     * @return
+     */
+    @SaCheckPermission("wms:inventory:all")
+    @GetMapping(value = {"/listNoPage"})
+    public Result<List<InventoryVo>> listNoPage(InventoryDto dto) {
+        return Result.success(inventoryService.queryList(dto));
+    }
 
     /**
      * 导出库存列表
